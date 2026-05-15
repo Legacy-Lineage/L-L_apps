@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Ledger — Legacy & Lineage</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream:       #f7f4ef;
+    --ink:         #1a1a1a;
+    --ink-muted:   #6b6b6b;
+    --border:      #d6d1c9;
+    --border-dark: #b8b0a5;
+    --accent:      #c4622d;
+    --page:        660px;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'EB Garamond', Georgia, serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding: 2.25rem 1.25rem 1.75rem;
+  }
+  .header-inner { max-width: var(--page); margin: 0 auto; }
+
+  .brand {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.35rem;
+  }
+  h1 {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 2.3rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+  .header-sub {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+    font-style: italic;
+  }
+
+  /* ── Nav ── */
+  nav {
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.25rem;
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    background: var(--cream);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    padding: 0.85rem 1rem;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); }
+
+  /* ── Main ── */
+  main { padding: 1.75rem 1.25rem 3.5rem; }
+  .tab-panel { max-width: var(--page); margin: 0 auto; display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Dividers ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin: 1.6rem 0 0.9rem;
+  }
+  .divider::before {
+    content: '';
+    width: 12px;
+    height: 1px;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .divider-label {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+
+  /* ── Date row ── */
+  .date-row {
+    display: flex;
+    align-items: baseline;
+    gap: 1.1rem;
+    margin-bottom: 1.6rem;
+    flex-wrap: wrap;
+  }
+  input[type="date"] {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border-dark);
+    padding: 0.2rem 0.1rem;
+    outline: none;
+    cursor: pointer;
+    border-radius: 0;
+  }
+  input[type="date"]:focus { border-bottom-color: var(--ink); }
+  .date-label {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.88rem;
+    color: var(--ink-muted);
+    font-style: italic;
+  }
+
+  /* ── Pillar horizontal strip ── */
+  .pillar-strip {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 0;
+    margin-bottom: 0.25rem;
+  }
+  .pillar-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    flex: 1;
+  }
+  .pillar-name {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-align: center;
+  }
+  .pillar-select {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 0.78rem;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 0.1rem 0.05rem;
+    outline: none;
+    cursor: pointer;
+    text-align: center;
+    width: 90%;
+    max-width: 95px;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+  .pillar-select:focus { border-bottom-color: var(--ink); }
+  .pillar-select.drifted   { color: var(--accent); border-bottom-color: var(--accent); }
+  .pillar-select.neglected { color: var(--ink-muted); }
+
+  /* ── Field blocks ── */
+  .field-block { margin-bottom: 1.1rem; }
+
+  .field-label {
+    display: block;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted);
+    font-style: italic;
+    font-weight: 300;
+    margin-bottom: 0.25rem;
+  }
+
+  textarea {
+    width: 100%;
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 0.25rem;
+    resize: vertical;
+    outline: none;
+    line-height: 1.75;
+    border-radius: 0;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  textarea:focus { border-bottom-color: var(--ink); }
+  textarea::placeholder { color: var(--border-dark); font-style: italic; }
+
+  /* ── Drift tag input ── */
+  input.tag-input {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 0.35rem 0.25rem;
+    outline: none;
+    width: 130px;
+    border-radius: 0;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  input.tag-input:focus { border-bottom-color: var(--ink); color: var(--ink); }
+  input.tag-input::placeholder { color: var(--border); font-style: italic; }
+
+  /* ── Withheld pillar checkboxes ── */
+  .withheld-checks {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    padding: 0.25rem 0;
+  }
+  .check-label {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 0.88rem;
+    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+  }
+  .withheld-check {
+    accent-color: var(--ink);
+    width: 13px;
+    height: 13px;
+    cursor: pointer;
+  }
+
+  /* ── Period selector ── */
+  .period-row { margin-bottom: 0.25rem; }
+  .period-row label {
+    display: block;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.35rem;
+  }
+  select.period-sel {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border-dark);
+    padding: 0.2rem 0.1rem;
+    outline: none;
+    cursor: pointer;
+    min-width: 240px;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+  select.period-sel:focus { border-bottom-color: var(--ink); }
+
+  /* ── Mandate ── */
+  .mandate {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--border-dark);
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Drift tab ── */
+  .drift-meta {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    font-style: italic;
+    margin-bottom: 1.1rem;
+  }
+  .drift-table { border-top: 1px solid var(--border); }
+  .drift-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .drift-pillar {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink);
+    width: 96px;
+    flex-shrink: 0;
+  }
+  .drift-em { color: var(--border-dark); font-size: 0.85rem; }
+  .drift-count {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+  }
+  .drift-count.high { color: var(--accent); }
+  .drift-count.zero { color: var(--border); }
+  .drift-tag {
+    color: var(--ink-muted);
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  .empty-note {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.875rem;
+    color: var(--ink-muted);
+    font-style: italic;
+    padding: 1.5rem 0;
+  }
+
+  .export-btn {
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    cursor: pointer;
+    padding: 0.25rem 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+  .export-btn:hover {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.25rem;
+    text-align: center;
+  }
+  footer p {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.57rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--border-dark);
+  }
+
+  /* ── Save flash ── */
+  .save-flash {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.8rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .save-flash.show { opacity: 1; }
+
+  /* ── Responsive ── */
+  @media (max-width: 520px) {
+    header { padding: 1.5rem 1rem 1.25rem; }
+    h1 { font-size: 1.8rem; }
+    nav { padding: 0 0.5rem; }
+    .tab-btn { padding: 0.7rem 0.55rem; font-size: 0.58rem; letter-spacing: 0.1em; }
+    main { padding: 1.5rem 1rem 3rem; }
+    .date-row { flex-direction: column; gap: 0.35rem; }
+    .pillar-name { font-size: 0.48rem; letter-spacing: 0.1em; }
+    .pillar-select { font-size: 0.7rem; }
+    select.period-sel { min-width: 180px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <p class="brand">Legacy &amp; Lineage</p>
+    <h1>The Ledger</h1>
+    <p class="header-sub">A daily record of authority, order, and return.</p>
+  </div>
+</header>
+
+<nav>
+  <button class="tab-btn active" data-tab="daily">Daily</button>
+  <button class="tab-btn" data-tab="weekly">Weekly</button>
+  <button class="tab-btn" data-tab="monthly">Monthly</button>
+  <button class="tab-btn" data-tab="quarterly">Quarterly</button>
+  <button class="tab-btn" data-tab="drift">Drift Awareness</button>
+  <button class="tab-btn" data-tab="sunday">Sunday</button>
+</nav>
+
+<main>
+
+  <!-- ── DAILY ── -->
+  <div class="tab-panel active" id="tab-daily">
+
+    <div class="date-row">
+      <input type="date" id="daily-date" />
+      <span class="date-label" id="daily-date-label"></span>
+    </div>
+
+    <div class="divider"><span class="divider-label">Pillar Status</span></div>
+
+    <div class="pillar-strip">
+      <div class="pillar-col">
+        <span class="pillar-name">Altar</span>
+        <select class="pillar-select" id="p-ALTAR">
+          <option value="">—</option>
+          <option value="Present">Present</option>
+          <option value="Neglected">Neglected</option>
+          <option value="Drifted">Drifted</option>
+        </select>
+      </div>
+      <div class="pillar-col">
+        <span class="pillar-name">Forge</span>
+        <select class="pillar-select" id="p-FORGE">
+          <option value="">—</option>
+          <option value="Present">Present</option>
+          <option value="Neglected">Neglected</option>
+          <option value="Drifted">Drifted</option>
+        </select>
+      </div>
+      <div class="pillar-col">
+        <span class="pillar-name">Covenant</span>
+        <select class="pillar-select" id="p-COVENANT">
+          <option value="">—</option>
+          <option value="Present">Present</option>
+          <option value="Neglected">Neglected</option>
+          <option value="Drifted">Drifted</option>
+        </select>
+      </div>
+      <div class="pillar-col">
+        <span class="pillar-name">Heritage</span>
+        <select class="pillar-select" id="p-HERITAGE">
+          <option value="">—</option>
+          <option value="Present">Present</option>
+          <option value="Neglected">Neglected</option>
+          <option value="Drifted">Drifted</option>
+        </select>
+      </div>
+      <div class="pillar-col">
+        <span class="pillar-name">Fortress</span>
+        <select class="pillar-select" id="p-FORTRESS">
+          <option value="">—</option>
+          <option value="Present">Present</option>
+          <option value="Neglected">Neglected</option>
+          <option value="Drifted">Drifted</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="divider"><span class="divider-label">Field Log</span></div>
+
+    <div class="field-block">
+      <label class="field-label" for="d-strength">What strength did I build today?</label>
+      <textarea id="d-strength" rows="3"></textarea>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="d-prioritized">What did I prioritize?</label>
+      <textarea id="d-prioritized" rows="3"></textarea>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="d-hit">Where did this land?</label>
+      <input type="text" id="d-hit" class="tag-input" style="width:100%" placeholder="Control / Silence / Reactivity / Over-carrying" autocomplete="off" />
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="d-drift">Where did I drift?</label>
+      <textarea id="d-drift" rows="3"></textarea>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="d-tag">Drift tag (one word)</label>
+      <input type="text" id="d-tag" class="tag-input" maxlength="20" autocomplete="off" spellcheck="false" />
+    </div>
+    <div class="field-block">
+      <label class="field-label">Expression (don't stay silent)</label>
+      <select id="d-expression" class="tag-input">
+        <option value="">—</option>
+        <option value="clean">Clean</option>
+        <option value="withheld">Withheld</option>
+      </select>
+    </div>
+    <div class="field-block" id="withheld-pillars-block" style="display:none">
+      <label class="field-label">Withheld in</label>
+      <div class="withheld-checks">
+        <label class="check-label"><input type="checkbox" class="withheld-check" value="Covenant" /> Covenant</label>
+        <label class="check-label"><input type="checkbox" class="withheld-check" value="Fortress" /> Fortress</label>
+        <label class="check-label"><input type="checkbox" class="withheld-check" value="Brotherhood" /> Brotherhood</label>
+        <label class="check-label"><input type="checkbox" class="withheld-check" value="Self" /> Self</label>
+      </div>
+    </div>
+
+    <div class="divider"><span class="divider-label">Correction Declared</span></div>
+
+    <div class="field-block">
+      <textarea id="d-correction" rows="2" placeholder="My job today is ____. I'm not carrying ____."></textarea>
+    </div>
+
+    <div class="divider"><span class="divider-label">Authority Ledger</span></div>
+
+    <div class="field-block">
+      <label class="field-label" for="d-authority">What lessons will my children lead today?</label>
+      <textarea id="d-authority" rows="2"></textarea>
+    </div>
+
+    <p class="mandate">A man who refuses to kneel will eventually struggle to stand.</p>
+  </div>
+
+  <!-- ── WEEKLY ── -->
+  <div class="tab-panel" id="tab-weekly">
+    <div class="period-row">
+      <label>Week</label>
+      <select class="period-sel" id="week-sel"></select>
+    </div>
+
+    <div class="divider"><span class="divider-label">Weekly Overview</span></div>
+
+    <div class="field-block">
+      <label class="field-label" for="w-victory">Victory Record</label>
+      <textarea id="w-victory" rows="5"></textarea>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="w-deficit">Deficit Revealed</label>
+      <textarea id="w-deficit" rows="5"></textarea>
+    </div>
+
+    <div class="divider"><span class="divider-label">Voice &amp; Boundary</span></div>
+
+    <div class="field-block">
+      <label class="field-label" for="w-voice-pattern">Where did I not say what needed to be said?</label>
+      <textarea id="w-voice-pattern" rows="3"></textarea>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="w-boundary-action">Where did I say it cleanly and at the right time?</label>
+      <textarea id="w-boundary-action" rows="3"></textarea>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="w-next-convo">What conversation am I avoiding going into next week?</label>
+      <textarea id="w-next-convo" rows="2"></textarea>
+    </div>
+
+    <div class="divider"><span class="divider-label">Pattern of Silence</span></div>
+    <div id="silence-pattern" class="drift-meta">—</div>
+  </div>
+
+  <!-- ── MONTHLY ── -->
+  <div class="tab-panel" id="tab-monthly">
+    <div class="period-row">
+      <label>Month</label>
+      <select class="period-sel" id="month-sel"></select>
+    </div>
+
+    <div class="divider"><span class="divider-label">Monthly Ledger</span></div>
+
+    <div class="field-block">
+      <label class="field-label" for="m-patterns">What patterns did my leadership teach this month?</label>
+      <textarea id="m-patterns" rows="8"></textarea>
+    </div>
+  </div>
+
+  <!-- ── QUARTERLY ── -->
+  <div class="tab-panel" id="tab-quarterly">
+    <div class="period-row">
+      <label>Quarter</label>
+      <select class="period-sel" id="quarter-sel"></select>
+    </div>
+
+    <div class="divider"><span class="divider-label">Quarterly Audit</span></div>
+
+    <div class="field-block">
+      <label class="field-label" for="q-built">What was built this quarter that truly mattered?</label>
+      <textarea id="q-built" rows="4"></textarea>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="q-decayed">What decayed or was neglected?</label>
+      <textarea id="q-decayed" rows="4"></textarea>
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="q-avoided">Where did I avoid conversations or decisions?</label>
+      <textarea id="q-avoided" rows="4"></textarea>
+    </div>
+
+    <div class="divider"><span class="divider-label">One Declared Correction</span></div>
+
+    <div class="field-block">
+      <textarea id="q-correction" rows="3"></textarea>
+    </div>
+  </div>
+
+  <!-- ── DRIFT AWARENESS ── -->
+  <div class="tab-panel" id="tab-drift">
+    <div class="divider"><span class="divider-label">Drift Record</span></div>
+    <div id="drift-content"></div>
+  </div>
+
+  <!-- ── SUNDAY PROTOCOL ── -->
+  <div class="tab-panel" id="tab-sunday">
+
+    <div class="period-row">
+      <label>Week</label>
+      <select class="period-sel" id="sunday-week-sel"></select>
+    </div>
+
+    <div class="divider"><span class="divider-label">Pattern of Silence</span></div>
+    <p class="drift-meta" id="s-silence-display">—</p>
+
+    <div class="divider"><span class="divider-label">Conversation to Lead</span></div>
+    <div class="field-block">
+      <textarea id="s-conversation" rows="3" placeholder="What conversation will I lead this week?"></textarea>
+    </div>
+
+    <div class="divider"><span class="divider-label">Household Alignment</span></div>
+    <div class="field-block">
+      <label class="field-label" for="s-household">What does the week require from me as a husband and father?</label>
+      <textarea id="s-household" rows="3"></textarea>
+    </div>
+
+    <div class="divider"><span class="divider-label">Financial Snapshot</span></div>
+    <div class="field-block">
+      <label class="field-label" for="s-budget">Weekly Budget</label>
+      <input type="text" id="s-budget" class="tag-input" style="width:160px" />
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="s-available">Current Available</label>
+      <input type="text" id="s-available" class="tag-input" style="width:160px" />
+    </div>
+    <div class="field-block">
+      <label class="field-label" for="s-debt">Debt Focus</label>
+      <input type="text" id="s-debt" class="tag-input" style="width:220px" />
+    </div>
+
+    <div class="divider"><span class="divider-label">Top 3 Priorities</span></div>
+    <div class="field-block">
+      <input type="text" id="s-top1" class="tag-input" style="width:100%" placeholder="1." />
+    </div>
+    <div class="field-block">
+      <input type="text" id="s-top2" class="tag-input" style="width:100%" placeholder="2." />
+    </div>
+    <div class="field-block">
+      <input type="text" id="s-top3" class="tag-input" style="width:100%" placeholder="3." />
+    </div>
+
+    <div class="divider"><span class="divider-label">Weekly Mode</span></div>
+    <div class="field-block">
+      <select id="s-mode" class="tag-input" style="width:120px">
+        <option value="">—</option>
+        <option value="Tight">Tight</option>
+        <option value="Normal">Normal</option>
+        <option value="Strong">Strong</option>
+      </select>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>
+  <button class="export-btn" onclick="exportLedger()">Export Ledger</button>
+  <button class="export-btn" onclick="triggerImport()">Import Ledger</button>
+  <input type="file" id="import-file" accept=".json" style="display:none" />
+  <p>Order before urgency. Presence before pressure. Authority before fear.</p>
+</footer>
+
+<div class="save-flash" id="save-flash">Saved</div>
+
+<script>
+// ── Utilities ──────────────────────────────────────────────────
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function fmtDate(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+}
+
+function load(key, fallback) {
+  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : fallback; }
+  catch { return fallback; }
+}
+
+function save(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
+
+// ── Save flash ─────────────────────────────────────────────────
+
+let flashTimer;
+function flash() {
+  const el = document.getElementById('save-flash');
+  el.classList.add('show');
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => el.classList.remove('show'), 1400);
+}
+
+// ── DAILY ─────────────────────────────────────────────────────
+
+const PILLARS = ['ALTAR', 'FORGE', 'COVENANT', 'HERITAGE', 'FORTRESS'];
+const DAILY_FIELDS = ['hit', 'strength', 'prioritized', 'drift', 'correction', 'authority'];
+
+let currentDate = today();
+
+function defaultDaily() {
+  return {
+    pillars: { ALTAR: '', FORGE: '', COVENANT: '', HERITAGE: '', FORTRESS: '' },
+    hit: '', strength: '', prioritized: '', drift: '', correction: '', authority: '',
+    tag: '', expression: '', withheldPillars: []
+  };
+}
+
+function loadDaily(dateStr) {
+  return load(`daily:${dateStr}`, defaultDaily());
+}
+
+function saveDaily() {
+  const data = defaultDaily();
+  PILLARS.forEach(p => { data.pillars[p] = document.getElementById(`p-${p}`).value; });
+  DAILY_FIELDS.forEach(f => { data[f] = document.getElementById(`d-${f}`).value; });
+  data.tag = document.getElementById('d-tag').value.trim().toLowerCase();
+  data.expression = document.getElementById('d-expression').value;
+  data.withheldPillars = Array.from(document.querySelectorAll('.withheld-check:checked')).map(cb => cb.value);
+  save(`daily:${currentDate}`, data);
+  flash();
+}
+
+function renderDaily(dateStr) {
+  currentDate = dateStr;
+  document.getElementById('daily-date-label').textContent = fmtDate(dateStr);
+  const data = loadDaily(dateStr);
+  PILLARS.forEach(p => {
+    const sel = document.getElementById(`p-${p}`);
+    sel.value = data.pillars[p] || '';
+    updatePillarStyle(sel);
+  });
+  DAILY_FIELDS.forEach(f => {
+    document.getElementById(`d-${f}`).value = data[f] || '';
+  });
+  document.getElementById('d-tag').value = data.tag || '';
+  document.getElementById('d-expression').value = data.expression || '';
+  const wp = data.withheldPillars || [];
+  document.querySelectorAll('.withheld-check').forEach(cb => {
+    cb.checked = wp.includes(cb.value);
+  });
+  document.getElementById('withheld-pillars-block').style.display =
+    data.expression === 'withheld' ? 'block' : 'none';
+}
+
+function updatePillarStyle(sel) {
+  sel.classList.remove('drifted', 'neglected');
+  if (sel.value === 'Drifted')   sel.classList.add('drifted');
+  if (sel.value === 'Neglected') sel.classList.add('neglected');
+}
+
+// Init date
+const dateInput = document.getElementById('daily-date');
+dateInput.value = today();
+renderDaily(today());
+dateInput.addEventListener('change', () => { if (dateInput.value) renderDaily(dateInput.value); });
+
+// Pillar selects
+PILLARS.forEach(p => {
+  document.getElementById(`p-${p}`).addEventListener('change', function() {
+    updatePillarStyle(this);
+    saveDaily();
+  });
+});
+
+// Textareas
+DAILY_FIELDS.forEach(f => {
+  document.getElementById(`d-${f}`).addEventListener('input', saveDaily);
+});
+
+// Drift tag
+document.getElementById('d-tag').addEventListener('input', saveDaily);
+
+// Hit field
+document.getElementById('d-hit').addEventListener('input', saveDaily);
+
+// Expression
+document.getElementById('d-expression').addEventListener('change', function() {
+  document.getElementById('withheld-pillars-block').style.display =
+    this.value === 'withheld' ? 'block' : 'none';
+  if (this.value !== 'withheld') {
+    document.querySelectorAll('.withheld-check').forEach(cb => cb.checked = false);
+  }
+  saveDaily();
+});
+
+// Withheld pillar checkboxes
+document.querySelectorAll('.withheld-check').forEach(cb => {
+  cb.addEventListener('change', saveDaily);
+});
+
+// ── WEEKLY ─────────────────────────────────────────────────────
+
+function getSunday(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay();
+  d.setDate(d.getDate() - day);
+  return d;
+}
+
+function getWeekKey(date) {
+  const s = getSunday(date);
+  return `${s.getFullYear()}-${String(s.getMonth()+1).padStart(2,'0')}-${String(s.getDate()).padStart(2,'0')}`;
+}
+
+function fmtWeekLabel(startDate) {
+  const end = new Date(startDate);
+  end.setDate(end.getDate() + 6);
+  const o = { month: 'short', day: 'numeric' };
+  return `Week of ${startDate.toLocaleDateString('en-US', o)} – ${end.toLocaleDateString('en-US', o)}`;
+}
+
+let currentWeek = getWeekKey(new Date());
+
+function populateWeekSel() {
+  const sel = document.getElementById('week-sel');
+  sel.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i * 7);
+    const start = getSunday(d);
+    const key = getWeekKey(start);
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = fmtWeekLabel(start);
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+function analyzeWithholdingPatterns(weekKey) {
+  const counts = { Covenant: 0, Fortress: 0, Brotherhood: 0, Self: 0 };
+  const weekStart = new Date(weekKey + 'T00:00:00');
+  const weekEnd   = new Date(weekStart); weekEnd.setDate(weekEnd.getDate() + 6);
+
+  for (let d = new Date(weekStart); d <= weekEnd; d.setDate(d.getDate() + 1)) {
+    const dateStr = d.toISOString().split('T')[0];
+    const data = load(`daily:${dateStr}`, null);
+    if (data && data.expression === 'withheld' && Array.isArray(data.withheldPillars)) {
+      data.withheldPillars.forEach(p => { if (counts[p] !== undefined) counts[p]++; });
+    }
+  }
+
+  const dominant = Object.entries(counts).filter(([, v]) => v >= 3).sort((a, b) => b[1] - a[1]);
+  if (dominant.length > 0) {
+    return { pillar: dominant[0][0], count: dominant[0][1],
+             message: `Pattern forming: Silence in ${dominant[0][0]}` };
+  }
+  return null;
+}
+
+function renderSilencePattern(weekKey) {
+  const result = analyzeWithholdingPatterns(weekKey);
+  const el = document.getElementById('silence-pattern');
+  el.textContent = result ? result.message : 'No dominant pattern this week.';
+}
+
+function loadWeekly() {
+  const key = document.getElementById('week-sel').value;
+  currentWeek = key;
+  const data = load(`weekly:${key}`, {});
+  document.getElementById('w-victory').value        = data.victory       || '';
+  document.getElementById('w-deficit').value        = data.deficit       || '';
+  document.getElementById('w-voice-pattern').value  = data.voicePattern  || '';
+  document.getElementById('w-boundary-action').value = data.boundaryAction || '';
+  document.getElementById('w-next-convo').value     = data.nextConvo     || '';
+  renderSilencePattern(key);
+}
+
+function saveWeekly() {
+  const key = document.getElementById('week-sel').value;
+  save(`weekly:${key}`, {
+    victory:        document.getElementById('w-victory').value,
+    deficit:        document.getElementById('w-deficit').value,
+    voicePattern:   document.getElementById('w-voice-pattern').value,
+    boundaryAction: document.getElementById('w-boundary-action').value,
+    nextConvo:      document.getElementById('w-next-convo').value
+  });
+  flash();
+}
+
+document.getElementById('week-sel').addEventListener('change', loadWeekly);
+['w-victory','w-deficit','w-voice-pattern','w-boundary-action','w-next-convo'].forEach(id =>
+  document.getElementById(id).addEventListener('input', saveWeekly)
+);
+
+// ── MONTHLY ────────────────────────────────────────────────────
+
+function populateMonthSel() {
+  const sel = document.getElementById('month-sel');
+  sel.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() - i);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+function loadMonthly() {
+  const key = document.getElementById('month-sel').value;
+  const data = load(`monthly:${key}`, { patterns: '' });
+  document.getElementById('m-patterns').value = data.patterns || '';
+}
+
+function saveMonthly() {
+  const key = document.getElementById('month-sel').value;
+  save(`monthly:${key}`, { patterns: document.getElementById('m-patterns').value });
+  flash();
+}
+
+document.getElementById('month-sel').addEventListener('change', loadMonthly);
+document.getElementById('m-patterns').addEventListener('input', saveMonthly);
+
+// ── QUARTERLY ──────────────────────────────────────────────────
+
+function populateQuarterSel() {
+  const sel = document.getElementById('quarter-sel');
+  sel.innerHTML = '';
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentQ = Math.ceil((now.getMonth() + 1) / 3);
+
+  for (let i = 0; i < 8; i++) {
+    let q = currentQ - i;
+    let y = currentYear;
+    while (q <= 0) { q += 4; y--; }
+    const key = `${y}-Q${q}`;
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = key;
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+function loadQuarterly() {
+  const key = document.getElementById('quarter-sel').value;
+  const data = load(`quarterly:${key}`, { built: '', decayed: '', avoided: '', correction: '' });
+  document.getElementById('q-built').value      = data.built      || '';
+  document.getElementById('q-decayed').value    = data.decayed    || '';
+  document.getElementById('q-avoided').value    = data.avoided    || '';
+  document.getElementById('q-correction').value = data.correction || '';
+}
+
+function saveQuarterly() {
+  const key = document.getElementById('quarter-sel').value;
+  save(`quarterly:${key}`, {
+    built:      document.getElementById('q-built').value,
+    decayed:    document.getElementById('q-decayed').value,
+    avoided:    document.getElementById('q-avoided').value,
+    correction: document.getElementById('q-correction').value
+  });
+  flash();
+}
+
+document.getElementById('quarter-sel').addEventListener('change', loadQuarterly);
+['q-built','q-decayed','q-avoided','q-correction'].forEach(id =>
+  document.getElementById(id).addEventListener('input', saveQuarterly)
+);
+
+// ── DRIFT AWARENESS ────────────────────────────────────────────
+
+function getDailyDates() {
+  return Object.keys(localStorage)
+    .filter(k => k.startsWith('daily:'))
+    .map(k => k.replace('daily:', ''))
+    .sort().reverse();
+}
+
+function renderDrift() {
+  const counts          = { ALTAR: 0, FORGE: 0, COVENANT: 0, HERITAGE: 0, FORTRESS: 0 };
+  const neglectedCounts = { ALTAR: 0, FORGE: 0, COVENANT: 0, HERITAGE: 0, FORTRESS: 0 };
+  const tagCounts = {};
+  const dates = getDailyDates();
+  let days = 0;
+  let withheldCount = 0;
+  let cleanCount = 0;
+
+  dates.forEach(d => {
+    const data = load(`daily:${d}`, null);
+    if (data && data.pillars) {
+      days++;
+      PILLARS.forEach(p => {
+        if (data.pillars[p] === 'Drifted')   counts[p]++;
+        if (data.pillars[p] === 'Neglected') neglectedCounts[p]++;
+      });
+      const hasDrift = PILLARS.some(p => data.pillars[p] === 'Drifted');
+      if (hasDrift && data.tag) {
+        tagCounts[data.tag] = (tagCounts[data.tag] || 0) + 1;
+      }
+      if (data.expression === 'withheld') withheldCount++;
+      if (data.expression === 'clean')    cleanCount++;
+    }
+  });
+
+  const container = document.getElementById('drift-content');
+
+  if (days === 0) {
+    container.innerHTML = '<p class="empty-note">No daily entries recorded yet. Begin in the Daily tab.</p>';
+    return;
+  }
+
+  const maxDrift = Math.max(...Object.values(counts), 1);
+  let html = `<p class="drift-meta">Across ${days} recorded ${days === 1 ? 'day' : 'days'}</p>`;
+  html += '<div class="drift-table">';
+  PILLARS.forEach(p => {
+    const cls = counts[p] === 0 ? 'zero' : (counts[p] === maxDrift ? 'high' : '');
+    html += `<div class="drift-row">
+      <span class="drift-pillar">${p}</span>
+      <span class="drift-em">—</span>
+      <span class="drift-count ${cls}">${counts[p]} drift ${counts[p] === 1 ? 'day' : 'days'}</span>
+    </div>`;
+  });
+  html += '</div>';
+
+  const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const topTag = sortedTags.length > 0 ? sortedTags[0][0] : null;
+  if (sortedTags.length > 0) {
+    html += '<div class="divider" style="margin-top:1.75rem"><span class="divider-label">Drift Patterns</span></div>';
+    if (topTag) {
+      html += `<p class="drift-meta">Most consistent drift: ${topTag}</p>`;
+    }
+    html += '<div class="drift-table">';
+    sortedTags.forEach(([tag, count]) => {
+      html += `<div class="drift-row">
+        <span class="drift-pillar drift-tag">${tag}</span>
+        <span class="drift-em">—</span>
+        <span class="drift-count">${count}</span>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  const hasNeglect = Object.values(neglectedCounts).some(v => v > 0);
+  if (hasNeglect) {
+    html += '<div class="divider" style="margin-top:1.75rem"><span class="divider-label">Neglected Patterns</span></div>';
+    html += '<div class="drift-table">';
+    PILLARS.forEach(p => {
+      if (neglectedCounts[p] > 0) {
+        html += `<div class="drift-row">
+          <span class="drift-pillar">${p}</span>
+          <span class="drift-em">—</span>
+          <span class="drift-count">${neglectedCounts[p]}</span>
+        </div>`;
+      }
+    });
+    html += '</div>';
+  }
+
+  html += '<div class="divider" style="margin-top:1.75rem"><span class="divider-label">Voice &amp; Boundary</span></div>';
+  html += '<div class="drift-table">';
+  html += `<div class="drift-row">
+    <span class="drift-pillar">Withheld</span>
+    <span class="drift-em">—</span>
+    <span class="drift-count ${withheldCount > cleanCount ? 'high' : ''}">${withheldCount}</span>
+  </div>`;
+  html += `<div class="drift-row">
+    <span class="drift-pillar">Clean</span>
+    <span class="drift-em">—</span>
+    <span class="drift-count ${cleanCount >= withheldCount ? 'high' : ''}">${cleanCount}</span>
+  </div>`;
+  html += '</div>';
+
+  html += '<div class="divider" style="margin-top:1.75rem"><span class="divider-label">What is not governed begins to govern</span></div>';
+  container.innerHTML = html;
+}
+
+// ── EXPORT ────────────────────────────────────────────────────
+
+function exportLedger() {
+  const data = {};
+  Object.keys(localStorage).forEach(key => {
+    if (
+      key.startsWith('daily:') ||
+      key.startsWith('weekly:') ||
+      key.startsWith('monthly:') ||
+      key.startsWith('quarterly:') ||
+      key.startsWith('sunday:')
+    ) {
+      try { data[key] = JSON.parse(localStorage.getItem(key)); }
+      catch { data[key] = localStorage.getItem(key); }
+    }
+  });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ledger-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── IMPORT ────────────────────────────────────────────────────
+
+function triggerImport() {
+  document.getElementById('import-file').click();
+}
+
+document.getElementById('import-file').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      Object.keys(data).forEach(key => {
+        if (
+          key.startsWith('daily:') ||
+          key.startsWith('weekly:') ||
+          key.startsWith('monthly:') ||
+          key.startsWith('quarterly:') ||
+          key.startsWith('sunday:')
+        ) {
+          localStorage.setItem(key, JSON.stringify(data[key]));
+        }
+      });
+      renderDaily(currentDate);
+      renderDrift();
+      alert('Ledger data successfully imported.');
+    } catch (err) {
+      alert('Invalid file. Import failed.');
+    }
+  };
+
+  reader.readAsText(file);
+  event.target.value = '';
+});
+
+// ── SUNDAY PROTOCOL ────────────────────────────────────────────
+
+const SUNDAY_FIELDS = ['conversation','household','budget','available','debt','top1','top2','top3','mode'];
+
+function populateSundayWeekSel() {
+  const sel = document.getElementById('sunday-week-sel');
+  sel.innerHTML = '';
+  for (let i = 0; i < 12; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i * 7);
+    const start = getSunday(d);
+    const key = getWeekKey(start);
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = fmtWeekLabel(start);
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+function loadSunday() {
+  const key = document.getElementById('sunday-week-sel').value;
+  const data = load(`sunday:${key}`, {});
+  SUNDAY_FIELDS.forEach(f => {
+    const el = document.getElementById(`s-${f}`);
+    if (el) el.value = data[f] || '';
+  });
+  const pattern = analyzeWithholdingPatterns(key);
+  document.getElementById('s-silence-display').textContent =
+    pattern ? pattern.message : 'No dominant pattern this week.';
+}
+
+function saveSunday() {
+  const key = document.getElementById('sunday-week-sel').value;
+  const data = {};
+  SUNDAY_FIELDS.forEach(f => {
+    const el = document.getElementById(`s-${f}`);
+    if (el) data[f] = el.value;
+  });
+  save(`sunday:${key}`, data);
+  flash();
+}
+
+document.getElementById('sunday-week-sel').addEventListener('change', loadSunday);
+
+SUNDAY_FIELDS.forEach(f => {
+  const el = document.getElementById(`s-${f}`);
+  if (el) {
+    const evt = (el.tagName === 'SELECT' || el.type === 'text') ? 'change' : 'input';
+    el.addEventListener(evt === 'change' ? 'change' : 'input', saveSunday);
+    if (el.tagName === 'TEXTAREA') el.addEventListener('input', saveSunday);
+    if (el.type === 'text') el.addEventListener('input', saveSunday);
+  }
+});
+
+// ── TABS ───────────────────────────────────────────────────────
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`tab-${target}`).classList.add('active');
+    if (target === 'weekly')    { populateWeekSel();       loadWeekly();    }
+    if (target === 'monthly')   { populateMonthSel();      loadMonthly();   }
+    if (target === 'quarterly') { populateQuarterSel();    loadQuarterly(); }
+    if (target === 'drift')     renderDrift();
+    if (target === 'sunday')    { populateSundayWeekSel(); loadSunday();    }
+  });
+});
+
+// ── INIT ──────────────────────────────────────────────────────
+
+populateWeekSel();
+populateMonthSel();
+populateQuarterSel();
+populateSundayWeekSel();
+loadWeekly();
+loadMonthly();
+loadQuarterly();
+loadSunday();
+</script>
+</body>
+</html>
