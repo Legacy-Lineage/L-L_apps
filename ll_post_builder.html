@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>L&L Post Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --near-black: #0C0A08;
+  --charcoal: #1A1612;
+  --walnut: #2A1F14;
+  --cream: #F2EDE0;
+  --parchment: #E8DEC8;
+  --gold: #9E7B45;
+  --gold-dim: #6B5038;
+  --gold-muted: rgba(158,123,69,0.35);
+  --text-light: #F1F0EA;
+  --text-dim: rgba(241,240,234,0.5);
+  --text-dark: #1C1410;
+  --text-dark-body: #3A2E22;
+  --editor-bg: #0E0C0A;
+}
+
+html, body { width: 100%; background: #0A0806; }
+
+/* ══ POST FRAME ══ */
+.post-wrapper {
+  width: 100vw;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.post {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════
+   LAYOUT 1 — DOCTRINE CARD
+   Dark charcoal, left-aligned
+══════════════════════════════ */
+.layout-doctrine {
+  background: var(--near-black);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8vw 8vw 6vw 8vw;
+}
+
+.layout-doctrine::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-muted), transparent);
+}
+
+.layout-doctrine::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold-muted), transparent);
+}
+
+/* ══════════════════════════════
+   LAYOUT 2 — FIELD NOTE
+   Cream/parchment, left-aligned, editorial
+══════════════════════════════ */
+.layout-field-note {
+  background: var(--cream);
+  display: flex;
+  flex-direction: column;
+  padding: 7vw 8vw 6vw 8vw;
+}
+
+.layout-field-note::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+  opacity: 0.6;
+}
+
+/* ══════════════════════════════
+   LAYOUT 3 — BOOK EXCERPT
+   Dark + photo overlay
+══════════════════════════════ */
+.layout-excerpt {
+  background: #0C0A08;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 8vw;
+}
+
+.layout-excerpt .photo-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.35) sepia(20%);
+}
+
+.layout-excerpt .excerpt-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* ══════════════════════════════
+   LAYOUT 4 — DIRECTIVE
+   Cream, two-tone, no body
+══════════════════════════════ */
+.layout-directive {
+  background: var(--parchment);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8vw 8.5vw;
+}
+
+/* ══════════════════════════════
+   LAYOUT 5 — FIELD OBSERVATION
+   Dark photo full-bleed + minimal overlay text
+══════════════════════════════ */
+.layout-observation {
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 7vw 8vw;
+}
+
+.layout-observation .photo-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.4) sepia(15%);
+}
+
+.layout-observation .obs-content {
+  position: relative;
+  z-index: 2;
+}
+
+.layout-observation::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+  z-index: 1;
+}
+
+/* ══════════════════════════════
+   LAYOUT 6 — REMINDER
+   Dark warm, single heavy statement
+══════════════════════════════ */
+.layout-reminder {
+  background: var(--walnut);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8vw;
+}
+
+/* ══ SHARED TYPOGRAPHY ══ */
+
+/* Eyebrows */
+.eyebrow {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.8vw;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  margin-bottom: 3vw;
+}
+
+.eyebrow-light { color: var(--gold-dim); }
+.eyebrow-dark  { color: var(--gold); opacity: 0.75; }
+
+/* Tag line — field note / excerpt source */
+.source-tag {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.5vw;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4vw;
+}
+
+.source-tag-dark  { color: rgba(28,20,16,0.45); border-bottom: 1px solid rgba(120,98,72,0.2); padding-bottom: 2vw; }
+.source-tag-light { color: rgba(158,123,69,0.5); border-bottom: 1px solid rgba(158,123,69,0.15); padding-bottom: 2vw; }
+
+/* Headlines */
+.headline-xl {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 3vw;
+}
+
+.hl-light { color: var(--text-light); font-size: 6.8vw; }
+.hl-dark  { color: var(--text-dark);  font-size: 6.8vw; }
+.hl-cream { color: var(--text-light); font-size: 7.5vw; }
+
+.headline-xl em.gold  { font-style: italic; color: var(--gold); }
+.headline-xl em.rust  { font-style: italic; color: #C47840; }
+.headline-xl em.dark  { font-style: italic; color: var(--gold); }
+
+/* Rule */
+.rule {
+  height: 1px;
+  margin-bottom: 3vw;
+  flex-shrink: 0;
+}
+
+.rule-light { width: 5vw; background: linear-gradient(to right, var(--gold-dim), transparent); }
+.rule-dark  { width: 5vw; background: linear-gradient(to right, var(--gold), transparent); opacity: 0.5; }
+.rule-full  { width: 100%; background: rgba(120,98,72,0.2); }
+
+/* Body copy */
+.body {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.2vw;
+  line-height: 1.7;
+  flex-grow: 1;
+}
+
+.body-light {
+  color: var(--text-dim);
+  font-style: italic;
+  border-left: 1px solid rgba(120,98,72,0.3);
+  padding-left: 3vw;
+}
+
+.body-dark {
+  color: var(--text-dark-body);
+  border-left: 2px solid rgba(120,98,72,0.25);
+  padding-left: 3vw;
+}
+
+/* Directive subhead — no body */
+.directive-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3vw;
+  font-weight: 300;
+  font-style: italic;
+  color: rgba(28,20,16,0.55);
+  line-height: 1.4;
+  margin-top: -1vw;
+  margin-bottom: 3vw;
+}
+
+/* ══ FOOTER ══ */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 3vw;
+  flex-shrink: 0;
+}
+
+.footer-light { border-top: 1px solid rgba(120,98,72,0.2); }
+.footer-dark  { border-top: 1px solid rgba(120,98,72,0.15); }
+
+.ll-mark {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2vw;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.mark-light { color: var(--gold-dim); }
+.mark-dark  { color: var(--gold); opacity: 0.7; }
+
+.footer-brand {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.1vw;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.brand-light { color: rgba(241,240,234,0.35); }
+.brand-dark  { color: rgba(28,20,16,0.4); }
+
+.page-ref {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.2vw;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.ref-light { color: rgba(120,98,72,0.5); }
+.ref-dark  { color: rgba(120,98,72,0.45); }
+
+/* ══ PHOTO PLACEHOLDER ══ */
+.photo-placeholder-full {
+  position: absolute;
+  inset: 0;
+  background: #1A1612;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+}
+
+.photo-placeholder-full span {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 2.5vw;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(120,98,72,0.3);
+}
+
+/* ══════════════════════
+   EDITOR PANEL
+══════════════════════ */
+.editor-panel {
+  background: var(--editor-bg);
+  padding: 14px 16px;
+  border-top: 2px solid var(--gold);
+}
+
+.editor-panel.hidden { display: none; }
+
+.editor-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.editor-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 130px;
+}
+
+.editor-label {
+  font-family: system-ui;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.editor-panel select,
+.editor-panel input,
+.editor-panel textarea {
+  background: #1A1510;
+  border: 1px solid #2A2218;
+  color: #DDD;
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 3px;
+  width: 100%;
+  font-family: Georgia, serif;
+  -webkit-appearance: none;
+}
+
+.editor-panel textarea { resize: none; line-height: 1.5; }
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: system-ui;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border: none;
+  border-radius: 3px;
+  padding: 10px 14px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.btn-primary   { background: var(--gold); color: #0A0806; }
+.btn-secondary { background: #1A1510; color: var(--gold); border: 1px solid var(--gold); }
+
+/* Caption panel */
+.caption-panel {
+  background: #120E0A;
+  border: 1px solid #2A2218;
+  border-radius: 3px;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.caption-panel.hidden { display: none; }
+
+.caption-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.caption-title {
+  font-family: system-ui;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #444;
+}
+
+.copy-btn {
+  font-family: system-ui;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: var(--gold);
+  color: #0A0806;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.caption-text-display {
+  font-family: Georgia, serif;
+  font-size: 12px;
+  line-height: 1.75;
+  color: rgba(220,210,190,0.72);
+  white-space: pre-line;
+  margin-bottom: 10px;
+}
+
+.hashtag-display {
+  font-family: system-ui;
+  font-size: 11px;
+  line-height: 1.8;
+  color: rgba(120,98,72,0.5);
+  border-top: 1px solid #2A2218;
+  padding-top: 8px;
+}
+
+/* Toggle bar */
+.toggle-bar {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #0A0806;
+  border-top: 1px solid #161210;
+}
+
+.toggle-btn {
+  font-family: system-ui;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: #161210;
+  color: #555;
+  border: 1px solid #222;
+  padding: 8px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.toggle-btn.active { background: #1E1610; color: var(--gold); border-color: var(--gold); }
+
+#photo-input { display: none; }
+
+/* ══ CADENCE TRACKER ══ */
+.cadence-bar {
+  background: #0A0806;
+  border-bottom: 1px solid #1A1510;
+  padding: 10px 16px 8px;
+}
+
+.cadence-label {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #3A3028;
+  margin-bottom: 7px;
+}
+
+.cadence-posts {
+  display: flex;
+  gap: 6px;
+}
+
+.cadence-slot {
+  flex: 1;
+  background: #141008;
+  border: 1px solid #1E1810;
+  border-radius: 3px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cadence-slot.empty {
+  border-style: dashed;
+  opacity: 0.3;
+}
+
+.cadence-layout {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cadence-intensity {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.intensity-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #2A2018;
+}
+
+.intensity-dot.filled { background: var(--gold); }
+
+.cadence-type {
+  font-family: system-ui;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #3A3028;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ POST ══ -->
+<div class="post-wrapper">
+  <div class="post" id="post-frame">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ══ TOGGLE BAR ══ -->
+<div class="toggle-bar">
+  <button class="toggle-btn active" id="tog-editor"  onclick="showTab('editor')">Editor</button>
+  <button class="toggle-btn"        id="tog-caption" onclick="showTab('caption')">Caption</button>
+  <button class="toggle-btn"        id="tog-hide"    onclick="showTab('hide')">Screenshot</button>
+</div>
+
+<!-- ══ CADENCE TRACKER ══ -->
+<div class="cadence-bar" id="cadence-bar">
+  <div class="cadence-label">Last 4 Posts — Feed Cadence</div>
+  <div class="cadence-posts" id="cadence-posts"></div>
+</div>
+
+<!-- ══ EDITOR ══ -->
+<div class="editor-panel" id="editor-panel">
+
+  <div class="editor-row">
+    <div class="editor-group">
+      <div class="editor-label">Layout</div>
+      <select id="in-layout" onchange="onLayoutChange()">
+        <option value="doctrine">Doctrine Card — dark, left-aligned</option>
+        <option value="field-note">Field Note — cream, editorial</option>
+        <option value="excerpt">Book Excerpt — dark + photo</option>
+        <option value="directive">Directive — cream, no body</option>
+        <option value="observation">Field Observation — photo overlay</option>
+        <option value="reminder">Reminder — walnut, heavy statement</option>
+      </select>
+    </div>
+    <div class="editor-group">
+      <div class="editor-label">Post from Bank</div>
+      <select id="in-post" onchange="loadPost()">
+        <option value="">— Choose post —</option>
+        <optgroup label="Observational">
+          <option value="O3">O3 · Responsibility without structure. That leaks.</option>
+          <option value="O4">O4 · Leadership failures begin internally</option>
+        </optgroup>
+        <optgroup label="Atmosphere">
+          <option value="A1">A1 · Nervous system becomes home architecture</option>
+          <option value="A2">A2 · Leadership felt as atmosphere before direction</option>
+          <option value="A3">A3 · Responsibility does not shrink when ignored</option>
+          <option value="A4">A4 · Peace and silence are not the same thing</option>
+        </optgroup>
+        <optgroup label="Hidden Burden">
+          <option value="HB1">HB1 · When leadership is inconsistent, someone compensates</option>
+          <option value="HB2">HB2 · What a man won't regulate internally leaks externally</option>
+          <option value="HB3">HB3 · Most resentment begins as prolonged compensation</option>
+          <option value="HB4">HB4 · Drift redistributes weight before visible consequences</option>
+        </optgroup>
+        <optgroup label="Contrast / Paradox">
+          <option value="CP1">CP1 · Physically present. Emotionally absent.</option>
+          <option value="CP2">CP2 · Avoiding tension creates more tension</option>
+          <option value="CP3">CP3 · Strength without containment becomes instability</option>
+          <option value="CP4">CP4 · Many men mistake exhaustion for sacrifice</option>
+        </optgroup>
+        <optgroup label="Governance / Orientation">
+          <option value="G1">G1 · Governance is decided before pressure arrives</option>
+          <option value="G2">G2 · Order prevents pressure from governing the household</option>
+          <option value="G3">G3 · Authority becomes quieter as governance matures</option>
+          <option value="G4">G4 · Stability built through ordinary rhythms</option>
+        </optgroup>
+      </select>
+    </div>
+  </div>
+
+  <div class="editor-row">
+    <div class="editor-group">
+      <div class="editor-label">Eyebrow / Source Tag</div>
+      <input type="text" id="in-eyebrow" value="Legacy &amp; Lineage">
+    </div>
+    <div class="editor-group">
+      <div class="editor-label">Page Ref / Right Tag</div>
+      <input type="text" id="in-ref" placeholder="e.g. Field Manual · P. 37">
+    </div>
+  </div>
+
+  <div class="editor-row">
+    <div class="editor-group">
+      <div class="editor-label">Headline (*italic gold*)</div>
+      <textarea id="in-headline" rows="3" oninput="renderPost()"></textarea>
+    </div>
+    <div class="editor-group">
+      <div class="editor-label">Body Copy (hidden in Directive)</div>
+      <textarea id="in-body" rows="3" oninput="renderPost()"></textarea>
+    </div>
+  </div>
+
+  <div class="btn-row" id="photo-row" style="display:none">
+    <button class="btn btn-secondary" onclick="document.getElementById('photo-input').click()">📷 Choose Photo</button>
+    <input type="file" id="photo-input" accept="image/*" onchange="loadPhoto(event)">
+  </div>
+
+  <div class="btn-row" style="margin-top:8px">
+    <button class="btn btn-primary" onclick="renderPost()">Update Post</button>
+  </div>
+
+</div>
+
+<!-- ══ CAPTION ══ -->
+<div class="caption-panel hidden" id="caption-panel">
+  <div class="caption-header">
+    <div class="caption-title">Caption + Hashtags</div>
+    <button class="copy-btn" onclick="copyCaption()">Copy All</button>
+  </div>
+  <div class="caption-text-display" id="caption-display">Select a post from the bank to see its caption.</div>
+  <div class="hashtag-display" id="hashtag-display"></div>
+</div>
+
+<script>
+// ══ POST BANK ══
+const POSTS = {
+  O3: {
+    headline: "Many men are carrying responsibility without structure.\n*That eventually leaks.*",
+    body: "The weight is real. The will is often there. What's missing is the framework that decides, in advance, how the weight gets distributed — so it isn't constantly improvised under pressure.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "doctrine",
+    caption: `Many men are carrying responsibility without structure. That eventually leaks somewhere.
+
+The responsibility is real — provider, husband, father, leader. Most men feel the weight of it. What they rarely have is a decided framework for how to carry it.
+
+Without structure, weight defaults to the most urgent thing. Which means the important things — the relational ones, the spiritual ones, the ones that don't announce themselves as emergencies — get deferred until they become exactly that.
+
+Structure is not about control. It is about deciding where the weight goes before pressure makes the decision for you.`,
+    hashtags: "#christianmen #biblicalmanhood #householdleadership #intentionalliving #menonpurpose #christianleadership #faithandfamily #menofgod #godlyman #masculinity"
+  },
+  O4: {
+    headline: "Most leadership failures begin internally *long before they become visible.*",
+    body: "The home doesn't drift first. The man does. By the time the household shows the strain, the internal disorder has usually been present for some time — unaddressed, unexamined, unreported.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "doctrine",
+    caption: `Most leadership failures begin internally long before they become relationally visible.
+
+The drift that eventually shows up in a marriage, in children, in the culture of a household — it did not originate there. It originated in the man.
+
+The unexamined anger. The spiritual neglect. The absence of personal order that was being masked by functional productivity. The internal disorder that was never named because the external performance was still holding.
+
+Governance begins with the man. What is not ordered inside eventually disorders what is outside.`,
+    hashtags: "#biblicalmanhood #christianmen #menofgod #householdleadership #menonpurpose #intentionalliving #christianleadership #faithandfamily #godlyman #spiritualleadership"
+  },
+  A1: {
+    headline: "A man's nervous system eventually becomes part of *the architecture of the home.*",
+    body: "Not metaphorically. Practically. The emotional baseline of the household forms around the emotional baseline of the man who leads it. His regulation — or lack of it — becomes the air the family breathes.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "field-note",
+    caption: `A man's nervous system eventually becomes part of the architecture of the home.
+
+This is not a motivational claim. It is an observable reality.
+
+The household calibrates to him. His reactivity sets the ceiling for everyone else's anxiety. His steadiness creates the floor on which they rest. His unresolved pressure becomes ambient — something the family carries without being told to.
+
+A man who governs himself does not merely benefit himself. He creates a household with a different internal climate. One that is not organized around managing him.
+
+That is what governance produces over time.`,
+    hashtags: "#householdleadership #christianmen #biblicalmanhood #menofgod #christianleadership #menonpurpose #faithandfamily #intentionalliving #spiritualleadership #masculinity"
+  },
+  A2: {
+    headline: "Leadership is often experienced as atmosphere *before it is experienced as direction.*",
+    body: "Before the family hears what the man decides, they feel what the man carries. Authority is established in the atmosphere before it is exercised in the directive.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "directive",
+    caption: `Leadership is often experienced as atmosphere before it is experienced as direction.
+
+Most men think of leadership as what they decide, what they say, what they require.
+
+The household experiences it differently. Before they hear the decision, they feel the man. Before the direction is given, the atmosphere has already communicated whether it will hold.
+
+A man who leads from a regulated, settled interior creates a different atmosphere than one who leads from urgency or anxiety — regardless of whether the same words are spoken.
+
+The atmosphere is the first act of leadership. Most men skip it entirely.`,
+    hashtags: "#householdleadership #christianmen #biblicalmanhood #menofgod #menonpurpose #intentionalliving #christianleadership #faithandfamily #spiritualleadership #masculinity"
+  },
+  A3: {
+    headline: "Responsibility does not shrink *when it is ignored.*",
+    body: "It relocates. To his wife's vigilance. To his children's adaptation. To the quiet strain of a household carrying what one man will not hold.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "reminder",
+    caption: `Responsibility does not shrink when it is ignored.
+
+This is one of the governing realities of household leadership.
+
+The man who avoids the difficult conversation does not eliminate its weight. He relocates it — to his wife, who now manages around the unresolved thing. To his children, who learn to read the edges of what is safe to bring. To the household itself, which quietly reorganizes around what the man will not hold.
+
+Abdication is not a neutral act. It is a transfer. Someone always carries what the man puts down.`,
+    hashtags: "#householdleadership #biblicalmanhood #christianmen #menofgod #menonpurpose #faithandfamily #intentionalliving #christianleadership #masculinity #fatherlegacy"
+  },
+  A4: {
+    headline: "Peace and silence are not always *the same thing.*",
+    body: "A quiet house can be a governed one. It can also be one where everyone has simply stopped expecting resolution. The governed man learns to tell the difference.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "field-note",
+    caption: `Peace and silence are not always the same thing.
+
+A household can be quiet because it is settled. It can also be quiet because everyone has learned that certain things do not get addressed here — that raising them creates friction without resolution, so the easier thing is to stop raising them.
+
+That silence is not peace. It is the household holding its breath.
+
+The governed man knows the difference by what the silence costs. Peace requires nothing to be suppressed. The other kind is maintained by suppression — and it compounds over time.`,
+    hashtags: "#christianmen #householdleadership #biblicalmanhood #menofgod #menonpurpose #christianleadership #intentionalliving #faithandfamily #masculinity #godlyman"
+  },
+  HB1: {
+    headline: "When leadership becomes inconsistent, *someone else quietly compensates.*",
+    body: "The weight does not disappear. It relocates. To his wife's vigilance. To his children's learned adaptability. To the quiet strain of people carrying what was never meant to be theirs.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "doctrine",
+    caption: `When leadership becomes inconsistent, someone else quietly compensates for it.
+
+This is not a dramatic transfer. It happens gradually, without announcement. A man steps back — not intentionally, usually — and the people closest to him step forward to fill the space.
+
+His wife carries more vigilance. His children develop a finely tuned awareness of what moods mean, what questions are safe, what the room requires. The household reorganizes around the gap.
+
+The weight does not disappear. It relocates. And the people it relocates to were not built to carry it long-term.`,
+    hashtags: "#householdleadership #christianmen #biblicalmanhood #menofgod #christianleadership #menonpurpose #faithandfamily #intentionalliving #spiritualleadership #fatherlegacy"
+  },
+  HB2: {
+    headline: "What a man refuses to regulate internally *becomes relationally expensive externally.*",
+    body: "The anger that is not examined. The anxiety that is not addressed. The wound that is not named. All of it finds a place to go — and that place is almost always the household.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "field-note",
+    caption: `What a man refuses to regulate internally often becomes relationally expensive externally.
+
+The unexamined anger does not stay internal. It leaks into how he responds to small provocations, how quickly he escalates, how the family learns to read his edges.
+
+The unaddressed anxiety does not stay private. It becomes ambient in the home — the constant low-grade tension that nobody names because it's always been there.
+
+The wound that is never examined becomes the lens through which he interprets his wife, his children, his role.
+
+Internal disorder does not remain internal. It always relocates.`,
+    hashtags: "#biblicalmanhood #christianmen #householdleadership #menofgod #menonpurpose #intentionalliving #christianleadership #faithandfamily #spiritualleadership #masculinity"
+  },
+  HB3: {
+    headline: "Most resentment begins as *prolonged compensation.*",
+    body: "She didn't begin with resentment. She began with adjustment. Then with carrying more than she intended. Then with carrying it long enough that the carrying itself became the wound.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "directive",
+    caption: `Most resentment begins as prolonged compensation.
+
+It does not arrive as resentment. It arrives as an adjustment — a reasonable response to a gap that appeared and needed filling. She carries a little more. Compensates a little further. Manages what wasn't being managed.
+
+It is sustainable for a while. It does not feel like resentment yet.
+
+But sustained compensation without acknowledgment, without relief, without the gap closing — that is the condition in which resentment forms.
+
+The man who does not see the weight his wife is carrying does not see the account building against him.`,
+    hashtags: "#christianhusband #householdleadership #biblicalmanhood #christianmen #faithandfamily #menonpurpose #familyculture #strongfamilies #spiritualleadership #fatherlegacy"
+  },
+  HB4: {
+    headline: "Drift redistributes weight *long before it creates visible consequences.*",
+    body: "By the time drift becomes obvious — in conflict, in distance, in a child's behavior — the redistribution has been happening quietly for some time. Governance intervenes before the visible signs appear.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "doctrine",
+    caption: `Drift redistributes weight long before it creates visible consequences.
+
+The visible signs of household drift — the distance in a marriage, the behavioral signals in children, the growing silence between people who used to talk — these are not where drift begins.
+
+They are where it surfaces.
+
+By the time it is visible, it has already been operating for months, sometimes years. The weight has already moved. The compensations are already established. The household has already reorganized around the absence.
+
+Governance does not wait for visible consequences. It reads the signs that precede them.`,
+    hashtags: "#householdleadership #christianmen #biblicalmanhood #menonpurpose #intentionalliving #christianleadership #faithandfamily #menofgod #fatherlegacy #masculinity"
+  },
+  CP1: {
+    headline: "A man can be physically present for years *while emotionally absent the entire time.*",
+    body: "Presence is not proximity. A man who is never away from home can still be consistently unreachable — and his family will feel the distance regardless of the geography.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "excerpt",
+    caption: `A man can be physically present for years while emotionally absent the entire time.
+
+He is there at the dinner table. He attends the events. He is not, by any visible measure, absent from his family's life.
+
+And yet his wife cannot reach him. His children have learned not to bring certain things to him. There is a functional distance that no amount of physical proximity closes.
+
+Emotional presence is not the same as physical proximity. A man who is always home can still leave his family to lead themselves.
+
+The question is not whether you are there. It is whether you are reachable when you are.`,
+    hashtags: "#christianmen #biblicalmanhood #householdleadership #menofgod #menonpurpose #intentionalliving #christianleadership #faithandfamily #spiritualleadership #masculinity"
+  },
+  CP2: {
+    headline: "Avoiding tension often creates *more tension than addressing it early.*",
+    body: "The conversation that gets avoided does not disappear. It accumulates interest. What could have been a brief, direct exchange becomes a loaded interaction that now has to carry the weight of every time it was deferred.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "field-note",
+    caption: `Avoiding tension often creates more tension than addressing it early.
+
+The man who avoids difficult conversations to preserve peace does not preserve peace. He defers the cost.
+
+What should have been addressed in the first week accumulates weight over months. The conversation that was small becomes large. The correction that was light becomes charged. The issue that required a sentence now requires an evening.
+
+Avoidance is not the absence of conflict. It is conflict deferred with interest.
+
+The governed man addresses things when they are small. Not because he enjoys difficulty — because he understands compounding.`,
+    hashtags: "#householdleadership #christianmen #biblicalmanhood #menofgod #christianleadership #menonpurpose #intentionalliving #faithandfamily #godlyman #masculinity"
+  },
+  CP3: {
+    headline: "Strength without containment eventually *becomes instability.*",
+    body: "Force is not governance. A man who leads from intensity rather than from settled conviction will find that intensity increasingly difficult to sustain — and the household will absorb the variability.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "reminder",
+    caption: `Strength without containment eventually becomes instability.
+
+The man who leads through force — through the weight of his personality, his volume, his capacity to dominate a room — is not governing. He is performing.
+
+Performance requires an audience and a stage. It does not function as a foundation. And over time, a household built on intensity rather than steadiness begins to require the intensity to function — and collapses when it is absent.
+
+Strength contained within settled conviction produces a different kind of leadership. Quieter. More durable. Less dependent on the man's mood to hold together.`,
+    hashtags: "#biblicalmanhood #christianmen #householdleadership #menofgod #menonpurpose #christianleadership #intentionalliving #spiritualleadership #faithandfamily #masculinity"
+  },
+  CP4: {
+    headline: "Many men mistake exhaustion *for sacrifice.*",
+    body: "Exhaustion from unstructured carrying is not the same as sacrifice. Sacrifice is chosen and directed. Exhaustion is what happens when nothing has been decided about how the weight is distributed.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "directive",
+    caption: `Many men mistake exhaustion for sacrifice.
+
+They are not the same thing.
+
+Sacrifice is deliberately chosen, directed toward something, and offered from a place of decision. It has a purpose that can be named.
+
+Exhaustion is what happens when a man carries everything without a framework for how the weight is distributed — when nothing has been decided in advance, so everything gets absorbed reactively until there is nothing left.
+
+A man who is merely exhausted is not sacrificing for his family. He is depleting himself without governance. The family receives the depletion, not the sacrifice.`,
+    hashtags: "#christianmen #biblicalmanhood #householdleadership #menonpurpose #intentionalliving #christianleadership #menofgod #faithandfamily #masculinity #godlyman"
+  },
+  G1: {
+    headline: "Governance is what gets decided *before pressure arrives.*",
+    body: "A man who only makes decisions under pressure is not governing. He is reacting. Governance establishes the standard in advance — so that when pressure comes, the decision has already been made.",
+    eyebrow: "Legacy & Lineage",
+    ref: "Field Manual",
+    layout: "field-note",
+    caption: `Governance is what gets decided before pressure arrives.
+
+Most men make their most important household decisions reactively — in the middle of conflict, at the end of a hard day, when they are least equipped to decide well.
+
+Governance reverses this. It decides in advance: what standard the household holds, what the response to drift will be, what role the man takes when tension enters the room.
+
+When pressure arrives — and it will — the governed man does not have to figure out what he believes. He already knows. He is executing a decision that was made before the urgency distorted his judgment.
+
+That is the difference between governing and reacting.`,
+    hashtags: "#householdleadership #christianmen #biblicalmanhood #menofgod #menonpurpose #intentionalliving #christianleadership #faithandfamily #godlyman #spiritualleadership"
+  },
+  G2: {
+    headline: "Order does not eliminate pressure. It prevents pressure *from governing the household.*",
+    body: "The ordered home still faces difficulty. What it does not do is allow difficulty to set the terms. The man with a governing framework meets pressure on his own ground rather than on pressure's.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "doctrine",
+    caption: `Order does not eliminate pressure. It prevents pressure from governing the household.
+
+This is a distinction worth holding.
+
+The goal of a governing framework is not a problem-free home. Problems will come — financial, relational, physical, spiritual. The household is not insulated from them.
+
+What order provides is the internal structure that allows difficulty to be met rather than merely reacted to. The governed man does not encounter pressure and then try to figure out what he believes. He already knows. He already decided.
+
+Pressure tests a man's governance. It does not have to define it.`,
+    hashtags: "#householdleadership #christianmen #biblicalmanhood #intentionalliving #menofgod #christianleadership #menonpurpose #faithandfamily #masculinity #godlyman"
+  },
+  G3: {
+    headline: "Authority becomes quieter *as governance becomes more consistent.*",
+    body: "The man who must assert himself loudly has not yet established authority. Real authority does not announce itself. It accumulates — through consistency, through steadiness, through showing up the same way long enough that it no longer requires demonstration.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "observation",
+    caption: `Authority becomes quieter as governance becomes more consistent.
+
+The man who is still establishing authority tends to be loud about it. He corrects frequently. He announces standards. He reminds people of what is expected.
+
+The man whose authority is established does none of this. He doesn't have to. The household already knows what he holds. His consistency has made the standard visible without declaration.
+
+This is what governance produces over time — not a household that performs in response to demands, but one that has internalized the standard because the man holding it has never wavered from it.
+
+Quiet authority is not weak authority. It is mature authority.`,
+    hashtags: "#householdleadership #biblicalmanhood #christianmen #menonpurpose #christianleadership #faithandfamily #menofgod #intentionalliving #spiritualleadership #fatherlegacy"
+  },
+  G4: {
+    headline: "Stability is often built through ordinary rhythms *repeated long enough to be trusted.*",
+    body: "The household does not become stable through dramatic interventions. It becomes stable through the accumulation of ordinary days governed well — until the pattern itself is the foundation.",
+    eyebrow: "Legacy & Lineage",
+    ref: "",
+    layout: "field-note",
+    caption: `Stability is often built through ordinary rhythms repeated long enough to become trusted.
+
+There is no single moment that produces a stable household. There is no speech, no decision, no breakthrough conversation that replaces what only repetition can build.
+
+What the household comes to rest in is the pattern. The man who governs his morning consistently. Who handles difficulty the same way. Who shows up to the ordinary days with the same posture as the significant ones.
+
+Over time, that repetition becomes trust. And trust becomes the foundation the household rests on — not because it was declared, but because it was earned slowly, through ordinary days lived the same way.`,
+    hashtags: "#householdleadership #christianmen #biblicalmanhood #menofgod #intentionalliving #faithandfamily #menonpurpose #christianleadership #fatherlegacy #spiritualleadership"
+  }
+};
+
+// ══ STATE ══
+let currentPhoto = null;
+
+// ══ PARSE MARKUP ══
+function parseHL(text) {
+  return text
+    .replace(/\n/g, '<br>')
+    .replace(/\*(.*?)\*/g, '<em class="gold">$1</em>');
+}
+
+// ══ RENDER POST ══
+function renderPost() {
+  const layout   = document.getElementById('in-layout').value;
+  const headline = document.getElementById('in-headline').value;
+  const body     = document.getElementById('in-body').value;
+  const eyebrow  = document.getElementById('in-eyebrow').value;
+  const ref      = document.getElementById('in-ref').value;
+  const frame    = document.getElementById('post-frame');
+
+  // Show/hide photo button
+  const needsPhoto = layout === 'excerpt' || layout === 'observation';
+  document.getElementById('photo-row').style.display = needsPhoto ? 'flex' : 'none';
+
+  // Font size auto
+  const len = headline.replace(/\*(.*?)\*/g, '$1').replace(/\n/g, '').length;
+  const fs  = len < 40 ? '7.2vw' : len < 60 ? '6.2vw' : len < 80 ? '5.4vw' : '4.6vw';
+
+  let html = '';
+
+  if (layout === 'doctrine') {
+    html = `
+      <div class="layout-doctrine" style="width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:8vw 8vw 6vw 8vw;">
+        <div class="eyebrow eyebrow-light">${eyebrow}</div>
+        <div class="headline-xl hl-light" style="font-size:${fs}">${parseHL(headline)}</div>
+        <div class="rule rule-light" style="margin-left:auto;margin-right:auto;"></div>
+        <div class="body body-light" style="border-left:none;padding-left:0;text-align:center;">${body}</div>
+        <div class="footer footer-light">
+          <div class="ll-mark mark-light">L&L</div>
+          <div class="footer-brand brand-light">Legacy & Lineage</div>
+          ${ref ? `<div class="page-ref ref-light">${ref}</div>` : ''}
+        </div>
+      </div>`;
+
+  } else if (layout === 'field-note') {
+    html = `
+      <div class="layout-field-note" style="width:100%;height:100%;position:relative;display:flex;flex-direction:column;padding:7vw 8vw 6vw 9vw;">
+        <div class="source-tag source-tag-dark">
+          <span>${eyebrow.toUpperCase()}</span>
+          ${ref ? `<span>${ref}</span>` : ''}
+        </div>
+        <div class="headline-xl hl-dark" style="font-size:${fs}">${parseHL(headline)}</div>
+        <div class="rule rule-dark"></div>
+        <div class="body body-dark">${body}</div>
+        <div class="footer footer-dark">
+          <div class="ll-mark mark-dark">L&L</div>
+          <div class="footer-brand brand-dark">Legacy & Lineage</div>
+        </div>
+      </div>`;
+
+  } else if (layout === 'excerpt') {
+    const photoBg = currentPhoto
+      ? `background-image:url('${currentPhoto}')`
+      : '';
+    html = `
+      <div class="layout-excerpt" style="width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:8vw;">
+        ${currentPhoto
+          ? `<div class="photo-bg" style="${photoBg}"></div>`
+          : `<div class="photo-placeholder-full"><span>Choose Photo</span></div>`}
+        <div class="excerpt-content">
+          <div class="source-tag source-tag-light" style="margin-bottom:3vw;">
+            <span>${eyebrow.toUpperCase()}</span>
+            ${ref ? `<span>${ref}</span>` : ''}
+          </div>
+          <div class="headline-xl hl-cream" style="font-size:${fs};margin-bottom:3vw;">${parseHL(headline)}</div>
+          ${body ? `<div class="rule rule-light"></div><div class="body" style="color:rgba(241,240,234,0.6);font-style:italic;font-family:'Cormorant Garamond',serif;font-size:3.2vw;line-height:1.65;">${body}</div>` : ''}
+          <div class="footer footer-light" style="margin-top:3vw;">
+            <div class="ll-mark mark-light">L&L</div>
+          </div>
+        </div>
+      </div>`;
+
+  } else if (layout === 'directive') {
+    html = `
+      <div class="layout-directive" style="width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:center;padding:8vw 8.5vw;">
+        <div class="eyebrow eyebrow-dark" style="margin-bottom:4vw;">${eyebrow}</div>
+        <div class="headline-xl hl-dark" style="font-size:${fs};margin-bottom:2vw;">${parseHL(headline)}</div>
+        ${body ? `<div class="directive-sub">${body}</div>` : ''}
+        <div class="rule rule-full" style="margin-top:auto;margin-bottom:0;"></div>
+        <div class="footer footer-dark" style="border-top:none;padding-top:2.5vw;">
+          <div class="ll-mark mark-dark">L&L</div>
+          <div class="footer-brand brand-dark">Legacy & Lineage</div>
+          ${ref ? `<div class="page-ref ref-dark">${ref}</div>` : ''}
+        </div>
+      </div>`;
+
+  } else if (layout === 'observation') {
+    const photoBg = currentPhoto ? `background-image:url('${currentPhoto}')` : '';
+    html = `
+      <div class="layout-observation" style="width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:7vw 8vw;">
+        ${currentPhoto
+          ? `<div class="photo-bg" style="${photoBg}"></div>`
+          : `<div class="photo-placeholder-full"><span>Choose Photo</span></div>`}
+        <div class="obs-content">
+          <div class="eyebrow eyebrow-light" style="margin-bottom:2.5vw;">${eyebrow}</div>
+          <div class="headline-xl hl-cream" style="font-size:${fs};margin-bottom:0;">${parseHL(headline)}</div>
+          ${body ? `<div style="font-family:'Cormorant Garamond',serif;font-size:3.2vw;color:rgba(241,240,234,0.55);line-height:1.65;margin-top:2vw;font-style:italic;">${body}</div>` : ''}
+          <div class="footer footer-light" style="margin-top:3vw;">
+            <div class="ll-mark mark-light">L&L</div>
+            <div class="footer-brand brand-light">Legacy & Lineage</div>
+          </div>
+        </div>
+      </div>`;
+
+  } else if (layout === 'reminder') {
+    html = `
+      <div class="layout-reminder" style="width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:center;padding:8vw;">
+        <div class="eyebrow" style="font-family:'Libre Baskerville',serif;font-size:1.8vw;letter-spacing:0.32em;text-transform:uppercase;color:rgba(158,123,69,0.5);margin-bottom:4vw;">${eyebrow}</div>
+        <div class="headline-xl hl-light" style="font-size:${fs};margin-bottom:3vw;">${parseHL(headline)}</div>
+        ${body ? `<div class="rule rule-light"></div><div class="body body-light">${body}</div>` : ''}
+        <div class="footer footer-light" style="margin-top:auto;">
+          <div class="ll-mark mark-light">L&L</div>
+          <div class="footer-brand brand-light">Legacy & Lineage</div>
+        </div>
+      </div>`;
+  }
+
+  // Apply layout background
+  const bgMap = {
+    'doctrine':    'var(--near-black)',
+    'field-note':  'var(--cream)',
+    'excerpt':     '#0C0A08',
+    'directive':   'var(--parchment)',
+    'observation': '#111',
+    'reminder':    'var(--walnut)'
+  };
+
+  frame.style.background = bgMap[layout] || 'var(--near-black)';
+  frame.innerHTML = html;
+}
+
+// ══ LOAD POST ══
+function loadPost() {
+  const key = document.getElementById('in-post').value;
+  if (!key || !POSTS[key]) return;
+  const p = POSTS[key];
+  document.getElementById('in-headline').value = p.headline;
+  document.getElementById('in-body').value     = p.body;
+  document.getElementById('in-eyebrow').value  = p.eyebrow;
+  document.getElementById('in-ref').value      = p.ref || '';
+  document.getElementById('in-layout').value   = p.layout;
+  document.getElementById('caption-display').textContent  = p.caption;
+  document.getElementById('hashtag-display').textContent  = p.hashtags;
+  renderPost();
+}
+
+// ══ LAYOUT CHANGE ══
+function onLayoutChange() {
+  const layout = document.getElementById('in-layout').value;
+  // Find first post in bank matching this layout
+  const match = Object.keys(POSTS).find(k => POSTS[k].layout === layout);
+  if (match) {
+    document.getElementById('in-post').value = match;
+    loadPost(); // loadPost calls renderPost internally
+  } else {
+    renderPost();
+  }
+}
+
+// ══ PHOTO ══
+function loadPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentPhoto = e.target.result;
+    renderPost();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ══ CAPTION COPY ══
+function copyCaption() {
+  const cap  = document.getElementById('caption-display').textContent;
+  const hash = document.getElementById('hashtag-display').textContent;
+  navigator.clipboard.writeText(cap + '\n\n' + hash).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => btn.textContent = 'Copy All', 2000);
+  });
+}
+
+// ══ TABS ══
+function showTab(tab) {
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  const editor  = document.getElementById('editor-panel');
+  const caption = document.getElementById('caption-panel');
+  if (tab === 'editor') {
+    editor.classList.remove('hidden');
+    caption.classList.add('hidden');
+    document.getElementById('tog-editor').classList.add('active');
+  } else if (tab === 'caption') {
+    editor.classList.add('hidden');
+    caption.classList.remove('hidden');
+    document.getElementById('tog-caption').classList.add('active');
+  } else {
+    // Screenshot — log the post
+    const layout  = document.getElementById('in-layout').value;
+    const postKey = document.getElementById('in-post').value;
+    logPost(layout, postKey);
+    editor.classList.add('hidden');
+    caption.classList.add('hidden');
+    document.getElementById('tog-hide').classList.add('active');
+  }
+}
+
+// ══ CADENCE TRACKER ══
+const STORAGE_KEY = 'll_cadence';
+
+const LAYOUT_META = {
+  'doctrine':    { label: 'Doctrine',    intensity: 3, type: 'text' },
+  'field-note':  { label: 'Field Note',  intensity: 2, type: 'text' },
+  'excerpt':     { label: 'Excerpt',     intensity: 2, type: 'image' },
+  'directive':   { label: 'Directive',   intensity: 3, type: 'text' },
+  'observation': { label: 'Observation', intensity: 1, type: 'image' },
+  'reminder':    { label: 'Reminder',    intensity: 2, type: 'text' },
+};
+
+function getCadence() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveCadence(posts) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(posts.slice(-4)));
+}
+
+function logPost(layout, postKey) {
+  const meta = LAYOUT_META[layout] || { label: layout, intensity: 2, type: 'text' };
+  const entry = {
+    layout,
+    label: meta.label,
+    intensity: meta.intensity,
+    type: meta.type,
+    post: postKey,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+  const current = getCadence();
+  current.push(entry);
+  saveCadence(current);
+  renderCadence();
+}
+
+function renderCadence() {
+  const posts   = getCadence();
+  const el      = document.getElementById('cadence-posts');
+  el.innerHTML  = '';
+
+  for (let i = 0; i < 4; i++) {
+    const slot = document.createElement('div');
+    const p    = posts[i];
+
+    if (!p) {
+      slot.className = 'cadence-slot empty';
+      slot.innerHTML = `<div class="cadence-layout">—</div>`;
+    } else {
+      slot.className = 'cadence-slot';
+      const dots = [1,2,3].map(d =>
+        `<div class="intensity-dot ${d <= p.intensity ? 'filled' : ''}"></div>`
+      ).join('');
+      slot.innerHTML = `
+        <div class="cadence-layout">${p.label}</div>
+        <div class="cadence-intensity">${dots}</div>
+        <div class="cadence-type">${p.type} · ${p.time || ''}</div>`;
+    }
+    el.appendChild(slot);
+  }
+}
+
+// ══ INIT ══
+document.getElementById('in-post').value   = 'O3';
+document.getElementById('in-layout').value = 'doctrine';
+loadPost();
+renderCadence();
+</script>
+</body>
+</html>

@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>HD Post Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --cream: #F0EAD6;
+  --parchment: #E4D9C0;
+  --dark-brown: #3D2314;
+  --mid-brown: #6B3D2A;
+  --accent-gold: #9A7B4F;
+  --rule-gold: #B8943F;
+  --text-body: #4A3728;
+  --deep-forest: #2C3825;
+  --editor-bg: #141210;
+  --editor-border: #2A2520;
+}
+
+html, body { width: 100%; background: #0E0C0A; }
+
+/* ── POST WRAPPER ── */
+.post-wrapper {
+  width: 100vw;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.post {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  position: relative;
+  background: var(--cream);
+}
+
+/* Seam */
+.seam {
+  position: absolute;
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(154,123,79,0.35) 25%, rgba(154,123,79,0.35) 75%, transparent);
+  z-index: 3;
+}
+
+/* ── LEFT: COPY PANEL ── */
+.copy-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 5vw 5vw 4vw 5vw;
+  background: var(--cream);
+  z-index: 2;
+  overflow: hidden;
+}
+
+.copy-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.brand-label {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.8vw;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  margin-bottom: 0.6vw;
+}
+
+.brand-rule {
+  width: 5vw;
+  height: 1px;
+  background: var(--accent-gold);
+  opacity: 0.6;
+  margin-bottom: 3.5vw;
+}
+
+.headline {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 5.8vw;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--dark-brown);
+  margin-bottom: 2.5vw;
+  flex-shrink: 0;
+}
+
+.headline em {
+  font-style: italic;
+  color: var(--mid-brown);
+  font-weight: 600;
+}
+
+.divider {
+  width: 4.5vw;
+  height: 2px;
+  background: var(--mid-brown);
+  margin-bottom: 2vw;
+  flex-shrink: 0;
+}
+
+.subhead {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 3.4vw;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.25;
+  color: var(--dark-brown);
+  margin-bottom: 2.5vw;
+  flex-shrink: 0;
+}
+
+.subhead em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--accent-gold);
+}
+
+.body-copy {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2.2vw;
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--text-body);
+  flex-grow: 1;
+}
+
+/* FOOTER */
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 1.5vw;
+  margin-top: auto;
+  padding-top: 2.5vw;
+  border-top: 1px solid rgba(154,123,79,0.28);
+  flex-shrink: 0;
+}
+
+.hd-monogram {
+  font-family: 'Playfair Display', serif;
+  font-size: 4vw;
+  font-weight: 700;
+  color: var(--dark-brown);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.footer-text { display: flex; flex-direction: column; gap: 0.2vw; }
+
+.footer-brand {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.1vw;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dark-brown);
+  font-weight: 700;
+}
+
+.footer-tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15vw;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+}
+
+.cta-label {
+  margin-left: auto;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1vw;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  text-align: right;
+}
+
+/* ── RIGHT: PHOTO PANEL ── */
+.photo-panel {
+  position: relative;
+  overflow: hidden;
+  background: #2a2018;
+}
+
+.photo-panel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: sepia(12%) saturate(88%) brightness(0.9);
+}
+
+.photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(61,35,20,0.1) 0%, rgba(154,123,79,0.04) 100%);
+}
+
+/* badge removed */
+
+/* ══════════════════════════════════
+   EDITOR PANEL
+══════════════════════════════════ */
+.editor-panel {
+  background: var(--editor-bg);
+  padding: 16px;
+  border-top: 2px solid var(--rule-gold);
+}
+
+.editor-panel.hidden { display: none; }
+
+.editor-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.editor-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 140px;
+}
+
+.editor-label {
+  font-family: system-ui, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.editor-panel select,
+.editor-panel input,
+.editor-panel textarea {
+  background: #1E1A16;
+  border: 1px solid #333;
+  color: #DDD;
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 3px;
+  width: 100%;
+  font-family: Georgia, serif;
+  -webkit-appearance: none;
+}
+
+.editor-panel select { cursor: pointer; }
+.editor-panel textarea { resize: none; line-height: 1.5; }
+
+/* Buttons row */
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  font-family: system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border: none;
+  border-radius: 3px;
+  padding: 10px 14px;
+  cursor: pointer;
+  flex: 1;
+  min-width: 80px;
+}
+
+.btn-primary { background: var(--rule-gold); color: #0E0C0A; }
+.btn-secondary { background: #1E1A16; color: var(--rule-gold); border: 1px solid var(--rule-gold); }
+.btn-ghost { background: #1E1A16; color: #555; border: 1px solid #2A2520; }
+
+/* Caption panel */
+.caption-panel {
+  background: #1A1510;
+  border: 1px solid #2A2520;
+  border-radius: 3px;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.caption-panel.hidden { display: none; }
+
+.caption-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.caption-title {
+  font-family: system-ui;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.copy-btn {
+  font-family: system-ui;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: var(--rule-gold);
+  color: #0E0C0A;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.caption-text-display {
+  font-family: Georgia, serif;
+  font-size: 12px;
+  line-height: 1.7;
+  color: rgba(220,210,190,0.75);
+  white-space: pre-line;
+  margin-bottom: 10px;
+}
+
+.hashtag-display {
+  font-family: system-ui;
+  font-size: 11px;
+  line-height: 1.8;
+  color: rgba(154,123,79,0.55);
+  border-top: 1px solid #2A2520;
+  padding-top: 8px;
+}
+
+/* Toggle bar */
+.toggle-bar {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #0E0C0A;
+  border-top: 1px solid #1A1510;
+}
+
+.toggle-btn {
+  font-family: system-ui;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: #1A1510;
+  color: #666;
+  border: 1px solid #222;
+  padding: 8px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.toggle-btn.active { background: #2A2018; color: var(--rule-gold); border-color: var(--rule-gold); }
+
+
+
+/* Photo upload hidden input */
+#photo-input { display: none; }
+
+/* ══ CADENCE TRACKER ══ */
+.cadence-bar {
+  background: #0A0806;
+  border-bottom: 1px solid #1A1510;
+  padding: 10px 16px 8px;
+}
+.cadence-label {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #3A3028;
+  margin-bottom: 7px;
+}
+.cadence-posts { display: flex; gap: 6px; }
+.cadence-slot {
+  flex: 1;
+  background: #141008;
+  border: 1px solid #1E1810;
+  border-radius: 3px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.cadence-slot.empty { border-style: dashed; opacity: 0.3; }
+.cadence-layout {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rule-gold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cadence-intensity { display: flex; gap: 2px; align-items: center; }
+.intensity-dot { width: 5px; height: 5px; border-radius: 50%; background: #2A2018; }
+.intensity-dot.filled { background: var(--rule-gold); }
+.cadence-type {
+  font-family: system-ui;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #3A3028;
+}
+
+/* ══ PHOTO LIBRARY ══ */
+.photo-library {
+  background: #0E0C0A;
+  border-top: 1px solid #1A1510;
+  padding: 10px 16px 12px;
+}
+
+.photo-library-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.photo-library-label {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #3A3028;
+}
+
+.photo-library-count {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: #4A3E2E;
+}
+
+.photo-tray {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.photo-tray::-webkit-scrollbar { display: none; }
+
+.photo-thumb {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  position: relative;
+  background: #1A1510;
+}
+
+.photo-thumb.active {
+  border-color: var(--rule-gold);
+}
+
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-thumb-del {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  background: rgba(0,0,0,0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: #aaa;
+  cursor: pointer;
+  z-index: 2;
+  line-height: 1;
+}
+
+.photo-tray-empty {
+  font-family: Georgia, serif;
+  font-size: 11px;
+  font-style: italic;
+  color: #3A3028;
+  padding: 18px 0;
+}
+
+.photo-add-btn {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  border: 1px dashed #3A3028;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  color: #3A3028;
+  background: #0E0C0A;
+}
+
+/* ══ STATUS LINE ══ */
+.action-status {
+  font-size: 11px;
+  color: var(--rule-gold);
+  padding: 4px 0;
+  min-height: 16px;
+  font-family: system-ui;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ POST ══ -->
+<div class="post-wrapper">
+  <div class="post" id="post">
+    <div class="seam"></div>
+
+    <div class="copy-panel">
+      <div class="brand-label">Heroic Dad</div>
+      <div class="brand-rule"></div>
+      <div class="headline" id="el-headline">Most dads aren't angry. They're overstimulated <em>and carrying too much.</em></div>
+      <div class="divider"></div>
+      <div class="subhead" id="el-subhead">Without recovery built into the day,</div>
+      <div class="body-copy" id="el-body">everything that should feel manageable starts to feel like too much. That's not a character problem. It's a load problem.</div>
+      <div class="footer">
+        <div class="hd-monogram">H<span style="font-size:0.7em;vertical-align:0.06em;">D</span></div>
+        <div class="footer-text">
+          <div class="footer-brand">The Heroic Dad</div>
+          <div class="footer-tagline">Steadiness for Fathers</div>
+        </div>
+        <div class="cta-label" id="el-cta">Free Reset — Link in Bio</div>
+      </div>
+    </div>
+
+    <div class="photo-panel">
+      <img id="el-photo" src="" alt="" style="display:none">
+      <div class="photo-placeholder" id="photo-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1C1810;">
+        <span style="font-family:'Libre Baskerville',serif;font-size:3vw;letter-spacing:0.2em;text-transform:uppercase;color:rgba(154,123,79,0.4);">Photo</span>
+      </div>
+      <div class="photo-overlay"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOGGLE BAR ══ -->
+<div class="toggle-bar">
+  <button class="toggle-btn active" id="tog-editor" onclick="showTab('editor')">Editor</button>
+  <button class="toggle-btn" id="tog-caption" onclick="showTab('caption')">Caption</button>
+  <button class="toggle-btn" id="tog-hide" onclick="showTab('hide')">Screenshot</button>
+</div>
+
+<!-- ══ CADENCE TRACKER ══ -->
+<div class="cadence-bar">
+  <div class="cadence-label">Last 4 Posts — Feed Cadence</div>
+  <div class="cadence-posts" id="cadence-posts"></div>
+</div>
+
+<!-- ══ EDITOR PANEL ══ -->
+<div class="editor-panel" id="editor-panel">
+
+  <!-- Post selector -->
+  <div class="editor-group" style="margin-bottom:10px">
+    <div class="editor-label">Select Post from Bank</div>
+    <select id="post-select" onchange="loadPost()">
+      <option value="">— Choose a post —</option>
+      <option value="R3">R3 · Your daughter learns what to expect from men by living with you</option>
+      <option value="R4">R4 · Most leadership failures begin internally long before they become visible</option>
+      <option value="P1">P1 · The whole evening changed when he slowed down before entering the house</option>
+      <option value="P2">P2 · She just needed him present for ten uninterrupted minutes</option>
+      <option value="P3">P3 · Being home and being available are not the same thing</option>
+      <option value="P4">P4 · He walked through the door already in tomorrow's problems</option>
+      <option value="C1">C1 · Being home and being available are not the same thing</option>
+      <option value="C2">C2 · Children don't need a perfect father. They need a predictable one</option>
+      <option value="C3">C3 · Most dads don't need more time. They need cleaner transitions</option>
+      <option value="C4">C4 · Structure does not make a father rigid. It makes him more emotionally available</option>
+      <option value="RF1">RF1 · You do not need to overhaul your life to become more present at home</option>
+      <option value="RF2">RF2 · You are probably carrying more mental weight than your family realizes</option>
+      <option value="RF3">RF3 · Small consistency changes a home faster than occasional intensity</option>
+      <option value="RF4">RF4 · The goal is not becoming an impressive father. It's becoming a steady one</option>
+    </select>
+  </div>
+
+  <!-- Manual fields -->
+  <div class="editor-row">
+    <div class="editor-group">
+      <div class="editor-label">Headline (*italic*)</div>
+      <textarea id="in-headline" rows="3" oninput="liveUpdate()"></textarea>
+    </div>
+    <div class="editor-group">
+      <div class="editor-label">Subhead (*gold*)</div>
+      <textarea id="in-subhead" rows="3" oninput="liveUpdate()"></textarea>
+    </div>
+  </div>
+
+  <div class="editor-row">
+    <div class="editor-group">
+      <div class="editor-label">Body Copy</div>
+      <textarea id="in-body" rows="3" oninput="liveUpdate()"></textarea>
+    </div>
+    <div class="editor-group">
+      <div class="editor-label">CTA Line</div>
+      <input type="text" id="in-cta" value="Free Reset — Link in Bio" oninput="liveUpdate()">
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="liveUpdate()">Update Post</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('import-input').click()">⬆ Import Posts</button>
+    <input type="file" id="import-input" accept=".json" onchange="importPosts(event)" style="display:none">
+  </div>
+  <div class="btn-row" style="margin-top:6px">
+    <button class="btn btn-secondary" onclick="markUsed()" style="color:#8B3A3A;border-color:#8B3A3A;opacity:0.7;">✕ Mark Used & Remove</button>
+  </div>
+  <div class="action-status" id="action-status"></div>
+
+</div>
+
+<!-- ══ CAPTION PANEL ══ -->
+<div class="caption-panel hidden" id="caption-panel">
+  <div class="caption-header">
+    <div class="caption-title">Caption + Hashtags</div>
+    <button class="copy-btn" onclick="copyCaption()">Copy All</button>
+  </div>
+  <div class="caption-text-display" id="caption-display">Select a post from the bank to see its caption.</div>
+  <div class="hashtag-display" id="hashtag-display"></div>
+</div>
+
+<!-- ══ PHOTO LIBRARY ══ -->
+<div class="photo-library" id="photo-library">
+  <div class="photo-library-header">
+    <div class="photo-library-label">Photo Library</div>
+    <div class="photo-library-count" id="photo-count">0 photos</div>
+  </div>
+  <div class="photo-tray" id="photo-tray">
+    <div class="photo-tray-empty" id="tray-empty">No photos yet — add from camera roll below</div>
+  </div>
+  <div class="btn-row" style="margin-top:8px">
+    <button class="btn btn-secondary" onclick="document.getElementById('library-input').click()">+ Add to Library</button>
+    <input type="file" id="library-input" accept="image/*" multiple onchange="addToLibrary(event)" style="display:none">
+    <button class="btn btn-ghost" onclick="clearLibrary()">Clear All</button>
+  </div>
+</div>
+
+<script>
+// ── POST BANK ──
+const POSTS = {
+  R3: {
+    headline: "Your daughter learns what to expect from men *by living with you.*",
+    subhead: "Not from what you warn her about.",
+    body: "From what she experiences as normal. Your presence sets the standard she'll measure everything else against.",
+    caption: `Your daughter learns what to expect from men by living with you.
+
+Not from the warnings you give her. Not from the conversations about what to watch for. From what she experiences as normal inside your home.
+
+How you speak to her mother. How you handle frustration. Whether you show up consistently or unpredictably. Whether your presence is something she relaxes into or something she reads carefully.
+
+That becomes her baseline. The standard against which every man she meets will be measured — usually without her realizing it.
+
+You don't have to be perfect. You have to be present and regulated enough that what she learns from you is worth keeping.`,
+    hashtags: "#dadsofdaughters #fatherdaughter #raisinggirls #dadlife #fatherhood #intentionalparenting #familyleadership #christiandad #beabetterdad #presentdad",
+    cta: "Free Reset — Link in Bio"
+  },
+  R4: {
+    headline: "Most leadership failures begin internally *long before they become visible.*",
+    subhead: "The home doesn't drift first.",
+    body: "The man does. By the time the household shows the strain, the internal disorder has been present for some time — unexamined.",
+    caption: `Most leadership failures begin internally long before they become visible.
+
+The household doesn't collapse suddenly. The marriage doesn't fall apart overnight. The distance with the kids doesn't appear from nowhere.
+
+By the time any of those things are visible enough to name, the drift has been underway in the man himself for months — sometimes years.
+
+Small abdications that became habits. Avoidances that became postures. The slow reorganization of a home around what one man wasn't addressing.
+
+The fix is not the symptom. It's what was happening before the symptom appeared.`,
+    hashtags: "#familyleadership #dadlife #fatherhood #masculinity #householddiscipline #intentionalparenting #christianmen #consciousparenting #beabetterdad #presentdad",
+    cta: "Free Reset — Link in Bio"
+  },
+  P1: {
+    headline: "The whole evening changed when he slowed down *before entering the house.*",
+    subhead: "Two minutes in the driveway.",
+    body: "Not scrolling. Just sitting with the day until it was actually finished. He walked in different. The evening followed.",
+    caption: `The whole evening changed when he slowed down before entering the house.
+
+Two minutes. Not a long ritual. Not a complicated system.
+
+Just sitting in the car until the workday was actually done — not physically, but mentally. Letting the last conversation finish in his head. Putting down what still needed carrying. Deciding to arrive.
+
+He walked in different. The kids felt it. His wife felt it. The evening had a different starting temperature.
+
+The transition is its own skill. Most men skip it. The home receives the cost.`,
+    hashtags: "#dadlife #presentdad #fatherhood #intentionalparenting #dadadvice #consciousparenting #familyfirst #christiandad #emotionalintelligence #beabetterdad",
+    cta: "Free Reset — Link in Bio"
+  },
+  P2: {
+    headline: "She just needed him present for *ten uninterrupted minutes.*",
+    subhead: "Not a solution. Not advice.",
+    body: "Not him solving the problem while she was still in the middle of explaining it. Just ten minutes where she wasn't competing with everything else running in his head.",
+    caption: `She just needed him present for ten uninterrupted minutes.
+
+Not a fix. Not a reframe. Not advice before she finished the sentence.
+
+Just ten minutes where his attention was actually in the room — not partially managing something else, not waiting for the pause to respond, not already forming the solution while she was still in the middle of it.
+
+Ten minutes of being heard changes the temperature of a home.
+
+Most men underestimate this because they're trying to be useful. Being present is the useful thing.`,
+    hashtags: "#marriageadvice #husbandadvice #covenantmarriage #dadlife #fatherhood #intentionalparenting #christianmarriage #familyleadership #beabetterdad #emotionalintelligence",
+    cta: "Free Reset — Link in Bio"
+  },
+  P3: {
+    headline: "Presence usually disappears *long before love does.*",
+    subhead: "The love doesn't go anywhere.",
+    body: "But the capacity to show up — fully, attentively — without the mind already halfway somewhere else. That's what quietly erodes first.",
+    caption: `Presence usually disappears long before love does.
+
+The love is still there. It's real. But the capacity to actually show up — fully, attentively, without the mind already halfway somewhere else — that erodes quietly and long before anyone names it.
+
+The family still has a father. They just don't have his attention. His presence. The version of him that's actually in the room.
+
+Love without presence is a fact that doesn't land. It's felt as absence even when the person is there.
+
+The goal isn't loving more. It's showing up to what you already feel.`,
+    hashtags: "#dadlife #presentdad #fatherhood #intentionalparenting #consciousparenting #familyfirst #christiandad #emotionalintelligence #beabetterdad #marriageadvice",
+    cta: "One Week Reset — Link in Bio"
+  },
+  P4: {
+    headline: "He walked through the door *already in tomorrow's problems.*",
+    subhead: "The day wasn't done yet in his head.",
+    body: "The family got the version of him that was still solving something. They needed the version that had actually arrived.",
+    caption: `He walked through the door already in tomorrow's problems.
+
+The day was technically over. He was home. But his mind was still in the last meeting, or already managing what needed handling in the morning.
+
+His family got the version of him that was still somewhere else.
+
+They didn't get the dad. They got the distracted shell of a man who hadn't finished arriving yet.
+
+The transition between roles is not automatic. It has to be decided. The home deserves a man who has actually shown up — not just physically relocated.`,
+    hashtags: "#dadlife #presentdad #fatherhood #intentionalparenting #dadadvice #consciousparenting #familyfirst #christiandad #emotionalintelligence #beabetterdad",
+    cta: "Free Reset — Link in Bio"
+  },
+  C1: {
+    headline: "Being home and being available *are not the same thing.*",
+    subhead: "Home is a location.",
+    body: "Availability is a choice made inside that location — to actually be reachable, to let what's in front of you matter more than what's still running in your head.",
+    caption: `Being home and being available are not the same thing.
+
+You can be home every evening and still be consistently unavailable. Physically present while mentally filed away somewhere else. Answering when spoken to while not actually tracking what's being said.
+
+Your family knows the difference. They just usually don't say it.
+
+Being available means the door to you is actually open. Not just unlocked — open. That's a different kind of showing up, and it's the one that actually builds something over time.`,
+    hashtags: "#presentdad #dadlife #fatherhood #intentionalparenting #consciousparenting #familyfirst #dadadvice #christiandad #emotionalintelligence #beabetterdad",
+    cta: "Free Reset — Link in Bio"
+  },
+  C2: {
+    headline: "Children don't need a perfect father. *They need a predictable one.*",
+    subhead: "Perfection is a performance.",
+    body: "Predictability is a foundation. What kids need to feel safe is not a father who gets everything right — but one who shows up the same way often enough to be trusted.",
+    caption: `Children don't need a perfect father. They need a predictable one.
+
+Perfect fathers don't exist. Kids know this. What they actually need — what produces security — is consistency. A dad who shows up roughly the same way, in roughly the same emotional condition, often enough that the house knows what to expect.
+
+Unpredictability is exhausting for children even when it's not dramatic. They can't relax into a home they're constantly trying to read.
+
+Predictability is the gift most fathers underestimate.`,
+    hashtags: "#dadlife #fatherhood #raisingboys #raisinggirls #consciousparenting #intentionalparenting #christianparenting #dadadvice #familyleadership #beabetterdad",
+    cta: "Free Reset — Link in Bio"
+  },
+  C3: {
+    headline: "Most dads don't need more time. *They need cleaner transitions.*",
+    subhead: "The hours are usually there.",
+    body: "What's missing is the handoff — the real moment of moving from work to home, from provider mode to present dad. That transition is its own skill.",
+    caption: `Most dads don't need more time with their kids. They need cleaner transitions into the time they already have.
+
+The problem usually isn't hours. Most fathers are home for the evening. The problem is arriving but not actually transitioning — carrying everything from the workday directly into dinner, into bedtime, into the couch.
+
+The time is there. The presence isn't.
+
+A clean transition — even just a few deliberate minutes between roles — changes what the family receives. You don't need a longer evening. You need one that starts when it starts.`,
+    hashtags: "#dadlife #presentdad #fatherhood #intentionalparenting #dadadvice #consciousparenting #familyfirst #christiandad #emotionalintelligence #beabetterdad",
+    cta: "Free Reset — Link in Bio"
+  },
+  C4: {
+    headline: "Structure does not make a father rigid. *It makes him more emotionally available.*",
+    subhead: "When the day has shape,",
+    body: "the mind isn't constantly improvising. And when you're not improvising, you have something left over for the people in front of you.",
+    caption: `Structure does not make a father rigid. It makes him more emotionally available.
+
+Most men avoid structure because it sounds constraining. But what structure actually does is reduce the number of decisions being made on the fly — which reduces mental drain — which leaves more of you present for your family by evening.
+
+An unstructured day isn't freedom. It's constant low-level improvisation. And improvisation is exhausting.
+
+The father who has real shape to his day arrives home with more to give. That's not accidental.`,
+    hashtags: "#dadlife #fatherhood #intentionalparenting #familyleadership #dadadvice #consciousparenting #beabetterdad #christiandad #emotionalintelligence #presentdad",
+    cta: "Free Reset — Link in Bio"
+  },
+  RF1: {
+    headline: "You do not need to overhaul your life *to become more present at home.*",
+    subhead: "The gap is usually smaller than it looks.",
+    body: "A few consistent changes in how you transition, how you arrive, how you start the evening — and the family experiences something different.",
+    caption: `You do not need to overhaul your life to become more present at home.
+
+The picture most men have of what needs to change is too large. They think it requires quitting something, restructuring everything, becoming a different person.
+
+It usually doesn't.
+
+It requires a few consistent changes to specific moments — how the day ends, how you enter the house, how you start the first ten minutes. Those moments compound faster than most men expect.
+
+You don't need a new life. You need a few better transitions inside the one you have.`,
+    hashtags: "#dadlife #fatherhood #dadadvice #intentionalparenting #consciousparenting #beabetterdad #presentdad #familyfirst #christiandad #emotionalintelligence",
+    cta: "Free Reset — Link in Bio"
+  },
+  RF2: {
+    headline: "You are probably carrying more mental weight *than your family realizes.*",
+    subhead: "They see the result of it —",
+    body: "the distraction, the shortened patience, the fatigue. But they don't see what you're carrying. That's not a complaint. It's a reason to take the weight seriously.",
+    caption: `You are probably carrying more mental weight than your family realizes.
+
+They don't see the decisions you're holding, the things unresolved, the pressure that doesn't have an obvious place to land. They see the version of you that arrives home — shorter, quieter, somewhere else.
+
+That's not their fault. And it's not fully yours either.
+
+But the weight is real, and it has to go somewhere. If it doesn't get processed deliberately, it leaks into the home without you choosing that.
+
+Taking the weight seriously is not self-indulgence. It's stewardship.`,
+    hashtags: "#mentalhealthformen #dadlife #fatherhood #dadadvice #consciousparenting #intentionalparenting #familyleadership #beabetterdad #christiandad #emotionalintelligence",
+    cta: "Free Reset — Link in Bio"
+  },
+  RF3: {
+    headline: "Small consistency changes a home *faster than occasional intensity.*",
+    subhead: "The big gesture gets remembered.",
+    body: "The daily small thing gets internalized. What shapes a family is less what happens on the good days and more what's reliable on the ordinary ones.",
+    caption: `Small consistency changes a home faster than occasional intensity.
+
+Most men try to make up for absence or distraction with periodic effort — a great weekend, a long conversation, a moment that lands. Those matter.
+
+But they don't compound the way daily small things do.
+
+The ten minutes every morning. The transition ritual before entering the house. The way you end the day with your kids. None of it is impressive. All of it is formative.
+
+Reliable ordinary beats remarkable occasional. Every time.`,
+    hashtags: "#dadlife #fatherhood #intentionalparenting #consciousparenting #dadadvice #familyfirst #christiandad #presentdad #beabetterdad #raisingboys",
+    cta: "Free Reset — Link in Bio"
+  },
+  RF4: {
+    headline: "The goal is not becoming an impressive father. *It's becoming a steady one.*",
+    subhead: "Impressive moments are easy to perform",
+    body: "and hard to sustain. Steadiness is the opposite — easy to overlook and impossible to fake over time.",
+    caption: `The goal is not becoming an impressive father. It's becoming a steady one.
+
+Impressive is a performance. It happens in moments and gets remembered selectively. It's also exhausting to maintain and easy to fake short-term.
+
+Steadiness is different. It doesn't photograph well. It doesn't make a great story. It just shows up the same way, day after day, until the family stops bracing and starts resting.
+
+That's what they actually need. Not your best days. Your consistent ones.`,
+    hashtags: "#dadlife #fatherhood #dadadvice #intentionalparenting #consciousparenting #familyleadership #christiandad #beabetterdad #presentdad #emotionalintelligence",
+    cta: "Free Reset — Link in Bio"
+  }
+};
+
+// ── PARSE MARKUP ──
+function parseHeadline(text) {
+  return text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+}
+
+function parseSubhead(text) {
+  return text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+}
+
+// ── LOAD POST FROM BANK ──
+function loadPost() {
+  const key = document.getElementById('post-select').value;
+  if (!key || !POSTS[key]) return;
+  const p = POSTS[key];
+  document.getElementById('in-headline').value = p.headline;
+  document.getElementById('in-subhead').value = p.subhead;
+  document.getElementById('in-body').value = p.body;
+  document.getElementById('in-cta').value = p.cta;
+  document.getElementById('caption-display').textContent = p.caption;
+  document.getElementById('hashtag-display').textContent = p.hashtags;
+  liveUpdate();
+}
+
+// ── LIVE UPDATE POST ──
+function liveUpdate() {
+  const headline = document.getElementById('in-headline').value;
+  const subhead = document.getElementById('in-subhead').value;
+  const body = document.getElementById('in-body').value;
+  const cta = document.getElementById('in-cta').value;
+
+  document.getElementById('el-headline').innerHTML = parseHeadline(headline);
+  document.getElementById('el-subhead').innerHTML = parseSubhead(subhead);
+  document.getElementById('el-body').textContent = body;
+  document.getElementById('el-cta').textContent = cta;
+
+  // Auto font size for headline
+  const len = headline.replace(/\*(.*?)\*/g, '$1').length;
+  const el = document.getElementById('el-headline');
+  if (len < 35) el.style.fontSize = '6.5vw';
+  else if (len < 55) el.style.fontSize = '5.8vw';
+  else if (len < 75) el.style.fontSize = '5.0vw';
+  else el.style.fontSize = '4.2vw';
+}
+
+// ── PHOTO PICKER ──
+function loadPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('el-photo');
+    const placeholder = document.getElementById('photo-placeholder');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    if (placeholder) placeholder.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── COPY CAPTION ──
+function copyCaption() {
+  const caption = document.getElementById('caption-display').textContent;
+  const hashtags = document.getElementById('hashtag-display').textContent;
+  const full = caption + '\n\n' + hashtags;
+  navigator.clipboard.writeText(full).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => btn.textContent = 'Copy All', 2000);
+  });
+}
+
+// ── CADENCE TRACKER ──
+const HD_STORAGE_KEY = 'hd_cadence';
+
+const HD_POST_META = {
+  R3:  { label: 'Recognition',  intensity: 2 },
+  R4:  { label: 'Recognition',  intensity: 3 },
+  P1:  { label: 'Presence',     intensity: 2 },
+  P2:  { label: 'Presence',     intensity: 2 },
+  P3:  { label: 'Presence',     intensity: 2 },
+  P4:  { label: 'Presence',     intensity: 2 },
+  C1:  { label: 'Connection',   intensity: 2 },
+  C2:  { label: 'Connection',   intensity: 2 },
+  C3:  { label: 'Connection',   intensity: 1 },
+  C4:  { label: 'Connection',   intensity: 1 },
+  RF1: { label: 'Relief',       intensity: 1 },
+  RF2: { label: 'Relief',       intensity: 2 },
+  RF3: { label: 'Relief',       intensity: 1 },
+  RF4: { label: 'Relief',       intensity: 1 },
+};
+
+function getHDCadence() {
+  try { return JSON.parse(localStorage.getItem(HD_STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveHDCadence(posts) {
+  localStorage.setItem(HD_STORAGE_KEY, JSON.stringify(posts.slice(-4)));
+}
+
+function logHDPost(postKey) {
+  const meta = HD_POST_META[postKey] || { label: 'Split Panel', intensity: 2 };
+  const entry = {
+    label: meta.label,
+    intensity: meta.intensity,
+    type: 'split+photo',
+    post: postKey,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+  const current = getHDCadence();
+  current.push(entry);
+  saveHDCadence(current);
+  renderHDCadence();
+}
+
+function renderHDCadence() {
+  const posts = getHDCadence();
+  const el    = document.getElementById('cadence-posts');
+  el.innerHTML = '';
+  for (let i = 0; i < 4; i++) {
+    const slot = document.createElement('div');
+    const p    = posts[i];
+    if (!p) {
+      slot.className = 'cadence-slot empty';
+      slot.innerHTML = `<div class="cadence-layout">—</div>`;
+    } else {
+      slot.className = 'cadence-slot';
+      const dots = [1,2,3].map(d =>
+        `<div class="intensity-dot ${d <= p.intensity ? 'filled' : ''}"></div>`
+      ).join('');
+      slot.innerHTML = `
+        <div class="cadence-layout">${p.label}</div>
+        <div class="cadence-intensity">${dots}</div>
+        <div class="cadence-type">${p.type} · ${p.time || ''}</div>`;
+    }
+    el.appendChild(slot);
+  }
+}
+
+// ── TAB SWITCHER ──
+function showTab(tab) {
+  const editor = document.getElementById('editor-panel');
+  const caption = document.getElementById('caption-panel');
+  const toggleBar = document.querySelector('.toggle-bar');
+
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+
+  if (tab === 'editor') {
+    editor.classList.remove('hidden');
+    caption.classList.add('hidden');
+    toggleBar.style.display = 'flex';
+    document.getElementById('tog-editor').classList.add('active');
+  } else if (tab === 'caption') {
+    editor.classList.add('hidden');
+    caption.classList.remove('hidden');
+    toggleBar.style.display = 'flex';
+    document.getElementById('tog-caption').classList.add('active');
+  } else if (tab === 'hide') {
+    // Log post when screenshot tab is tapped
+    const postKey = document.getElementById('post-select').value;
+    if (postKey) logHDPost(postKey);
+    editor.classList.add('hidden');
+    caption.classList.add('hidden');
+    toggleBar.style.display = 'flex';
+    document.getElementById('tog-hide').classList.add('active');
+  }
+}
+
+// ── IMPORT POSTS ──
+function importPosts(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const incoming = JSON.parse(e.target.result);
+      if (typeof incoming !== 'object' || Array.isArray(incoming)) throw new Error();
+      let added = 0, updated = 0;
+      Object.keys(incoming).forEach(key => {
+        const existed = !!POSTS[key];
+        POSTS[key] = incoming[key];
+        existed ? updated++ : added++;
+      });
+      rebuildDropdown();
+      setStatus(`✓ ${added} added, ${updated} updated`);
+    } catch {
+      setStatus('✗ Invalid JSON file');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function rebuildDropdown() {
+  const sel = document.getElementById('post-select');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Choose a post —</option>';
+  Object.keys(POSTS).forEach(key => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    const short = POSTS[key].headline.replace(/\*(.*?)\*/g,'$1').substring(0, 55);
+    opt.textContent = `${key} · ${short}`;
+    sel.appendChild(opt);
+  });
+  if (current && POSTS[current]) sel.value = current;
+}
+
+// ── MARK USED ──
+function markUsed() {
+  const key = document.getElementById('post-select').value;
+  if (!key || !POSTS[key]) return;
+  if (!confirm(`Remove "${key}" from the post bank?`)) return;
+  delete POSTS[key];
+  rebuildDropdown();
+  document.getElementById('post-select').value = '';
+  document.getElementById('in-headline').value = '';
+  document.getElementById('in-subhead').value = '';
+  document.getElementById('in-body').value = '';
+  document.getElementById('caption-display').textContent = 'Select a post from the bank to see its caption.';
+  document.getElementById('hashtag-display').textContent = '';
+  setStatus(`✓ ${key} removed`);
+}
+
+// ── STATUS ──
+function setStatus(msg) {
+  const el = document.getElementById('action-status');
+  el.textContent = msg;
+  setTimeout(() => el.textContent = '', 3000);
+}
+
+// ── PHOTO LIBRARY ──
+const PHOTO_LIB_KEY = 'hd_photo_library';
+const PHOTO_ACTIVE_KEY = 'hd_active_photo';
+let activePhotoId = null;
+
+function getLibrary() {
+  try { return JSON.parse(localStorage.getItem(PHOTO_LIB_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveLibrary(lib) {
+  try {
+    localStorage.setItem(PHOTO_LIB_KEY, JSON.stringify(lib));
+  } catch(e) {
+    setStatus('✗ Storage full — remove some photos');
+  }
+}
+
+function addToLibrary(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+  const lib = getLibrary();
+  let processed = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      lib.push({ id: Date.now() + Math.random(), src: e.target.result });
+      processed++;
+      if (processed === files.length) {
+        saveLibrary(lib);
+        renderLibrary();
+        setStatus(`✓ ${files.length} photo${files.length > 1 ? 's' : ''} added`);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function selectPhoto(id) {
+  activePhotoId = id;
+  localStorage.setItem(PHOTO_ACTIVE_KEY, id);
+  const lib = getLibrary();
+  const photo = lib.find(p => p.id === id);
+  if (photo) {
+    const img = document.getElementById('el-photo');
+    const placeholder = document.getElementById('photo-placeholder');
+    img.src = photo.src;
+    img.style.display = 'block';
+    if (placeholder) placeholder.style.display = 'none';
+  }
+  renderLibrary();
+}
+
+function deletePhoto(id, e) {
+  e.stopPropagation();
+  const lib = getLibrary().filter(p => p.id !== id);
+  saveLibrary(lib);
+  if (activePhotoId === id) {
+    activePhotoId = null;
+    localStorage.removeItem(PHOTO_ACTIVE_KEY);
+    const img = document.getElementById('el-photo');
+    const placeholder = document.getElementById('photo-placeholder');
+    img.src = '';
+    img.style.display = 'none';
+    if (placeholder) placeholder.style.display = 'flex';
+  }
+  renderLibrary();
+}
+
+function clearLibrary() {
+  if (!confirm('Remove all photos from the library?')) return;
+  localStorage.removeItem(PHOTO_LIB_KEY);
+  localStorage.removeItem(PHOTO_ACTIVE_KEY);
+  activePhotoId = null;
+  const img = document.getElementById('el-photo');
+  const placeholder = document.getElementById('photo-placeholder');
+  img.src = '';
+  img.style.display = 'none';
+  if (placeholder) placeholder.style.display = 'flex';
+  renderLibrary();
+  setStatus('Library cleared');
+}
+
+function renderLibrary() {
+  const lib = getLibrary();
+  const tray = document.getElementById('photo-tray');
+  const countEl = document.getElementById('photo-count');
+  const emptyEl = document.getElementById('tray-empty');
+
+  countEl.textContent = `${lib.length} photo${lib.length !== 1 ? 's' : ''}`;
+
+  if (!lib.length) {
+    tray.innerHTML = '<div class="photo-tray-empty" id="tray-empty">No photos yet — tap + Add to Library</div>';
+    return;
+  }
+
+  tray.innerHTML = '';
+  lib.forEach(photo => {
+    const thumb = document.createElement('div');
+    thumb.className = 'photo-thumb' + (photo.id === activePhotoId ? ' active' : '');
+    thumb.onclick = () => selectPhoto(photo.id);
+    thumb.innerHTML = `
+      <img src="${photo.src}" alt="">
+      <div class="photo-thumb-del" onclick="deletePhoto(${photo.id}, event)">✕</div>`;
+    tray.appendChild(thumb);
+  });
+}
+
+function initLibrary() {
+  const savedId = localStorage.getItem(PHOTO_ACTIVE_KEY);
+  if (savedId) {
+    const lib = getLibrary();
+    const photo = lib.find(p => String(p.id) === savedId);
+    if (photo) {
+      activePhotoId = photo.id;
+      const img = document.getElementById('el-photo');
+      const placeholder = document.getElementById('photo-placeholder');
+      img.src = photo.src;
+      img.style.display = 'block';
+      if (placeholder) placeholder.style.display = 'none';
+    }
+  }
+  renderLibrary();
+}
+
+// Init
+document.getElementById('post-select').value = 'R3';
+loadPost();
+renderHDCadence();
+initLibrary();
+</script>
+</body>
+</html>
