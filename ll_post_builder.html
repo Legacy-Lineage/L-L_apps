@@ -554,6 +554,114 @@ html, body { width: 100%; background: #0A0806; }
   text-transform: uppercase;
   color: #3A3028;
 }
+
+/* ══ SEQUENCE GUIDE ══ */
+.sequence-guide {
+  background: #0A0806;
+  border-top: 1px solid #1A1510;
+  padding: 14px 16px 20px;
+}
+
+.seq-title {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+
+.seq-subtitle {
+  font-family: system-ui;
+  font-size: 7px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #3A3028;
+  margin-bottom: 10px;
+}
+
+.seq-days {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.seq-day {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 3px;
+  background: #0E0C08;
+  border: 1px solid #1A1510;
+}
+
+.seq-day.today {
+  border-color: var(--gold);
+  background: #141008;
+}
+
+.seq-day-label {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #3A3028;
+  min-width: 28px;
+}
+
+.seq-day.today .seq-day-label {
+  color: var(--gold);
+}
+
+.seq-day-layout {
+  font-family: system-ui;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6A5840;
+  min-width: 80px;
+}
+
+.seq-day.today .seq-day-layout {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.seq-day-desc {
+  font-family: Georgia, serif;
+  font-size: 10px;
+  color: #4A3E2E;
+  font-style: italic;
+  flex: 1;
+}
+
+.seq-day.today .seq-day-desc {
+  color: rgba(220,210,190,0.6);
+}
+
+.seq-today-badge {
+  font-family: system-ui;
+  font-size: 7px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: var(--gold);
+  color: #0A0806;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: 700;
+}
+
+.seq-note {
+  font-family: Georgia, serif;
+  font-size: 10px;
+  line-height: 1.6;
+  color: #3A3028;
+  font-style: italic;
+  border-top: 1px solid #1A1510;
+  padding-top: 10px;
+}
 </style>
 </head>
 <body>
@@ -658,7 +766,13 @@ html, body { width: 100%; background: #0A0806; }
 
   <div class="btn-row" style="margin-top:8px">
     <button class="btn btn-primary" onclick="renderPost()">Update Post</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('import-input').click()">⬆ Import Posts</button>
+    <input type="file" id="import-input" accept=".json" onchange="importPosts(event)" style="display:none">
   </div>
+  <div class="btn-row" style="margin-top:6px">
+    <button class="btn btn-secondary" id="mark-used-btn" onclick="markUsed()" style="color:#8B3A3A;border-color:#8B3A3A;opacity:0.7;">✕ Mark Used & Remove</button>
+  </div>
+  <div id="import-status" style="font-size:11px;color:#9E7B45;padding:4px 0;min-height:16px;"></div>
 
 </div>
 
@@ -670,6 +784,14 @@ html, body { width: 100%; background: #0A0806; }
   </div>
   <div class="caption-text-display" id="caption-display">Select a post from the bank to see its caption.</div>
   <div class="hashtag-display" id="hashtag-display"></div>
+</div>
+
+<!-- ══ SEQUENCE GUIDE ══ -->
+<div class="sequence-guide" id="sequence-guide">
+  <div class="seq-title">Daily Posting Sequence</div>
+  <div class="seq-subtitle">7-DAY ROTATION — REPEAT</div>
+  <div class="seq-days" id="seq-days"></div>
+  <div class="seq-note">Heavy doctrine posts (Day 1, 4) anchor the week. Lighter layouts give the feed rhythm and contrast. Never stack two doctrine posts back to back.</div>
 </div>
 
 <script>
@@ -1124,7 +1246,81 @@ function loadPost() {
   renderPost();
 }
 
-// ══ LAYOUT CHANGE ══
+// ══ IMPORT POSTS ══
+function importPosts(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const incoming = JSON.parse(e.target.result);
+      if (typeof incoming !== 'object' || Array.isArray(incoming)) throw new Error('Invalid format');
+      let added = 0, updated = 0;
+      Object.keys(incoming).forEach(key => {
+        const existed = !!POSTS[key];
+        POSTS[key] = incoming[key];
+        existed ? updated++ : added++;
+      });
+      rebuildPostDropdown();
+      const status = document.getElementById('import-status');
+      status.textContent = `✓ ${added} added, ${updated} updated`;
+      setTimeout(() => status.textContent = '', 3000);
+    } catch(err) {
+      document.getElementById('import-status').textContent = '✗ Invalid JSON file';
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function rebuildPostDropdown() {
+  const sel = document.getElementById('in-post');
+  const current = sel.value;
+
+  // Group posts by their optgroup label
+  const groups = {
+    'Observational': [],
+    'Atmosphere': [],
+    'Hidden Burden': [],
+    'Contrast / Paradox': [],
+    'Governance / Orientation': [],
+    'Other': []
+  };
+
+  const groupKeys = {
+    O: 'Observational',
+    A: 'Atmosphere',
+    HB: 'Hidden Burden',
+    CP: 'Contrast / Paradox',
+    G: 'Governance / Orientation'
+  };
+
+  Object.keys(POSTS).forEach(key => {
+    const prefix = key.match(/^[A-Z]+/)?.[0] || '';
+    const group = groupKeys[prefix] || 'Other';
+    groups[group].push({ key, post: POSTS[key] });
+  });
+
+  sel.innerHTML = '<option value="">— Choose post —</option>';
+  Object.keys(groups).forEach(groupName => {
+    if (!groups[groupName].length) return;
+    const og = document.createElement('optgroup');
+    og.label = groupName;
+    groups[groupName].forEach(({ key, post }) => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      const shortHL = post.headline.replace(/\*(.*?)\*/g, '$1').replace(/\n/g, ' ').substring(0, 50);
+      opt.textContent = `${key} · ${shortHL}`;
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  });
+
+  // Restore selection if still exists
+  if (current && POSTS[current]) sel.value = current;
+}
+
+
 function onLayoutChange() {
   const layout = document.getElementById('in-layout').value;
   // Find first post in bank matching this layout
@@ -1247,11 +1443,70 @@ function renderCadence() {
   }
 }
 
+// ══ MARK USED ══
+function markUsed() {
+  const key = document.getElementById('in-post').value;
+  if (!key || !POSTS[key]) return;
+  if (!confirm(`Remove "${key}" from the post bank? This can't be undone.`)) return;
+  delete POSTS[key];
+  rebuildPostDropdown();
+  // Clear fields
+  document.getElementById('in-post').value = '';
+  document.getElementById('in-headline').value = '';
+  document.getElementById('in-body').value = '';
+  document.getElementById('caption-display').textContent = 'Select a post from the bank to see its caption.';
+  document.getElementById('hashtag-display').textContent = '';
+  const status = document.getElementById('import-status');
+  status.textContent = `✓ ${key} removed`;
+  setTimeout(() => status.textContent = '', 2500);
+}
+
+// ══ SEQUENCE GUIDE ══
+const SEQUENCE = [
+  { layout: 'doctrine',    desc: 'Heavy anchor — doctrine or governance conviction' },
+  { layout: 'field-note',  desc: 'Editorial — observational or atmosphere post' },
+  { layout: 'reminder',    desc: 'Single statement — walnut, high contrast' },
+  { layout: 'directive',   desc: 'Cream, no body — short command or paradox' },
+  { layout: 'doctrine',    desc: 'Heavy anchor — repeat cycle midweek' },
+  { layout: 'field-note',  desc: 'Editorial — hidden burden or contrast post' },
+  { layout: 'observation', desc: 'Photo overlay — visual break, low intensity' },
+];
+
+const DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+const LAYOUT_LABELS = {
+  'doctrine':    'Doctrine',
+  'field-note':  'Field Note',
+  'reminder':    'Reminder',
+  'directive':   'Directive',
+  'observation': 'Observation',
+  'excerpt':     'Excerpt',
+};
+
+function renderSequence() {
+  const el = document.getElementById('seq-days');
+  const todayDow = new Date().getDay(); // 0=Sun
+  // Map today to sequence index: Mon=0 through Sun=6
+  const seqIndex = todayDow === 0 ? 6 : todayDow - 1;
+
+  el.innerHTML = SEQUENCE.map((s, i) => {
+    const isToday = i === seqIndex;
+    const dayName = DAY_NAMES[(i + 1) % 7]; // Mon=index0 → label MON
+    return `<div class="seq-day${isToday ? ' today' : ''}">
+      <div class="seq-day-label">${dayName}</div>
+      <div class="seq-day-layout">${LAYOUT_LABELS[s.layout] || s.layout}</div>
+      <div class="seq-day-desc">${s.desc}</div>
+      ${isToday ? '<div class="seq-today-badge">TODAY</div>' : ''}
+    </div>`;
+  }).join('');
+}
+
 // ══ INIT ══
 document.getElementById('in-post').value   = 'O3';
 document.getElementById('in-layout').value = 'doctrine';
 loadPost();
 renderCadence();
+renderSequence();
 </script>
 </body>
 </html>
