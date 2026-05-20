@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steadfast — Daily Anchor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Spectral:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#1a1814;--surface:#22201c;--panel:#2a2722;--border:#3a3630;
+    --gold:#b8965a;--gold-dim:#7a6038;--blue:#4a7fa5;--blue-dim:#2d5570;
+    --blue-pale:#6b9dbf;--stone:#8c8070;--cream:#d4c9b0;--text:#c8bca8;--muted:#6b6254;
+    --altar:#b8965a;--forge:#a0715a;--covenant:#4a7fa5;--heritage:#6b8c5a;--fortress:#8c7a5a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;letter-spacing:.01em}
+  .app{display:flex;flex-direction:column;min-height:100vh}
+  header{padding:26px 32px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100}
+  .wordmark{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;letter-spacing:.18em;color:var(--cream);text-transform:uppercase}
+  .wordmark span{color:var(--gold)}
+  .header-right{display:flex;align-items:center;gap:14px}
+  .date-label{font-size:.67rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .nav-btn{background:none;border:1px solid var(--border);color:var(--stone);cursor:pointer;padding:5px 13px;font-family:'Jost',sans-serif;font-size:.71rem;letter-spacing:.12em;text-transform:uppercase;transition:all .2s}
+  .nav-btn:hover{border-color:var(--gold-dim);color:var(--cream)}
+  .nav-btn.active{border-color:var(--gold);color:var(--gold)}
+  main{flex:1;padding:0 32px 48px;max-width:720px;margin:0 auto;width:100%}
+  #today-view{display:block}
+  #history-view{display:none}
+
+  /* pillar accent line under header */
+  .pillar-accent{height:1px;background:var(--border);margin-bottom:0;transition:background .4s}
+
+  .verse-day{padding:38px 0 22px;border-bottom:1px solid var(--border);margin-bottom:30px}
+  .pillar-tag{display:inline-flex;align-items:center;gap:8px;font-size:.63rem;letter-spacing:.22em;text-transform:uppercase;padding:4px 10px;border:1px solid;margin-bottom:18px}
+  .pillar-tag.altar{color:var(--altar);border-color:var(--altar)}
+  .pillar-tag.forge{color:var(--forge);border-color:var(--forge)}
+  .pillar-tag.covenant{color:var(--covenant);border-color:var(--covenant)}
+  .pillar-tag.heritage{color:var(--heritage);border-color:var(--heritage)}
+  .pillar-tag.fortress{color:var(--fortress);border-color:var(--fortress)}
+  .pillar-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+  .verse-seq{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .verse-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);margin-bottom:22px}
+  .verse-text{font-family:'Cormorant Garamond',serif;font-size:1.72rem;font-weight:300;font-style:italic;line-height:1.55;color:var(--cream);margin-bottom:11px}
+  .verse-ref{font-size:.71rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim)}
+  .divider{width:40px;height:1px;background:var(--border);margin:30px 0}
+  .section-label{font-size:.63rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:13px}
+  .reflect-text{font-family:'Spectral',serif;font-size:.97rem;font-weight:300;line-height:1.82;color:var(--text);margin-bottom:26px}
+  .recalibrate-block{border-left:2px solid var(--blue-dim);padding:15px 20px;margin-bottom:26px;background:rgba(74,127,165,.05)}
+  .recalibrate-block .section-label{color:var(--blue-pale);margin-bottom:9px}
+  .recalibrate-block p{font-family:'Spectral',serif;font-size:.91rem;font-style:italic;line-height:1.77;color:var(--stone)}
+  .enter-day-block{border-left:2px solid var(--gold-dim);padding:15px 20px;background:rgba(184,150,90,.05)}
+  .enter-day-block .section-label{color:var(--gold);margin-bottom:9px}
+  .enter-day-block p{font-family:'Spectral',serif;font-size:.91rem;line-height:1.77;color:var(--stone)}
+
+  /* Pillar cycle strip */
+  .cycle-strip{display:flex;gap:2px;margin:30px 0 0;padding-top:22px;border-top:1px solid var(--border)}
+  .cycle-item{flex:1;padding:8px 4px;text-align:center;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;border-bottom:1px solid transparent;transition:all .2s;color:var(--muted)}
+  .cycle-item.active{color:var(--cream)}
+  .cycle-item.active.altar{border-color:var(--altar);color:var(--altar)}
+  .cycle-item.active.forge{border-color:var(--forge);color:var(--forge)}
+  .cycle-item.active.covenant{border-color:var(--covenant);color:var(--covenant)}
+  .cycle-item.active.heritage{border-color:var(--heritage);color:var(--heritage)}
+  .cycle-item.active.fortress{border-color:var(--fortress);color:var(--fortress)}
+
+  .posture-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:40px}
+  .posture-item{background:var(--surface);padding:15px 17px}
+  .posture-pillar{font-size:.59rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  .posture-question{font-family:'Spectral',serif;font-size:.87rem;font-style:italic;line-height:1.5;color:var(--text)}
+
+  /* History */
+  .history-header{padding:34px 0 18px;border-bottom:1px solid var(--border);margin-bottom:26px;display:flex;align-items:baseline;gap:14px}
+  .history-title{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;letter-spacing:.12em;color:var(--cream);text-transform:uppercase}
+  .history-count{font-size:.63rem;letter-spacing:.15em;color:var(--muted)}
+  .history-empty{padding:48px 0;text-align:center;color:var(--muted);font-size:.84rem;letter-spacing:.1em}
+  .history-list{display:flex;flex-direction:column;gap:2px}
+  .history-item{background:var(--surface);border:1px solid var(--border);padding:18px 22px;cursor:pointer;transition:all .2s;display:grid;grid-template-columns:82px 1fr auto;gap:14px;align-items:center}
+  .history-item:hover{background:var(--panel);border-color:var(--gold-dim)}
+  .history-date{font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+  .history-verse{font-family:'Cormorant Garamond',serif;font-size:.98rem;font-style:italic;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .history-meta{font-size:.62rem;letter-spacing:.1em;color:var(--stone);margin-top:3px}
+  .history-pillar{font-size:.57rem;letter-spacing:.17em;text-transform:uppercase;padding:3px 8px;border:1px solid;white-space:nowrap}
+  .history-pillar.altar{color:var(--altar);border-color:var(--altar)}
+  .history-pillar.forge{color:var(--forge);border-color:var(--forge)}
+  .history-pillar.covenant{color:var(--covenant);border-color:var(--covenant)}
+  .history-pillar.heritage{color:var(--heritage);border-color:var(--heritage)}
+  .history-pillar.fortress{color:var(--fortress);border-color:var(--fortress)}
+
+  /* Detail overlay */
+  #detail-overlay{display:none;position:fixed;inset:0;background:rgba(26,24,20,.97);z-index:200;overflow-y:auto;padding:32px}
+  .detail-inner{max-width:620px;margin:0 auto}
+  .detail-close{display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--muted);cursor:pointer;font-family:'Jost',sans-serif;font-size:.69rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:34px;padding:0;transition:color .2s}
+  .detail-close:hover{color:var(--cream)}
+  .detail-close::before{content:'←';font-size:1rem}
+  .detail-date-label{font-size:.63rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:22px}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .verse-day{animation:fadeUp .4s ease forwards}
+  ::-webkit-scrollbar{width:4px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border)}
+  @media(max-width:600px){
+    header{padding:16px 18px 13px}
+    main{padding:0 18px 40px}
+    .verse-text{font-size:1.42rem}
+    .posture-grid{grid-template-columns:1fr}
+    .history-item{grid-template-columns:1fr auto;grid-template-rows:auto auto}
+    .history-date{grid-column:1}
+    .history-verse-col{grid-column:1/-1;grid-row:2}
+    .history-pillar{grid-row:1}
+    #detail-overlay{padding:18px}
+    .wordmark{font-size:1.18rem}
+    .date-label{display:none}
+    .cycle-item{font-size:.5rem;padding:7px 2px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="wordmark">Stead<span>fast</span></div>
+    <div class="header-right">
+      <span class="date-label" id="header-date"></span>
+      <button class="nav-btn active" id="btn-today" onclick="showView('today')">Today</button>
+      <button class="nav-btn" id="btn-history" onclick="showView('history')">Archive</button>
+    </div>
+  </header>
+  <main>
+    <div id="today-view"></div>
+    <div id="history-view"></div>
+  </main>
+</div>
+<div id="detail-overlay">
+  <div class="detail-inner">
+    <button class="detail-close" onclick="closeDetail()">Back to Archive</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+<script>
+const VERSES_BY_PILLAR = {
+  altar: [
+    {
+      pillar: `altar`,
+      title: `When Outcomes Feel Personal`,
+      verse: `To whom much is given, much will be required.`,
+      ref: `Luke 12:48`,
+      reflect: `When a project stalls, when a child pushes back, when the month ends short — a man who has confused stewardship with authorship takes it personally. Not just as disappointment, but as verdict. He walks back through his effort looking for what he should have done differently, as though the right combination of inputs guarantees the outcome he wanted. It does not. And that gap is where anxiety lives. The verse does not glorify pressure. It clarifies the actual assignment. To be given much is to be made responsible for faithfulness — not for sovereignty. A steward tends what is entrusted. An author controls what he has written. Most men are operating as authors while carrying a steward's assignment, and the mismatch is what makes the weight feel wrong.`,
+      recalibrate: `When a result disappoints today, pause before deciding what it means about you. Ask instead whether you were faithful with your portion of it. Faithfulness is what you can answer for. The outcome has another author.`,
+      enter: `Do your work today as a man who tends rather than controls. At the end of it, ask whether you were faithful — not whether it worked. Those are different questions, and only one of them is yours to answer.`,
+    },
+    {
+      pillar: `altar`,
+      title: `When Your Tone Sharpens`,
+      verse: `Above all else, guard your heart, for everything you do flows from it.`,
+      ref: `Proverbs 4:23`,
+      reflect: `Tone rarely deteriorates because of circumstances. It deteriorates because of what a man has been rehearsing internally. Some frustration goes unexamined. Some comparison lingers. Some quiet resentment takes up residence and begins to color everything that comes out — often before he realizes it has shifted. A man can attempt to correct his speech while leaving the source untouched, and the sharpness will return because the posture that produces it was never addressed. Guarding the heart is not about emotional fragility — it is a form of leadership discipline. What circulates inside will surface outside, and it usually surfaces first toward the people who are closest.`,
+      recalibrate: `If your tone was sharp this morning before the day gave you a reason, something was already running underneath it. You did not wake up irritable because of what happened at 7am — you woke up with what you went to bed carrying. Correction begins there, at whatever was left unexamined, not at the words themselves.`,
+      enter: `Before you respond to the first difficult thing today, take one breath longer than feels necessary. Not to suppress what you feel — to make sure what comes out is chosen rather than reflexive. The household will feel the difference even if they cannot name it.`,
+    },
+    {
+      pillar: `altar`,
+      title: `When Faith Feels Mechanical`,
+      verse: `Create in me a clean heart, O God, and renew a steadfast spirit within me.`,
+      ref: `Psalm 51:10`,
+      reflect: `A man can maintain the full external structure of his faith while the interior has gone quiet. He still reads. He still prays, technically. He shows up to the right places. But somewhere in the routine, the actual conversation stopped and the performance of it continued. He knows the difference. It feels hollow in a way that is hard to name without feeling like a failure for naming it. The verse does not prescribe more effort. It asks for honesty. A clean heart and a renewed spirit are not manufactured by adding more to the routine — they are restored when the man stops pretending the routine is working and says plainly that it is not. That honesty is not failure. It is the beginning of the renewal the verse is describing.`,
+      recalibrate: `If you opened this page and felt nothing, that is worth acknowledging rather than pushing past. The drift is not a verdict on your faith — it is information about your posture. Name where the gap opened and when. That naming is the prayer.`,
+      enter: `Pray one honest sentence today. Not a formal prayer — a real one. Whatever is actually true about where you are. Sincerity moves faster than structure when the distance between a man and God needs closing.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Integrated Strength`,
+      verse: `Be watchful, stand firm in the faith, act like men, be strong. Let all that you do be done in love.`,
+      ref: `1 Corinthians 16:13–14`,
+      reflect: `Strength and love are not opposites, though the culture treats them that way. The man who leads with only strength becomes someone his family navigates around rather than comes toward. The man who leads with only warmth becomes someone they do not fully trust when the situation requires a held line. The verse holds both together because leadership requires both — not alternating between them, but integrated. A man who is strong but harsh has not arrived at strength. He has arrived at force. Force generates compliance. Strength held in love generates trust. And trust is what allows a household to follow without fear — which is the only kind of following that holds when conditions get hard.`,
+      recalibrate: `Think of a moment this week when you led with only half of what the verse describes. Either you held the line but the warmth was absent, or you were warm but the clarity was missing. Neither half alone is what the verse describes. Where does the integration need work today?`,
+      enter: `Let your strength serve someone today rather than inform them of your position. Let your love include the willingness to say a hard thing. The man who can do both in the same sentence is the one his family actually trusts.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Priority Before Pressure`,
+      verse: `But seek first the kingdom of God and his righteousness, and all these things will be added to you.`,
+      ref: `Matthew 6:33`,
+      reflect: `Most men do not abandon their priorities. They defer them. The morning begins with a clear sense of what matters most, and by 9am the inbox has reorganized it. By noon the urgent has fully displaced the important. By evening the man is exhausted from activity and empty on what actually governs him — and tomorrow it begins again. The instruction is a hierarchy principle, not a productivity tip. When the ultimate is kept first, the lesser things do not disappear but they find their proper size. When it is displaced — even briefly, even reasonably — everything secondary begins to carry weight it was never designed to hold, and the man wonders why he is so tired from work that should feel meaningful.`,
+      recalibrate: `Before you open the inbox, before you check what is waiting, name what is actually first today. Not what feels most urgent — what governs. Give it five minutes before the day establishes its own order for you.`,
+      enter: `Seek first, then everything else. That sequence sounds simple because it is. The difficulty is that urgent things have loud voices and the ultimate does not. You have to choose it before the noise starts.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Spirit of Power, Love, Self-Control`,
+      verse: `For God gave us a spirit not of fear but of power and love and self-control.`,
+      ref: `2 Timothy 1:7`,
+      reflect: `Fear governs quietly. It does not usually announce itself as fear — it presents as caution, as wisdom, as the responsible hesitation of a man who has thought through the risks. The conversation he has been avoiding for three weeks. The boundary he has not drawn. The decision he keeps circling without making. Fear looks like patience until you examine it long enough to see that nothing is actually moving. The verse describes what has been given: power, love, and self-control. Not earned — given. The man who operates from fear has not lost access to these. He has simply not chosen them over the fear that is currently more present. That is a different problem than deficiency. It is a decision problem, and decisions can be made differently today.`,
+      recalibrate: `Name the thing you have been avoiding under the banner of caution, timing, or wisdom. Ask whether it is actually any of those things, or whether it is fear operating with better vocabulary. Then decide what today requires.`,
+      enter: `Act today from the disposition you want to be characterized by, not from the anxiety that presses hardest. Fear will always have a reason ready. Make the decision before consulting it.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Fruit vs. Force`,
+      verse: `But the fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faithfulness, gentleness, self-control.`,
+      ref: `Galatians 5:22–23`,
+      reflect: `A man can perform patience in the room and then say exactly what the patience was containing the moment he walks out of it. He can perform kindness toward someone he is resenting and have the resentment color every interaction for the rest of the day. The performance is exhausting because it requires constant effort to maintain what is not actually growing. That effort eventually fails. Fruit is the natural result of what is actually growing — which is why it does not require performance to sustain. The list in the verse is not a set of behaviors to produce. It is a description of what a man's character looks like when his inner life is in order. The question is not whether the fruit is visible. It is whether the root is attended to.`,
+      recalibrate: `Where are you currently performing one of the qualities on this list rather than producing it? The performance is recognizable because it requires effort to maintain and collapses under pressure. The fruit does not. What is the root condition underneath?`,
+      enter: `Attend to the root today rather than the display. The fruit will follow the root — and it will do so without requiring you to hold it in place. That is the difference between what is grown and what is performed.`,
+    },
+    {
+      pillar: `altar`,
+      title: `The Stayed Mind`,
+      verse: `You keep him in perfect peace whose mind is stayed on you, because he trusts in you.`,
+      ref: `Isaiah 26:3`,
+      reflect: `By midday most men's minds have visited their finances, a difficult conversation, the project that is behind, what someone said last week, and something that has not happened yet but might. That is not thinking — that is the mind running its own agenda while the man nominally functions. The staying the verse describes is not about suppressing that drift. It is about having somewhere to return to when you notice it has happened. Perfect peace does not mean no disruption. It describes the internal condition of a man whose anchor holds even when everything above the surface is moving. The peace precedes the disruption because the staying precedes it — built in the quiet mornings before the day adds its weight.`,
+      recalibrate: `Notice how many times your mind has already left the present since waking up. Where has it been? The staying is not one decision made once — it is the repeated, undramatic practice of returning. Each return is the discipline.`,
+      enter: `When your mind drifts today — and it will — simply bring it back. No self-accusation, no elaborate reset. Just return. The man who does this ten times builds something the man who never drifts doesn't need to.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Slow Anger as Intelligence`,
+      verse: `Whoever is slow to anger has great understanding, but he who has a hasty temper exalts folly.`,
+      ref: `Proverbs 14:29`,
+      reflect: `A man who snaps at his child over something minor, or shuts down a conversation with his wife before it has actually gone anywhere, has not responded to the situation. He has responded to his first reading of it. That reading is almost always incomplete. Hasty anger is not strong. It is unprocessed — and the fallout it creates takes far longer to clean up than the interval of patience would have cost. Slow anger is not the absence of anger. It is anger that has passed through understanding before it moves. The man who is slow to anger still speaks plainly when something is wrong. He still addresses what needs addressing. But he arrives at his response with more accuracy, more authority, and less collateral damage than the man who moves immediately.`,
+      recalibrate: `Think of the last time your anger landed harder than the moment warranted. What was your first reading of the situation? Was it complete? What did you learn afterward that you did not know when you responded? Slowness would have given you that information first.`,
+      enter: `When something provokes you today, create a gap between the trigger and your response — even a small one. Use it to ask what is actually happening rather than confirming what you assumed. Your second reading is almost always more accurate than your first.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Justice, Mercy, Humility`,
+      verse: `He has told you, O man, what is good; and what does the Lord require of you but to do justice, and to love kindness, and to walk humbly with your God.`,
+      ref: `Micah 6:8`,
+      reflect: `The man who enforces standards without warmth produces a household that is technically ordered and emotionally cold. Children comply and cannot tell you why they feel distant. A wife manages the relationship rather than inhabiting it. The standard is upheld. The atmosphere is barren. Justice without mercy is law without life, and the people who live under it will follow it and quietly leave it as soon as they are able. The humility piece is the one most men underestimate. A man can pursue justice and mercy with considerable self-satisfaction — can be the fair, warm leader and still be governed by a need for credit that distorts everything downstream. Humility to walk with God rather than ahead of him is what keeps justice from becoming rigidity and mercy from becoming performance. It is the quietest of the three and the most structurally important.`,
+      recalibrate: `Of the three — justice, kindness, humility — which one has been most practically absent in how you have led your household this week? Not the one you value most in principle. The one that has actually been thin in practice. That is the one to bring today.`,
+      enter: `Lead with all three today, in that order: address what is wrong, do it with warmth, and hold the whole thing loosely enough that you are still correctable. That combination is rarer than any one of the three alone.`,
+    },
+    {
+      pillar: `altar`,
+      title: `The Weight of Responsibility`,
+      verse: `Everyone to whom much was given, of him much will be required, and from him to whom they entrusted much, they will demand the more.`,
+      ref: `Luke 12:48`,
+      reflect: `There is a version of responsibility that quietly becomes a measurement of worth. A man starts to believe that how much he carries proves how much he matters — that the weight is the validation. He takes on more than is required. He stays later than he needs to. He makes himself indispensable in ways that feel like sacrifice but function as control. The need underneath is not to serve. It is to be necessary. He cannot see it clearly from inside it. From inside it looks like faithfulness. It feels like love for his family, dedication to his work, the kind of seriousness a responsible man should have. But his wife feels the difference between a man who carries weight because he loves her and a man who carries weight to prove something. His children feel it too. They are loved, technically. But they are also instruments of their father's need to feel essential, and they will eventually name that, or carry it unnamed into their own adulthood.`,
+      recalibrate: `Is the weight you are carrying right now the actual assignment — or is some of it extra, taken on because releasing it would feel like losing something about yourself? The distinction is worth sitting with before the day presses you into carrying everything automatically.`,
+      enter: `Do your work today as one who has been given something to tend. At the end of it, you are answerable for whether you tended it — not for whether the outcome confirmed your importance.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Courage Without Noise`,
+      verse: `Have I not commanded you? Be strong and courageous. Do not be frightened, and do not be dismayed, for the Lord your God is with you wherever you go.`,
+      ref: `Joshua 1:9`,
+      reflect: `The courage this verse is addressing is not the courage of a single decisive moment. It is the courage required for a long stretch of ordinary faithfulness when the work is slow, the feedback is absent, and the visible evidence that it is working is not there yet. Joshua is not being commanded to charge a hill. He is being told not to be afraid of what comes next, day after day, for years. Do not be frightened. Do not be dismayed. Both instructions assume that fear and discouragement will present themselves — the command is not to avoid the feeling but to refuse to be governed by it. The man who obeys this command does not feel nothing. He feels it and moves anyway, because the command to go does not wait for the feeling of readiness to arrive.`,
+      recalibrate: `Where in your life right now does courage look like simply continuing — showing up again without fanfare, doing the work no one sees, holding a position that has not yet produced visible fruit? That is where this verse lands today.`,
+      enter: `Move forward today in the one area where fear or discouragement has been setting the pace. Not loudly. Steadily. Courage in this context does not need an audience. It just needs to happen.`,
+    },
+    {
+      pillar: `altar`,
+      title: `The Steady Heart`,
+      verse: `He is not afraid of bad news; his heart is firm, trusting in the Lord. His heart is steady; he will not be afraid.`,
+      ref: `Psalm 112:6–7`,
+      reflect: `When bad news arrives — and it will arrive today or tomorrow or the day after — the man whose stability depends on outcomes being favorable will absorb it differently than the man whose anchor is not tied to outcomes. The first man's peace is conditional. It exists while things are working and evaporates when they stop. That is not steadiness. That is a good run. The steady heart the verse describes is not numb or indifferent. This man is not unaffected by difficulty — he is not destabilized by it. The distinction matters. A man who feels the weight of bad news and does not collapse under it is not pretending it does not matter. He is anchored somewhere the news cannot reach.`,
+      recalibrate: `When is the last time bad news changed your interior stability for more than an hour? That duration is informative. It reveals where the anchor actually is — whether it is in the circumstance or somewhere deeper that circumstances cannot move.`,
+      enter: `Enter today expecting imperfection. Something will not go as planned. Let your response to that thing be measured by where your anchor is, not by how significant the disruption feels at the moment it arrives.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Discipline Produces Peace`,
+      verse: `For the moment all discipline seems painful rather than pleasant, but later it yields the peaceful fruit of righteousness to those who have been trained by it.`,
+      ref: `Hebrews 12:11`,
+      reflect: `The gap between the pain of discipline and the peace it produces is where most men lose the thread. The discomfort is immediate. The yield is deferred. And in that gap, the mind generates perfectly reasonable arguments for why this particular instance of discipline can be softened or skipped without significant consequence. The argument is almost always true locally and almost always false cumulatively. A man knows the moment discipline began to slip. Not always the day — sometimes only the season — but he knows. The conversation he stopped having with himself at 5:30am. The practice that became optional. The standard that began accepting exceptions. He told himself each departure was minor. He was not wrong about the individual moment. He was wrong about what it was building toward, because discipline does not erode in a single decision. It erodes in the decision to stop noticing.`,
+      recalibrate: `What discipline is currently in the gap — uncomfortable now, yield not yet visible? Resist the reasoning that shortens it. The training is the formation. The formation is what produces the man who leads steadily under pressure.`,
+      enter: `Stay with what is difficult today without renegotiating the terms. The peace described in the verse is being built in the staying.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Watchfulness`,
+      verse: `Be sober-minded; be watchful. Your adversary the devil prowls around like a roaring lion, seeking someone to devour.`,
+      ref: `1 Peter 5:8`,
+      reflect: `Watchfulness is not paranoia. It is the opposite of sleepwalking — maintaining awareness of what is actually happening internally and externally rather than operating on assumption. The danger described in the verse is not announced. It circles. It is patient. It looks for the man who is not paying attention. The two instructions — be sober-minded, be watchful — are about clarity and alertness. Sober-mindedness is the internal dimension: clear perception, undistorted by emotion or wishful thinking. Watchfulness is the external dimension: noticing what is actually entering, what is being allowed to accumulate, what has been left unguarded.`,
+      recalibrate: `What have you allowed to drift into your attention, your home, or your patterns recently without examining it carefully? What has entered because you were not watching rather than because you chose it?`,
+      enter: `Walk through today with deliberate awareness rather than on autopilot. Notice what is entering your mind, your home, and your habits — and make conscious decisions about what belongs.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Peace Where Possible`,
+      verse: `If possible, so far as it depends on you, live peaceably with all.`,
+      ref: `Romans 12:18`,
+      reflect: `The qualifications in this verse are important. If possible. So far as it depends on you. Both phrases acknowledge that peace is not always achievable, that some conflict will not resolve regardless of how well a man manages his side of it. The instruction is not to achieve peace at all costs — it is to be responsible for your portion of it. Many men either avoid conflict entirely in the name of peace, or pursue resolution so aggressively that they create new conflict in the process. Both miss what the verse actually asks. The responsibility is circumscribed: you govern what is yours to govern, release what is not, and do not manufacture conflict where it does not exist.`,
+      recalibrate: `Where are you currently holding tension that is beyond your portion to resolve? And where are you avoiding the portion that is actually yours? Both misalignments disturb peace. The verse asks for clarity about the boundary between the two.`,
+      enter: `Tend your portion of the peace today. Address what is yours to address. Release your grip on what is not. Both movements require honesty about which is which.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Rooted`,
+      verse: `Blessed is the man who walks not in the counsel of the wicked, nor stands in the way of sinners, nor sits in the seat of scoffers; but his delight is in the law of the Lord, and on his law he meditates day and night. He is like a tree planted by streams of water.`,
+      ref: `Psalm 1:1–3`,
+      reflect: `The image is of a man established rather than reactive — planted rather than blown, drawing from something deep rather than dependent on surface conditions. Most men recognize the description and cannot locate the root. They have activity where the root should be. They have output, attendance, structure, performance. What they do not have is the quiet source the tree draws from when nothing is visibly happening. A tree does not produce fruit by trying to produce fruit. It produces fruit by remaining in the conditions that make fruit possible. The man who keeps straining toward the visible result — the obedient child, the repaired marriage, the stable income, the felt sense of having led well — while neglecting what he is actually drawing from will exhaust himself reaching for what grows only from rest in the root.`,
+      recalibrate: `What are you currently rooted near? Not what you intend to be near or what you once were near — but where your roots are actually drawing from right now? The fruit visible in your life is an honest answer to that question.`,
+      enter: `Return to what nourishes rather than what merely stimulates today. The distinction matters. One produces growth. The other produces consumption.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Standing After Kneeling`,
+      verse: `Watch, stand fast in the faith, be brave, be strong. Let all that you do be done with love.`,
+      ref: `1 Corinthians 16:13–14`,
+      reflect: `The closing devotional of the Altar returns to its opening because the invitation is not linear — it is cyclical. A man who governs well does not graduate past the need for orientation. He returns to it. And the order never changes: kneeling before standing, submission before strength, reception before governance. The man who reverses the order — who stands first and kneels when he runs out of his own capacity — will run out regularly and be surprised every time. There is a kind of man who has been standing for years without kneeling and does not know it. He is effective. He is consistent. He would describe himself as a man of faith. But there is a thinness to his stability — a brittleness that shows up when the pressure is sufficient, when the circumstances do not cooperate, when the methods stop working. That is the man the Altar was written for. Not the man in visible failure. The man who has been running on the appearance of the root without drawing from it.`,
+      recalibrate: `Where in your life does authority need to be exercised more clearly? And where does the posture beneath that authority need to be reoriented before the exercise will carry weight? Both questions belong together.`,
+      enter: `Begin today by kneeling before you stand. Let the authority you carry today be authority you have received, not seized. That distinction is invisible to most observers and decisive in everything that follows. —`,
+    },
+    {
+      pillar: `altar`,
+      title: `Not My Will`,
+      verse: `Father, if you are willing, remove this cup from me. Nevertheless, not my will, but yours, be done.`,
+      ref: `Luke 22:42`,
+      reflect: `The most honest prayer in Scripture is a man asking for relief while surrendering the answer. Jesus does not pretend the weight is light. He names what he wants. And then he releases it. That sequence — honest request, open hand — is the posture the Altar asks for. A man who prays only what sounds spiritual has not yet learned to bring himself to God. A man who only brings himself without surrendering the outcome has not yet learned to trust what is above him.`,
+      recalibrate: `What are you currently asking God for while still holding the outcome closed in your fist? Name the request honestly. Then ask whether your hand is open or closed around the answer.`,
+      enter: `Bring the actual request today — not the polished version. Then release the answer. Both halves of this prayer are required. Neither alone is the posture.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Abide`,
+      verse: `Abide in me, and I in you. As the branch cannot bear fruit by itself, unless it abides in the vine, neither can you, unless you abide in me.`,
+      ref: `John 15:4`,
+      reflect: `A branch separated from the vine does not gradually produce less fruit. It produces none. The connection is not supplementary to the fruit — it is the condition of it. A man who attempts to govern his household, sustain his marriage, and lead his children while disconnected from his source is not inefficient. He is operating from a reserve that is depleting without being replenished. The Altar is not one domain among five. It is the root from which the other four draw their capacity.`,
+      recalibrate: `Where in your life are you producing from momentum rather than connection? Momentum is real — it lasts for a season. But it has a floor. The man who abides does not hit that floor the same way. What is your current connection, honestly?`,
+      enter: `Return to the vine today before you attempt to produce anything. That sequence is not spiritual sentiment. It is the order of the thing.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Known and Held`,
+      verse: `O Lord, you have searched me and known me. You know when I sit down and when I rise up; you discern my thoughts from afar.`,
+      ref: `Psalm 139:1–2`,
+      reflect: `The man who performs for God has not yet understood this psalm. There is no version of you that has not been seen. The pretense costs energy and accomplishes nothing — God already has the unedited version. What the psalm describes is not surveillance but intimacy. To be fully known and not abandoned is the only foundation that does not shift under pressure. When external stability fails, the man who knows he is held does not collapse in the same way.`,
+      recalibrate: `What are you still hiding — from God, from yourself? Not to produce shame, but to name where the pretense is running. The psalm says it is already seen. Pretense is the only thing it costs you.`,
+      enter: `Come as you actually are today. Not the version you intend to be by this evening. The one who woke up this morning with exactly what you carried into the day.`,
+    },
+    {
+      pillar: `altar`,
+      title: `The Yoke`,
+      verse: `Take my yoke upon you, and learn from me, for I am gentle and lowly in heart, and you will find rest for your souls.`,
+      ref: `Matthew 11:29`,
+      reflect: `Most men are wearing yokes that were never offered to them. Approval. Performance. The weight of being the reason things work out. These yokes are heavy not because leadership is hard, but because they were never designed to be carried by one man. The yoke in this verse is different — it is shared, and the one sharing it is not demanding. The rest it produces is not the absence of work. It is the absence of the wrong weight.`,
+      recalibrate: `What are you currently carrying that was never yours to carry alone? Not your responsibilities — the weight beneath the responsibilities. The thing that makes ordinary pressure feel like it has stakes attached it was never supposed to carry.`,
+      enter: `Exchange one thing today. Not all of it — one thing you have been carrying as yours that belongs to God. That exchange is not passivity. It is the beginning of sustainable strength.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Gratitude as Governance`,
+      verse: `Give thanks in all circumstances; for this is the will of God in Christ Jesus for you.`,
+      ref: `1 Thessalonians 5:18`,
+      reflect: `Gratitude is not the feeling that arises when things go well. That is relief. Gratitude in all circumstances is a decision made before the circumstances are evaluated — a posture of the interior that does not depend on the exterior providing sufficient reason. The man who practices this is not performing contentment. He is governing his own attention, choosing what his mind returns to, and refusing to let the difficult thing absorb the field of view entirely.`,
+      recalibrate: `What is the ratio of complaint to gratitude in your interior monologue this week? Not as accusation — as information. The ratio shapes perception, and perception shapes the household's atmosphere more than most men realize.`,
+      enter: `Name three specific things before you engage the day. Not categories — specific things. This practice is not sentimentality. It is attention management.`,
+    },
+    {
+      pillar: `altar`,
+      title: `The Anchor`,
+      verse: `We have this as a sure and steadfast anchor of the soul, a hope that enters into the inner place behind the curtain.`,
+      ref: `Hebrews 6:19`,
+      reflect: `An anchor does not prevent movement. It prevents drift beyond a certain distance. The man with a soul anchor can be pulled, pressed, and buffeted without losing his position entirely — because there is something fixed that holds him. The anchor in this verse is not a feeling or a discipline. It is a person and a promise. Disciplines erode under sufficient pressure. The anchor holds not because the man is strong enough to maintain it but because it is secured somewhere circumstances cannot reach.`,
+      recalibrate: `When pressure arrived this week, where did you go inside? What did you reach for first? That reaching reveals the actual anchor — not the intended one. The actual anchor is what steadies you before you have time to think about it.`,
+      enter: `The anchor holds today whether you feel it or not. That is the nature of anchors. Return to it once this morning — not to manufacture feeling, but to acknowledge what is fixed.`,
+    },
+    {
+      pillar: `altar`,
+      title: `Fear of the Lord`,
+      verse: `The fear of the Lord is the beginning of wisdom, and knowledge of the Holy One is understanding.`,
+      ref: `Proverbs 9:10`,
+      reflect: `The fear of the Lord is not the dread of a tyrant but the appropriate weight given to what is ultimate. A man who does not fear God will fear something else — approval, failure, the opinion of his peers, his own inadequacy. Those fears are corrosive. They press from every direction without stability. The fear of God does the opposite — it orders everything beneath it. When ultimate authority is rightly held, lesser anxieties find their actual size. Wisdom begins there, not with information or strategy, but with proper orientation toward what is above.`,
+      recalibrate: `What do you currently fear most? Name it plainly. Then ask whether that fear has been occupying space that belongs to the fear of the Lord. You cannot hold both in first position.`,
+      enter: `Walk today with the quiet awareness that there is an authority above every pressure this day will generate. That awareness does not diminish urgency — it puts it in its proper place.`,
+    },
+  ],
+  forge: [
+    {
+      pillar: `forge`,
+      title: `The Body as Instrument`,
+      verse: `Do you not know that your body is a temple of the Holy Spirit within you, whom you have from God? You are not your own, for you were bought with a price. So glorify God in your body.`,
+      ref: `1 Corinthians 6:19–20`,
+      reflect: `Physical regulation precedes emotional regulation. Sleep loss shortens patience before a man has processed a single thought. Poor nutrition sharpens irritability in ways that have nothing to do with character or intention. Neglect accumulates quietly and begins leaking into tone, reaction speed, and the capacity to remain steady under relational pressure — often weeks before the man recognizes what has shifted. Glorifying God in the body is not an aesthetic instruction. It is a stewardship one. The body is the first instrument of a man's leadership — it sets the temperature of the room before he speaks. A man who claims governance over his responses while ignoring his physical baseline is working against himself in ways he has not yet fully traced.`,
+      recalibrate: `If your reactions have felt disproportionate recently, assess the physical baseline before drawing conclusions about character. Are you depleted? Under-recovered? Overstimulated? Sometimes the most direct path to steadiness begins not with a resolve but with something as concrete as sleep, water, or stillness. · *The body was not given to you — it was entrusted. That distinction changes what stewardship requires. A man who maintains his body from discipline alone will eventually encounter the limits of that discipline. The one who stewards it as something belonging to God tends it differently — not because performance is the point, but because the instrument in his care is not finally his own.*`,
+      enter: `Stabilize the instrument before correcting anything or anyone else today. The steadiness you carry into the room is the first leadership act of the day.`,
+    },
+    {
+      pillar: `forge`,
+      title: `When Capacity Is Spent`,
+      verse: `But they who wait for the Lord shall renew their strength; they shall mount up with wings like eagles; they shall run and not be weary; they shall walk and not faint.`,
+      ref: `Isaiah 40:31`,
+      reflect: `Exhaustion is not always a workload problem. Often it is a rhythm problem — or a posture problem. A man attempts to sustain output indefinitely, treats continuous exertion as faithfulness, and then wonders why restoration never quite arrives. He collapses when forced rather than recovering with intention. The distinction between those two things matters more than it first appears. Waiting, in the sense this verse means, is not passivity. It is the discipline of receiving renewal rather than manufacturing momentum — recognizing that some of what a man needs cannot be produced by effort alone. The image is not grinding. It is soaring — the kind of movement that comes from a completely different source than will.`,
+      recalibrate: `If depletion has become your default state, resist the instinct toward self-accusation and resist equally the instinct to push harder through it. Examine your posture first. Are you receiving, or are you waiting to collapse and calling the collapse rest? Those are different things. · *The verse does not say those who work harder will renew their strength. It says those who wait. That waiting is an act of trust — the man who cannot produce what is needed stops performing and opens his hands. That posture is not weakness. In the economy the verse describes, it is the only thing that works.*`,
+      enter: `Protect one deliberate window of recovery today. Not indulgence. Intentional receiving, without the requirement to justify it first.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Whole Effort`,
+      verse: `Whatever your hand finds to do, do it with your might, for there is no work or thought or knowledge or wisdom in Sheol, to which you are going.`,
+      ref: `Ecclesiastes 9:10`,
+      reflect: `Most men are not lazy. They are partial. They bring seventy percent to work while holding the other thirty in reserve, waiting for conditions that feel more worthy of the full effort — a bigger project, a better assignment, a situation that seems to deserve it. The work in front of them right now gets managed. The gap between managed and pursued is where mediocrity lives. Whatever your hand finds to do — not the ideal work, not the work you would design for yourself in better circumstances. What is actually in front of you today. The conversation you have been half-engaged in. The task you have been handling just well enough. Do it with your might means bring all of yourself to what is already there.`,
+      recalibrate: `Where are you currently doing the minimum required rather than the full effort available? Not because you are burned out — because the work does not feel significant enough yet. The verse does not wait for significance. It asks for might, applied to whatever is already in the hand. · *A man working heartily as for the Lord is not waiting for significance to arrive from outside. The significance is already present in who is watching. That frame changes what whole effort looks like — not a performance for an audience, but a faithfulness to a standard that does not fluctuate based on who notices.*`,
+      enter: `Give whole effort to what is in front of you today. Not the work you wish you were doing — the work you are actually doing.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Endurance Under Christ`,
+      verse: `I can do all things through him who strengthens me.`,
+      ref: `Philippians 4:13`,
+      reflect: `This verse is frequently quoted in contexts of optimism — as though it promises that any goal, pursued with faith, will be achieved. That reading is not what the verse actually says. Paul writes it in the context of contentment in both plenty and hunger, abundance and need. The strength he describes is the strength to endure whatever the circumstances hold, not the guarantee that favorable circumstances will follow. Endurance through Christ is not a positive attitude applied to difficulty. It is a settled orientation that does not require conditions to improve in order to function. The man who understands this is not dependent on favorable outcomes to maintain his stability. He endures because his sufficiency is sourced from outside the conditions.`,
+      recalibrate: `Where are you currently waiting for conditions to improve before you feel ready to function fully? What would it look like to endure well in the present conditions rather than postponing engagement until they change? · *Through him who strengthens me. Not through his own reserves. Not through discipline sustained past its limit. The strengthening is received — which means the man at the end of himself is not at the end of what is available to him. He is at the beginning of a different kind of supply.*`,
+      enter: `Function from your present position today. The strength the verse describes is available now, not after circumstances cooperate.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Pain That Yields Peace`,
+      verse: `For the moment all discipline seems painful rather than pleasant, but later it yields the peaceful fruit of righteousness to those who have been trained by it.`,
+      ref: `Hebrews 12:11`,
+      reflect: `Discipline rarely collapses in a single moment. It erodes through a series of small negotiations — tomorrow, later, after this week, once things settle. Each one feels reasonable in isolation. The cumulative effect is a man whose consistency has quietly hollowed out while he was busy generating adequate reasons. The verse does not promise that discipline will feel good. It promises that it yields — that peace is not the starting condition but the cultivated result of endurance sustained past the point where it felt optional. A man who negotiates discipline long enough eventually finds himself negotiating conviction, because the two are more connected than they first appear.`,
+      recalibrate: `What discipline is currently in negotiation? Not abandoned — still technically active but increasingly conditional. Identify it before the negotiation hardens into habit. · *The peace the verse describes is not self-produced. It is fruit — which means it grows from what was planted and tended, not from what was assembled. A man cannot manufacture the fruit of righteousness. He can only remain in the conditions that allow it to grow. That remaining is the discipline the verse is describing.*`,
+      enter: `Complete the one action you are most inclined to postpone today. Not dramatically. Deliberately. Peace compounds through repeated faithfulness in ordinary moments.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Spirit Willing, Flesh Weak`,
+      verse: `Watch and pray that you may not enter into temptation. The spirit indeed is willing, but the flesh is weak.`,
+      ref: `Matthew 26:41`,
+      reflect: `The verse is an honest acknowledgment of the gap between intention and capacity. The spirit is willing — the values are present, the desire to do what is right is real. And the flesh is weak — the body, the nervous system, the emotional regulation that depends on physical stability, these are not infinitely reliable. That gap is not a moral indictment. It is an accurate description. Watch and pray are the instructions because the response to this reality is not self-reliance but vigilance and dependence. A man who acknowledges the gap honestly is in a better position than one who is surprised every time his physical limitations affect his behavior.`,
+      recalibrate: `Where is the gap between your intentions and your actual capacity most pronounced right now? Name it honestly rather than either dismissing the limitation or collapsing under condemnation for it. · *Pray. Not as a supplement to watching — as the other half of the same instruction. A man who watches without praying is vigilant but unsupported. A man who prays without watching is dependent but inattentive. The verse holds both because the flesh's weakness requires both — human alertness and something outside the flesh supplying what the flesh cannot.*`,
+      enter: `Watch today. Not anxiously — alertly. Know your vulnerabilities well enough that you do not walk into familiar failure points assuming good intentions are sufficient protection.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Trained Hands`,
+      verse: `It is God who arms me with strength and keeps my way secure. He makes my feet like the feet of a deer; he causes me to stand on the heights. He trains my hands for battle.`,
+      ref: `Psalm 18:32–34`,
+      reflect: `The training of hands is not incidental to the psalm — it is the image of preparation made possible through relationship with God. The strength is given. The footing is established. And then the hands are trained. The implication is that capacity for what lies ahead is developed through a process, not delivered at once. A man does not arrive ready for every challenge he will face. He is trained toward readiness — through the repetitive, often mundane discipline of practice, through smaller pressures that precede larger ones, through the incremental development of composure that makes more significant demands manageable when they arrive.`,
+      recalibrate: `What are you currently being trained in — not what you would choose, but what the circumstances you are actually in are developing in you? Receive the training for what it is rather than simply enduring the difficulty. · *He trains my hands. Not I train my hands through discipline and routine. The training has a source, and the source is not the man. A man who receives this frame finds that the difficult season he is in is not random and not punitive. It is purposeful preparation from a hand that knows what the man will need.*`,
+      enter: `Accept the training available to you today. The hands being developed now will carry the weight that is coming.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Capacity for the Season`,
+      verse: `The glory of young men is their strength, but the splendor of old men is their gray hair.`,
+      ref: `Proverbs 20:29`,
+      reflect: `Strength and its expression change over time. The young man's strength is physical, urgent, visible. The older man's strength is accumulated — wisdom, steadiness, long perspective, the quiet authority of someone who has been tested repeatedly and has not been undone. Neither is superior. Both are appropriate to their stage. A man who chases the expression of strength that belongs to a season he has passed will exhaust himself performing something increasingly unavailable. A man who honors the strength appropriate to where he actually is will find it more durable and more useful to the people around him. The question at any stage is not whether strength is present but what form it currently takes.`,
+      recalibrate: `What is the appropriate expression of strength in your current season? Not what it looked like ten years ago — what it looks like right now, in the life you are actually living, with the capacity actually present. · *The splendor of the gray-haired man is not diminished strength — it is transformed strength. The same God who gave the young man his force gives the older man his steadiness. Neither is produced by the man himself. Both are received and then stewarded. The form changes. The source does not.*`,
+      enter: `Embody the strength available to you today. What is present and rightly used is more than sufficient for what is required.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Work as Worship`,
+      verse: `Whatever you do, work heartily, as for the Lord and not for men.`,
+      ref: `Colossians 3:23`,
+      reflect: `When no one noticed the work you did this week — when the effort was real and the acknowledgment was absent — how did that affect your output? If the quality dropped or the motivation thinned or the resentment quietly rose, the work was being done for the men the verse warns against. That is not a moral failure. It is a governance problem with a straightforward correction. Working as for the Lord rather than for men changes the standard itself. The work does not become more important when witnessed or less significant when overlooked. It carries the same weight in both cases — which means a man can give full effort to work that no one will fully see, and that effort is not wasted.`,
+      recalibrate: `What work are you currently doing that has not been recognized — and is the lack of recognition affecting the quality of how you do it? The verse is not asking whether the frustration is understandable. It is asking who you are actually working for. · *As for the Lord. That phrase is the entire orientation. It does not make the work more visible. It makes the audience constant. A man who has settled that question does not require external validation to sustain full effort — because full effort was never contingent on it.*`,
+      enter: `Do your work today as though the only audience is the one that never misses anything.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Suffering Produces`,
+      verse: `We rejoice in our sufferings, knowing that suffering produces endurance, and endurance produces character, and character produces hope.`,
+      ref: `Romans 5:3–4`,
+      reflect: `The sequence is worth tracing carefully. Suffering does not automatically produce character — it produces endurance first. Endurance, sustained through the suffering rather than escaped from it, produces character. The man who endures without understanding what the endurance is building will eventually stop, because he cannot see a purpose in it. The sequence gives the purpose. Physical difficulty, sustained load, the daily discipline that costs something — these are not obstacles to formation. They are the mechanism of it. A man who avoids difficulty avoids the process that produces the character he says he wants.`,
+      recalibrate: `What suffering — physical, relational, or vocational — are you currently enduring that you have been treating as an obstacle rather than a process? What would change if you understood what it is building? · *Character produces hope. Not optimism — hope. The specific hope the verse describes is rooted in what God has already poured into the man through the process. That hope is not self-generated. It is the end product of a sequence that began with suffering received rightly. The man at the beginning of the sequence cannot see it yet. He endures because the verse describes what he cannot see.*`,
+      enter: `Endure today with intention rather than simply persistence. The man who understands the sequence sustains it. The man who does not will eventually find a reason to stop.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Prepare the Horse`,
+      verse: `The horse is made ready for the day of battle, but the victory belongs to the Lord.`,
+      ref: `Proverbs 21:31`,
+      reflect: `Both halves of this verse are necessary and neither cancels the other. Prepare the horse — do the work of readiness, train, build capacity, show up prepared. And hold the outcome with open hands, because the result of the battle belongs to God and not to the man who arrived ready. The failure modes run in both directions. The man who does not prepare his horse, believing that outcomes belong to God anyway, has confused trust with passivity. The man who prepares obsessively and takes personal credit for the result has confused readiness with sovereignty. The verse holds the tension without resolving it into comfort.`,
+      recalibrate: `Are you prepared for what is currently in front of you — as fully as you could be given available time and resources? And are you holding the outcomes loosely enough that their resolution does not determine your stability? · *The victory belongs to the Lord. That is not a footnote — it is the entire frame of why preparation is possible without anxiety. A man who has genuinely released outcomes to God can prepare wholeheartedly without being destroyed by results that did not match his effort. The preparation is his. The result is not.*`,
+      enter: `Prepare what is yours to prepare today. Then release the result to its rightful owner. Both movements are the discipline the verse describes.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Endure Hardship`,
+      verse: `Share in suffering as a good soldier of Christ Jesus.`,
+      ref: `2 Timothy 2:3`,
+      reflect: `A soldier does not experience surprise at difficulty. He has prepared for it and expects it as part of the role. The surprise — and the destabilization — belongs to the man who expected ease. The man who has prepared himself to endure hardship as part of the mission is not undone when it arrives. He absorbs it without transferring it. Sharing in suffering is not a call to seek out difficulty for its own sake. It is the recognition that the work of leading well will include seasons of genuine hardship — and that those seasons are not evidence of failure. They are the conditions under which character either holds or proves insufficient.`,
+      recalibrate: `What hardship are you currently in that you have been treating as an interruption to your real life rather than as part of the formation your real life requires? The soldier posture does not ask whether the difficulty was deserved. It asks what response the situation demands. · *Of Christ Jesus. The soldier shares in suffering not in isolation but in company. That distinction is not incidental. A man who endures alone carries a different weight than the man who endures connected to the one who already passed through what the man is in. The suffering is shared in both directions.*`,
+      enter: `Bear what is yours to bear today without transferring it. The capacity to endure without redistributing the weight is one of the most stabilizing things a man can offer the people around him.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Strength With Knowledge`,
+      verse: `A wise man is full of strength, and a man of knowledge enhances his might.`,
+      ref: `Proverbs 24:5`,
+      reflect: `A man can be physically capable in a situation and completely misread it. He applies force where patience was needed. He pushes when the moment called for stillness. He solves the problem in front of him while creating two more he did not see coming. Strength without wisdom is blunt — it can move things, but it cannot place them correctly. Knowledge enhances might. The verse is describing what happens when capability is paired with understanding — the same strength becomes more precise, more proportionate, more useful. A man who is genuinely strong and genuinely understands what is in front of him is significantly more effective than a man who has only one of those.`,
+      recalibrate: `In the place where you currently carry the most strength — your household, your work, your relationships — where does your understanding need to deepen for that strength to be applied more accurately rather than simply more forcefully? · *Wisdom is not self-generated in the way that physical strength can be trained. The fear of the Lord is its beginning — which means the enhancement of a man's might has a source outside the man. He trains what can be trained. He receives what cannot be produced by training alone.*`,
+      enter: `Before you apply force today in any domain, ask whether you understand what you are actually dealing with.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Capable and Incorruptible`,
+      verse: `Moreover, look for able men from all the people, men who fear God, who are trustworthy and hate a bribe, and place such men over the people.`,
+      ref: `Exodus 18:21`,
+      reflect: `The criteria here are not primarily competence — they are character. Able is listed first, but fear of God, trustworthiness, and incorruptibility are what distinguish the able men who should lead from the able men who should not. Capability without integrity is useful in the short term and dangerous over time. A man who aspires to positions of responsibility must ask not only whether he is able but whether he is trustworthy — whether his ability is governed by something other than self-interest. The men described here are capable and incorruptible. Both qualities together constitute the kind of man who can be trusted with authority over others.`,
+      recalibrate: `Of the qualities listed — ability, godly fear, trustworthiness, integrity under pressure — which is most in need of development right now? Not which you most value in theory. Which is most practically thin? · *Men who fear God. The fear is the governing quality beneath every other one listed. A man whose ability is not governed by the fear of God has nothing that reliably keeps capability in its proper lane. The fear is not an add-on to competence. It is what makes competence safe.*`,
+      enter: `Govern your capability today with the character that makes it worth trusting. Skill without integrity produces short-term results and long-term erosion.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Bodily Training in Proportion`,
+      verse: `For while bodily training is of some value, godliness is of value in every way, as it holds promise for the present life and also for the life to come.`,
+      ref: `1 Timothy 4:8`,
+      reflect: `The man who trains his body but never his inner life has built an impressive instrument with an ungoverned operator. He can perform under physical load and fall apart under relational pressure. He can push through pain and crumble under disappointment. The body is strong; the man inside it is not — and the people closest to him know the difference. Both have their domain and neither cancels the other. Bodily training is of some value — not of no value. The body matters enough to steward. It does not matter enough to organize a life around. The man who holds both in proportion is developing something more useful than either alone.`,
+      recalibrate: `Which has been getting more intentional investment lately — your physical formation or your inner one? If the scales are uneven, the question is not guilt. It is adjustment before the imbalance shows up in your leadership. · *Godliness holds promise for the present life and the life to come. The physical life is confined to this age. The inner life spans both. A man who understands that frame will not neglect the body — but he will not mistake the instrument for the player, or the present life for the whole of what his formation is preparing him for.*`,
+      enter: `Attend to both domains today. Physical preparation and inner orientation are not competing — they are the same man, built from both directions.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Steadfastness`,
+      verse: `And let steadfastness have its full effect, that you may be perfect and complete, lacking in nothing.`,
+      ref: `James 1:4`,
+      reflect: `Steadfastness is not the same as stubbornness. Stubbornness refuses to change when change is warranted. Steadfastness holds its position under pressure when the pressure itself is not sufficient reason to move. The distinction matters because the Forge is not about immovability — it is about constancy in the right things under the right pressures. The full effect of steadfastness produces completeness. Not perfection in the sense of flawlessness, but wholeness in the sense of nothing lacking that should be present. The character formed by endurance sustained through testing is more complete than the character that was never tested. The completion is the point. The testing is the method.`,
+      recalibrate: `What is currently testing your steadfastness — and are you staying with it long enough for the testing to do its work? Cutting the process short forfeits the completion it was building toward. · *That you may be complete, lacking in nothing. The completeness is not self-assembled. It is the result of a process that God initiates through the testing and the man participates in through the staying. Neither alone produces it. A man who endures disconnected from that frame is grinding. A man who endures inside it is being formed.*`,
+      enter: `Stay with what is hard today long enough for it to accomplish what it is working in you.`,
+    },
+    {
+      pillar: `forge`,
+      title: `In Preparation`,
+      verse: `Praise be to the Lord my Rock, who trains my hands for war, my fingers for battle.`,
+      ref: `Psalm 144:1`,
+      reflect: `The closing devotional of the Forge returns to the image of trained hands — not as a celebration of violence, but as a recognition that readiness requires preparation. The man who will be required to act under pressure, sustain output under load, and maintain composure through strain does not arrive at that capacity accidentally. He is trained into it. The praise in the verse is directed at the one who provides the training, which implies that the difficult seasons — the ones that develop capacity — are not arbitrary. They are purposeful. A man who receives them as training rather than simply endures them as hardship positions himself to be developed by them rather than merely ground down by them.`,
+      recalibrate: `Look at the difficulty currently in your life through the lens of training rather than trial. Not to minimize it — to receive it differently. What is being developed in you through what you are currently in? · *Praise be to the Lord my Rock. The praise comes first — before the description of training, before the acknowledgment of difficulty. A man who can praise in the middle of the preparation has located the source of the training correctly. It is not random difficulty. It is purposeful formation from a Rock that does not move while the man is being shaped against it.*`,
+      enter: `Enter this day as a man in preparation. The demands are not interruptions to your real life. They are the training ground of the man you are becoming.`,
+    },
+    {
+      pillar: `forge`,
+      title: `When the Load Exceeds the Reserve`,
+      verse: `Come to me, all who labor and are heavy laden, and I will give you rest. Take my yoke upon you, and learn from me, for I am gentle and lowly in heart, and you will find rest for your souls.`,
+      ref: `Matthew 11:28–29`,
+      reflect: `There is a specific kind of exhaustion that discipline cannot fix. The man who built his capacity carefully — who trains, who sleeps, who manages his margin — still encounters seasons where the load is simply more than the reserve. Not because he failed to prepare. Because the life of a man who leads costs more than any reserve can permanently cover. Most men respond to this state by adding more discipline to the deficit. More structure. Earlier mornings. Tighter systems. The instinct is understandable — it has worked before. But there is a weight the verse is describing that does not yield to more effort. It yields to a different posture entirely: coming, taking a yoke that belongs to someone else, and learning from the one who carries the end of it the man cannot reach.`,
+      recalibrate: `If you are heavy laden right now — not lazy, not undisciplined, but genuinely carrying more than the reserve can sustain — resist the reflex to add more to the load management. Ask instead whether you have come. Not performed more, not tried harder. Come. · *I will give you rest. Not you will earn rest through better rhythm, or you will produce rest through adequate recovery. He gives it. A man who has not received rest as a gift has likely been generating it as an output — and the two are not the same. One replenishes. One merely delays the depletion.*`,
+      enter: `Come to the one who gives rest before you attempt to produce it today. The yoke he offers is not the absence of load. It is a shared load, and the sharing changes what is possible to carry. —`,
+    },
+    {
+      pillar: `forge`,
+      title: `The Temple Maintained`,
+      verse: `Or do you not know that your body is a temple of the Holy Spirit within you, whom you have from God? You are not your own.`,
+      ref: `1 Corinthians 6:19`,
+      reflect: `The man who neglects the body is not just neglecting his health. He is neglecting the instrument through which all his leadership is delivered. Tone, patience, decision quality, emotional regulation — all of it is downstream of physical condition. A depleted man is not less intelligent. He is less available. The margin that makes the difference between a measured response and a sharp one lives in the body before it lives in the will.`,
+      recalibrate: `What is the current condition of the instrument? Sleep, training, nutrition, recovery — not as ideals but as current reality. Name the gap honestly. Not to condemn, but because you cannot tend what you have not named.`,
+      enter: `Make one decision today that maintains the instrument. One thing that treats the body as something worth caring for — not out of vanity, but out of stewardship. What you carry tomorrow is affected by what you do with today.`,
+    },
+    {
+      pillar: `forge`,
+      title: `No Pain, No Gain Is Scripture`,
+      verse: `Count it all joy, my brothers, when you meet trials of various kinds, for you know that the testing of your faith produces steadfastness.`,
+      ref: `James 1:2–3`,
+      reflect: `The command is not to feel joy about the trial. It is to count it — to assign it the right value. The man who has learned what testing produces does not greet difficulty the same way as the man who has not. He still feels the weight. But he holds it differently because he knows what it is making. Steadfastness is not a trait some men are born with. It is the residue of trials endured without quitting. The forge is where it is built.`,
+      recalibrate: `What trial is currently in process? Name it. Then ask whether you are enduring it or just surviving it. Endurance is active — it holds position and continues. Survival is passive — it waits for the pressure to lift. The first produces. The second depletes.`,
+      enter: `Treat the difficulty today as training, not punishment. The reframe is not denial — it is accurate assignment of value. What is being built in you right now will show up later as the thing that holds when something harder arrives.`,
+    },
+    {
+      pillar: `forge`,
+      title: `The Long Race`,
+      verse: `Therefore, since we are surrounded by so great a cloud of witnesses, let us also lay aside every weight, and sin which clings so closely, and let us run with endurance the race that is set before us.`,
+      ref: `Hebrews 12:1`,
+      reflect: `The race metaphor is not about speed. It is about endurance over a marked course. Two things are named as threats: weight and sin. Weight is not necessarily wrong — it is simply more than the course requires. A man can carry good things in amounts that slow him. Sin is different — it clings. Both must be addressed because neither is neutral over distance. The man who runs light, who has stripped down to what the course actually requires, runs differently than the man who carries everything he has accumulated.`,
+      recalibrate: `What are you carrying that is slowing the race — not sinful, just heavy? Good commitments in excess, noise that crowds out margin, relationships that drain without replenishing. Name the weight. Then decide whether it belongs on this course.`,
+      enter: `Run your portion of the course today. Not someone else's course — yours. The race set before you is specific. Stay in your lane and run it with what the course actually requires.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Night Watch`,
+      verse: `It is in vain that you rise up early and go late to rest, eating the bread of anxious toil; for he gives sleep to his beloved.`,
+      ref: `Psalm 127:2`,
+      reflect: `The man who treats rest as an indulgence has confused virtue with output. Anxious toil produces the appearance of productivity while eroding the capacity that makes real productivity possible. Sleep is not weakness — the verse names it as a gift to the beloved. The man who refuses to receive it is not more disciplined. He is refusing what was given to him and calling the refusal strength. Recovery is part of the Forge, not a departure from it.`,
+      recalibrate: `What is driving the hours you keep — genuine necessity or the anxiety that staying busy feels safer than stopping? The verse distinguishes between them. One is faithful labor. The other is anxious toil. They can look identical from the outside.`,
+      enter: `Protect tonight's sleep as seriously as you protect tomorrow's work. They are connected. The man who recovers well does not just feel better — he leads better, thinks more clearly, and holds his tone under pressure longer.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Pressed Not Crushed`,
+      verse: `We are afflicted in every way, but not crushed; perplexed, but not driven to despair; persecuted, but not forsaken; struck down, but not destroyed.`,
+      ref: `2 Corinthians 4:8–9`,
+      reflect: `This verse is not describing an easy life. It is describing a resilient one. The distinction in each line is the same: the pressure is real, and the breaking point is not reached. A man can be pressed in every direction and still not be crushed. That capacity is the Forge's product — not the absence of pressure but the presence of something that holds under it. The man who has never been pressed does not know yet what he is made of. The man who has been pressed and held has information the untested man does not.`,
+      recalibrate: `Where are you currently pressed? Name it without minimizing it. Then name where the line is — where pressed becomes crushed. That line is often further than anxiety suggests. The question is whether you are approaching it or whether anxiety has been telling you it is closer than it is.`,
+      enter: `Hold your position today. Not loudly. Not by declaring your resilience to anyone. Just by continuing. Afflicted but not crushed is not a feeling. It is a decision made quietly, one hour at a time.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Discipline of the Body`,
+      verse: `But I discipline my body and keep it under control, lest after preaching to others I myself should be disqualified.`,
+      ref: `1 Corinthians 9:27`,
+      reflect: `Paul names the possibility plainly: a man can know the right things, teach the right things, lead others in the right direction — and still be disqualified by his own undisciplined body. The body does not disqualify from salvation. It disqualifies from sustained, credible leadership. A man whose physical life contradicts his stated values creates a gap his household will feel even if they cannot name it. The Forge is not about aesthetics. It is about alignment between what is said and what is lived.`,
+      recalibrate: `Where does your physical discipline currently contradict your stated values? Not to generate shame — to locate the gap. The gap is always felt by those closest to you before they can articulate it.`,
+      enter: `Bring your body into alignment with your leadership today in one specific way. One decision that closes the gap between what you say governs you and what actually governs how you treat the instrument.`,
+    },
+    {
+      pillar: `forge`,
+      title: `Alert and Ready`,
+      verse: `Be sober-minded; be watchful.`,
+      ref: `1 Peter 5:8`,
+      reflect: `Sober-mindedness is not joylessness. It is clarity — the undistorted perception of what is actually in front of you. A man impaired by exhaustion, by distraction, by the accumulation of unprocessed stress is not sober-minded even if he has had nothing to drink. He is operating on diminished signal. The Forge exists in part to protect the quality of that signal — to maintain the kind of physical and mental readiness that allows accurate perception when accurate perception matters.`,
+      recalibrate: `How clear is your perception right now? Not your intelligence — your clarity. Are you operating on full signal, or has something depleted the quality of your attention? Name what is clouding it.`,
+      enter: `Do one thing today that sharpens the signal: sleep, movement, silence, removal of unnecessary stimulation. The man who perceives clearly leads differently than the man who is guessing through the fog.`,
+    },
+  ],
+  covenant: [
+    {
+      pillar: `covenant`,
+      title: `When Conflict Feels Inevitable`,
+      verse: `Let every person be quick to hear, slow to speak, slow to anger.`,
+      ref: `James 1:19`,
+      reflect: `Most arguments accelerate because listening slows. A man begins preparing his response before he has finished receiving what is being said, and the conversation becomes two people talking past each other with increasing force. Speed can feel like clarity, but in relational tension it almost always fractures it. The instruction is about sequence, not silence. Hear first. Speak second. Anger last. That order is not passive — it is the disciplined structure that keeps disagreement from becoming escalation. Understanding does not mean agreement. It means a man knows what he is actually responding to before he responds.`,
+      recalibrate: `When disagreement begins to rise, the most stabilizing move is not volume or speed — it is a brief pause to make sure you have fully heard what was said before forming a reply. That pause is not weakness. It is the posture that keeps you in the conversation rather than inside your own reaction to it.`,
+      enter: `Ask one clarifying question before offering any correction or rebuttal today. Containment communicates more safety than volume ever will, and safety is what sustains the conversation past the friction.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `When You Feel Misunderstood`,
+      verse: `Husbands, love your wives, as Christ loved the church and gave himself up for her.`,
+      ref: `Ephesians 5:25`,
+      reflect: `Sacrificial love, in the sense this verse intends, is not contingent on feeling understood. Many men withdraw affection when they feel misread — pull back presence, become clipped, grow cold in small ways that accumulate into distance. The withdrawal feels like self-protection, but it functions as leadership abdication. Giving up self does not mean losing self. It means choosing stability over ego defense, particularly in the moments when the instinct runs the other direction. Covenant love leads from a position that does not require validation in order to act generously. That is not a feeling. It is a posture held by decision.`,
+      recalibrate: `When defensiveness rises, examine whether what you are protecting is dignity or pride. The distinction matters. Dignity is worth protecting. Pride, in this context, tends to do more damage to the bond than the original wound ever would have. Leadership in the Covenant means absorbing tension without redistributing it as withdrawal.`,
+      enter: `Act generously today without waiting for reciprocation. Small steadiness repairs more than large explanations, and presence offered without conditions is one of the most durable things a man can give.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `When Distance Quietly Increases`,
+      verse: `Husbands, love your wives, and do not be harsh with them.`,
+      ref: `Colossians 3:19`,
+      reflect: `Harshness is not always loud. It can live in a clipped tone, in impatience that arrives just a beat too quickly, in the kind of cold efficiency that handles requests without warmth. Distance rarely announces itself. It grows through small, repeated abrasions — each one small enough to seem unremarkable, together enough to change the climate. The verse pairs love with the specific instruction not to be harsh because tone shapes trust over time. Correction without tenderness may produce compliance, but it does not produce connection. A woman who is corrected accurately but without warmth does not feel safe, and a home where she does not feel safe cannot be what it is meant to be.`,
+      recalibrate: `If conversations have felt transactional — functional but not warm — examine tone before content. Harshness often hides fatigue or frustration that belongs elsewhere. The correction is not in lowering standards but in ensuring that warmth accompanies whatever you bring.`,
+      enter: `Soften your delivery today without softening your conviction. Let the people closest to you feel the warmth beneath the steadiness. Safety sustains intimacy over the long run in ways that precision alone cannot.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `One Flesh`,
+      verse: `Therefore a man shall leave his father and his mother and hold fast to his wife, and they shall become one flesh.`,
+      ref: `Genesis 2:24`,
+      reflect: `Some men have been married for years and still operate with a divided center of gravity. They make decisions the way they did before the marriage — from a default toward independence, from old loyalties, from a version of themselves that predates the covenant. The wife is consulted when it is practical. She is informed when the decision is made. She is included in the outcomes of choices she did not shape. That is not one flesh. That is parallel operation with shared logistics. The leaving the verse describes is not only geographic or relational — it is the leaving of the prior self-governance that operated without her. A man who has genuinely left has restructured his center of gravity. His first instinct when something significant arises is not to solve it and report back. It is to enter toward her — to bring it into the shared space where two people together are carrying what one was carrying alone. That instinct is built over years of choosing it, not over one conversation.`,
+      recalibrate: `Where does your marriage currently sit in the actual hierarchy of your attention and loyalty — not where you say it sits, but where it sits based on where your time, your energy, and your final decisions go? If the answer is honest, what does it reveal?`,
+      enter: `Treat your marriage today as the primary bond it is designed to be. That may mean one decision deferred until your wife weighs in, one evening actually present, one lesser demand declined. Small reorientations compound.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Understanding`,
+      verse: `Likewise, husbands, live with your wives in an understanding way, showing honor to the woman as the weaker vessel, since they are heirs with you of the grace of life, so that your prayers may not be hindered.`,
+      ref: `1 Peter 3:7`,
+      reflect: `Living with your wife in an understanding way requires that you actually know what she is carrying right now — not in general, but specifically. What is weighing on her this week. What she has not said but has been showing. What she needs from you that she has not asked for because she has stopped expecting it to be available. That knowledge comes from showing up for conversations without an agenda. The consequence the verse attaches is direct: prayers hindered. The connection between relational order and spiritual efficacy is stated plainly. A man who is inattentive to his wife is not just missing something relationally. Something upstream is being affected — which is a strong enough reason to take the instruction seriously even when it costs more than seems proportionate.`,
+      recalibrate: `When did you last ask your wife a real question about how she is doing — not as a greeting, but as a genuine inquiry you stayed in long enough to hear the full answer? What would you learn if you asked that question today and actually waited for the answer?`,
+      enter: `Ask one real question today and stay in the answer. Let her tell you what her actual experience of this season is. Understanding is not assumed — it is gathered, conversation by conversation, from a man who is paying attention.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Slow Speech`,
+      verse: `Know this, my beloved brothers: let every person be quick to hear, slow to speak, slow to anger; for the anger of man does not produce the righteousness of God.`,
+      ref: `James 1:19–20`,
+      reflect: `The anger of man does not produce the righteousness of God. This is a direct statement about the limitations of angry leadership. Even when the anger is justified, even when the thing that provoked it is genuinely wrong, anger applied as a leadership tool produces compliance at best and damage at worst. It does not produce the righteousness it claims to be defending. Slow speech is not timid speech. The man who speaks slowly has usually thought longer, calibrated better, and arrives at his words with more precision. The man who speaks quickly in anger arrives at words that felt right in the moment and cost more than he intended. The sequence the verse recommends is not about softness — it is about accuracy.`,
+      recalibrate: `When you have spoken quickly in anger recently, did it produce what you intended? Trace the outcome honestly. Then ask what slower speech — speech that gave understanding time to shape it — might have produced instead.`,
+      enter: `Create a brief delay between the moment you feel the urge to speak sharply and the moment you actually speak. Use that interval to ask what response would actually serve the situation, not just release the pressure.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `The Soft Answer`,
+      verse: `A soft answer turns away wrath, but a harsh word stirs up anger.`,
+      ref: `Proverbs 15:1`,
+      reflect: `Softness of answer is often misread as weakness of position. A man can give a gentle response while holding a firm conviction. The softness is in delivery, not in substance. It is the tonal choice that de-escalates rather than provokes — and that choice requires more self-governance than the sharp response, not less. The verse is a practical observation about how conflict moves. Harsh words stir. They produce a reaction in the other person that then requires management. Soft answers interrupt the cycle before the escalation builds. A man who can choose the soft answer without losing the position is exercising a form of leadership that the person who always speaks sharply cannot.`,
+      recalibrate: `In the conversations where you most often resort to harsh tone — what triggers it? Is it a specific topic, a specific time of day, a particular kind of resistance? Name the pattern rather than simply regretting individual instances.`,
+      enter: `In the most likely friction point of today, choose the soft answer. Hold your position if the position is worth holding. But let the delivery serve the relationship rather than simply release your frustration.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Active Pursuit`,
+      verse: `Rejoice in the wife of your youth... let her breasts fill you at all times with delight; be intoxicated always in her love.`,
+      ref: `Proverbs 5:18–19`,
+      reflect: `A man can go years without sharpening his tone, repairing conflict promptly, and keeping the household running — and his wife can still feel unchosen. Not mistreated. Not neglected in any way she could name precisely. But not pursued either. The absence of harm is not the same as the presence of desire, and she knows the difference. A woman who is managed well but never actively sought after has received half of what the covenant promises. The verse is not a concession to romantic sentiment — it is a command. Be intoxicated always in her love. That word always is doing significant work. Not in the early years only, not when conditions are favorable, not when the effort feels effortless. Always. The pursuit of a man's wife is not a season of the marriage. It is the posture of the marriage, sustained across decades by decision rather than feeling.`,
+      recalibrate: `When did you last pursue your wife — not as repair after conflict, not as response to a need she expressed, but as an unprompted initiation that communicated you want her specifically? What would that look like today, in the ordinary circumstances of your actual life?`,
+      enter: `Move toward your wife today without a reason other than that she is yours and you choose her. The initiated move — the one that costs something and requires no justification — is what communicates desire. Manage well and pursue her. Both are the covenant.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Peacemakers`,
+      verse: `Blessed are the peacemakers, for they shall be called sons of God.`,
+      ref: `Matthew 5:9`,
+      reflect: `A peacemaker is not a peace-keeper. Peace-keeping avoids the conflict that would disturb the surface. Peace-making addresses what is underneath so that genuine peace — not simply the absence of visible conflict — becomes possible. The two look different in the short term and produce completely different results over time. Making peace requires a man to absorb some of the cost himself. He initiates repair when repair is needed even if he was not the only one at fault. He addresses tension before it calcifies. He is willing to be the one who lowers first, not because he has no dignity but because he understands that the relationship is worth more than the scorecard.`,
+      recalibrate: `Where in your closest relationships is there tension that has not been addressed — not because the moment has not presented itself, but because initiating the repair would cost you something? What is the cost of leaving it unaddressed?`,
+      enter: `Initiate peace today somewhere you have been waiting for the other person to go first. Peace-making is not weakness. It is the particular form of leadership that the home requires most.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Devoted Presence`,
+      verse: `When a man is newly married, he shall not go out with the army or be liable for any other public duty. He shall be free at home one year to be happy with his wife whom he has taken.`,
+      ref: `Deuteronomy 24:5`,
+      reflect: `God built margin for delight into the covenant by law. A newly married man was exempt from military service and public duty for a full year — not to rest, not to get established, but specifically to be happy with his wife. The language is striking: free at home, to be happy with her. The devotion of presence was not optional sentiment. It was the actual assignment. Most men are physically present in their homes far more than they are truly present in their marriages. They are in the house. They are available in the technical sense. But the attention is fractured — elsewhere, forward-planning, processing the day, managing the next thing. The wife in that home does not feel the presence of a man who has chosen to be with her. She feels the proximity of a man whose mind is somewhere else. The verse is asking for something more deliberate than occupying the same room.`,
+      recalibrate: `What would it mean for you to be genuinely present with your wife today — not available, not in the vicinity, but actually there, with attention directed at her and her experience of this season? What competes with that presence most reliably, and is the competition worth what it costs?`,
+      enter: `Give your wife real presence today — not managed time, not efficient check-ins, but the kind of attention that communicates she is where you want to be. The devoted presence the verse describes is not a luxury of early marriage. It is the ongoing declaration of what the covenant means.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Two Are Better`,
+      verse: `Two are better than one, because they have a good reward for their toil. For if they fall, one will lift up his fellow.`,
+      ref: `Ecclesiastes 4:9–10`,
+      reflect: `Marriage, at its best, is a genuine increase of capacity. Two people who are truly united carry more, recover faster, and see further than either can alone. That is not sentiment — it is the plain claim of the verse. The reward is real. But the reward depends on the unity being actual, not ceremonial. Two people living in proximity and mutual management are not two-are-better. They are two people who are legally bound and functionally alone. The man who has drifted from his wife knows the difference. Not because the marriage looks troubled from the outside — it often does not. But because he feels the absence of the thing the verse describes. He is not being helped. She is not being helped. They are coexisting, handling the household together, parenting the children together, and experiencing the loneliness of two people who share a roof but have stopped sharing the actual weight of their lives.`,
+      recalibrate: `Where have you been unwilling to be lifted — where pride or self-sufficiency has prevented you from receiving what your wife has to offer? The strength of the covenant runs in both directions.`,
+      enter: `Let yourself be supported today in whatever form that takes. Receive what your wife has to give without deflecting it. The willingness to be lifted is part of what makes the partnership real.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Listening First`,
+      verse: `If one gives an answer before he hears, it is his folly and shame.`,
+      ref: `Proverbs 18:13`,
+      reflect: `Answering before hearing is not just ineffective — the verse calls it folly. The man who responds to what he assumed was coming rather than what was actually said has not only missed the content but has communicated to the person speaking that they were not worth hearing. That message is received clearly even when the other content is not. Listening first is harder than it appears for men who move quickly toward solutions. The instinct toward efficiency — to identify the problem and offer the resolution as quickly as possible — can function as a subtle disrespect for the person's need to be heard before being helped. Often the hearing is the help.`,
+      recalibrate: `In your most important conversations, do you typically hear to understand or hear to respond? There is a difference, and the person speaking usually knows which is happening. What would change in those conversations if you shifted from the second to the first?`,
+      enter: `Hear completely today before answering. Let the person speaking finish — not just the sentence, but the full thought. Then pause before responding. What you hear in that fuller version is usually more than you expected.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Guard Small Fractures`,
+      verse: `Catch the foxes for us, the little foxes that spoil the vineyards, for our vineyards are in blossom.`,
+      ref: `Song of Solomon 2:15`,
+      reflect: `The vineyard is not destroyed by a single predator. It is spoiled incrementally, by small things that go unaddressed, by the accumulation of minor damage that seems inconsequential in each instance and significant in aggregate. The little foxes are worth catching precisely because they are small enough to be dismissed. In marriage, the small fractures are the unrepaired misunderstandings, the low-grade sarcasm that has become habitual, the pattern of small withdrawals that no single instance makes worth addressing but that together constitute drift. The vineyard is in blossom — the relationship has something worth protecting. The instruction is to catch what is spoiling it before the spoiling is complete.`,
+      recalibrate: `What are the little foxes currently in your marriage — the small, recurring patterns that you have been tolerating rather than addressing because each individual instance seems too minor to act on?`,
+      enter: `Address one small fracture today that has been allowed to persist. Not with drama — with direct, kind attention. Small things caught early cost much less than small things left to compound.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Anger Without Sin`,
+      verse: `Be angry and do not sin; do not let the sun go down on your anger, and give no opportunity to the devil.`,
+      ref: `Ephesians 4:26`,
+      reflect: `The verse does not prohibit anger. It distinguishes between anger and sin, which means they are not the same thing and can be separated. A man can feel genuine anger at something genuinely wrong without sinning in the response. The distinction is in what the anger does — whether it governs him or whether he governs it. Do not let the sun go down on your anger is a repair deadline, not a suppression instruction. The anger can exist. What cannot happen is allowing it to sit overnight unaddressed, accumulating interest, calcifying into something more difficult and more damaging than the original event warranted. Fast repair is the standard.`,
+      recalibrate: `When anger arrives legitimately in your marriage, what does it typically do to your behavior before you bring it to repair? What is the average gap between the wound and the reconciliation? Is it measured in hours or in days?`,
+      enter: `Do not carry anger into tomorrow that belongs to today. Address it before it compounds. The speed of repair is one of the primary indicators of relational health — and it is entirely within your governance.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Words That Heal`,
+      verse: `There is one whose rash words are like sword thrusts, but the tongue of the wise brings healing.`,
+      ref: `Proverbs 12:18`,
+      reflect: `Rash words are not always loud. They can be delivered quietly, surgically, with precision that makes them land harder than anything shouted. The sword thrust is accurate — it is the precision of the wound that the image captures. Words delivered in the right moment, aimed at the right vulnerability, land with damage disproportionate to their volume. The wise tongue brings healing — not avoidance of truth, but truth delivered in a way that restores rather than wounds. This requires more than knowing what is true. It requires knowing when, how, and at what cost to the relationship the truth will land, and choosing the delivery accordingly.`,
+      recalibrate: `Think of a recent time when your words landed harder than the situation warranted. Was the content accurate? Was the delivery wise? The verse does not suggest false words. It distinguishes between rash and wise delivery of whatever truth is present.`,
+      enter: `Let your words serve healing today. Say what is true. Say it in a way that the person receiving it can actually use rather than simply survive.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Love Under Strain`,
+      verse: `Love is patient and kind; love does not envy or boast; it is not arrogant or rude. It does not insist on its own way; it is not irritable or resentful.`,
+      ref: `1 Corinthians 13:4–5`,
+      reflect: `Love in this description is almost entirely behavioral. It is not primarily a feeling — it is a set of choices made consistently in the absence of feelings that support them. Patience when patience does not come naturally. Kindness when kindness requires self-governance. The absence of irritability and resentment when both are available. The covenant is where these qualities are most tested because the covenant is where a man is most known. Strangers receive courtesy easily. Colleagues receive professionalism. The wife receives the man in his least-performed state — which is why the love described here is the harder love. It operates where the performance has stopped.`,
+      recalibrate: `Which of the qualities listed is most absent in how you currently love your wife? Not the one you feel good about — the one that, if she were asked honestly, she would say has been thin. Start there.`,
+      enter: `Choose the quality most absent today and govern toward it deliberately. Not as performance — as a decision about who you intend to be regardless of how you feel in the moment.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Gracious Speech`,
+      verse: `Let your speech always be gracious, seasoned with salt, so that you may know how you ought to answer each person.`,
+      ref: `Colossians 4:6`,
+      reflect: `Gracious speech is not soft speech. Salt seasons and preserves — it gives food flavor and prevents spoiling. The instruction is for speech that is substantive and honest, delivered in a way that is worth receiving. Gracious does not mean vague. It means the words carry both content and care. Knowing how to answer each person implies that the response is calibrated to the individual — that the man is paying enough attention to know what kind of answer is needed in this moment, with this person, given what they are carrying and how they receive things. That calibration is a form of love applied through attention.`,
+      recalibrate: `Do your words tend to be seasoned — substantive and warm? Or do they tend to run toward one extreme or the other: too soft to be useful, or too sharp to be received? Where does the calibration most often go wrong for you?`,
+      enter: `Speak today with both clarity and warmth together. Let neither quality crowd out the other. The combination is what the verse describes and what the people around you most need.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Unity`,
+      verse: `Behold, how good and pleasant it is when brothers dwell in unity!`,
+      ref: `Psalm 133:1`,
+      reflect: `Unity is described as both good and pleasant — substantively right and experientially enjoyable. The psalm opens as an exclamation because unity, when it is real, is actually remarkable. A household that has it can feel it before it can name it. Children raised in it know something is different about their home without being able to say what. Visitors notice the atmosphere before the décor. Unity is not invisible. It changes rooms. What makes it rare is that it costs something consistently. Not a single large sacrifice — a hundred small ones. The man who lets the argument go when he is right. Who brings the warmth when he does not feel warm. Who repairs quickly when repair is inconvenient. Who chooses connection when withdrawal is easier. Unity is not a state a marriage arrives at. It is a condition a man keeps choosing, one morning at a time, including the mornings after.`,
+      recalibrate: `What is the current state of unity in your home — not the appearance of unity, but its actual condition? Where is genuine accord present, and where has drift allowed separate agendas to develop that have not yet been addressed?`,
+      enter: `Move toward greater unity today in one specific way — in a conversation that has been avoided, in a repair that has been deferred, in a choice to align rather than operate independently. Unity is built in small steps, most of them unglamorous. —`,
+    },
+    {
+      pillar: `covenant`,
+      title: `The Returning`,
+      verse: `But while he was still a long way off, his father saw him and felt compassion, and ran and embraced him and kissed him.`,
+      ref: `Luke 15:20`,
+      reflect: `The father in this parable does not wait for the apology. He sees the son from a distance and runs. The repair begins before the explanation is given. In marriage, this is what pursuit looks like: movement toward before the terms are settled, before the case is made, before the grievance is fully resolved. The man who waits for his wife to meet him halfway before he moves has not understood the posture this parable describes. He who sees first moves first.`,
+      recalibrate: `Where in your marriage right now are you waiting for movement before you move? Name it honestly. The case for why that is reasonable may be valid. Ask whether it is also governing you in a way that is preventing repair.`,
+      enter: `Move toward today without waiting for conditions to be met first. Not to abandon accountability — to lead the repair rather than waiting for it to arrive.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Forgiveness as Practice`,
+      verse: `Be kind to one another, tenderhearted, forgiving one another, as God in Christ forgave you.`,
+      ref: `Ephesians 4:32`,
+      reflect: `Forgiveness in marriage is not a single event. It is a practice — repeated, returned to, often incomplete the first time it is attempted. The standard here is 'as God in Christ forgave you,' which means the forgiveness is not proportionate to the offense and does not depend on whether the other person has fully understood the damage they caused. A man who withholds forgiveness until he feels like extending it will wait a long time. Forgiveness is a decision that feeling eventually follows, not a feeling that must be present before the decision is made.`,
+      recalibrate: `What in your marriage are you holding that has not yet been released? Not to dismiss the legitimacy of the wound — to ask whether the holding is serving the relationship or protecting you from having to be vulnerable about what it cost you.`,
+      enter: `Move one step toward forgiveness today — not the completed version, just the next step. The direction matters more than the distance covered in a single day.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Known Without Explanation`,
+      verse: `My beloved is mine, and I am his.`,
+      ref: `Song of Solomon 2:16`,
+      reflect: `Marriage, at its best, is the experience of being fully known and fully chosen. Not chosen for performance. Not held because you are currently showing up at your best. The Covenant governs whether that experience is actually available to your wife — whether she is in a marriage where she is known, or whether the distance has grown slowly enough that neither of you noticed it was happening. Emotional intimacy does not erode dramatically. It drifts by degrees, each small withdrawal unnoticed until the account reads differently than you remembered.`,
+      recalibrate: `Does your wife currently feel known by you? Not in general — specifically, this week. What is she carrying that you have not asked about? What is she hoping for that she has not said out loud?`,
+      enter: `Create one moment of knowing today — not a grand gesture, an unhurried question. Ask something you do not already know the answer to and stay for the full answer.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Iron and Iron`,
+      verse: `Iron sharpens iron, and one man sharpens another.`,
+      ref: `Proverbs 27:17`,
+      reflect: `Marriage is not primarily comfort. It is formation. A wife who tells her husband only what he wants to hear is not serving him. A husband who manages his wife's comfort at the expense of her growth is not leading her. The Covenant contains both protection and challenge — it is safe enough to be honest and strong enough to hold the friction that honesty produces. The man who has built a marriage where truth can be spoken without destruction has built something worth protecting.`,
+      recalibrate: `Is there something your wife has been trying to tell you that you have been deflecting? Not because she was wrong, but because it was uncomfortable. Name it. Then consider what it would mean to receive it.`,
+      enter: `Be open to being sharpened today. That openness requires a secure enough identity that critique does not read as attack. If the defenses go up, notice — that noticing is the beginning of the work.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Security Before Correction`,
+      verse: `There is no fear in love, but perfect love casts out fear.`,
+      ref: `1 John 4:18`,
+      reflect: `Fear in a marriage does not always look like obvious dread. It looks like a wife who edits what she says before she says it. Who waits to see your mood before deciding whether to bring something to you. Who has learned that certain topics are not safe. The absence of fear in love means the people closest to you do not have to manage you in order to access you. That kind of safety is not built in one conversation. It is built in ten thousand moments where you responded in a way that made it safe to return.`,
+      recalibrate: `What does your wife edit before she brings it to you? You may not know directly — but you can sense the topics that do not get raised, the concerns that disappear instead of getting addressed. That disappearing is information.`,
+      enter: `Make it safe to be honest today. Not by saying you are safe — by responding in a way that confirms it. One moment where the honest thing was said and you received it without defense or withdrawal.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Delight Is Not Optional`,
+      verse: `Let your fountain be blessed, and rejoice in the wife of your youth.`,
+      ref: `Proverbs 5:18`,
+      reflect: `The instruction is to rejoice — not to respect, not to provide for, not to manage. Delight. A man who runs a functional household while having quietly stopped delighting in his wife has not succeeded at marriage. He has managed an arrangement. The Covenant requires more than logistics. It requires that she experiences herself as wanted, not just present. Delight communicates what effort and provision cannot — that she is not just needed but enjoyed.`,
+      recalibrate: `When did you last delight in your wife — not because of what she did, but because of who she is? Not as criticism of the current season, but as a real question. Delight requires attention. Attention requires margin. Margin requires intention.`,
+      enter: `Tell her something specific that you enjoy about her today. Not appreciation for what she does — something about who she is. The specificity is what makes it land.`,
+    },
+    {
+      pillar: `covenant`,
+      title: `Repair Is Leadership`,
+      verse: `So if you are offering your gift at the altar and there remember that your brother has something against you, leave your gift there before the altar and go. First be reconciled to your brother, and then come and offer your gift.`,
+      ref: `Matthew 5:23–24`,
+      reflect: `The order in this verse is significant: stop what you are doing and repair. The offering can wait. The rupture cannot — not because the other person cannot wait, but because the unrepaired rupture affects everything downstream. A man who leads his household while leaving fractures unaddressed is building on uneven ground. The repair is not weakness. It is the prerequisite for everything else the Altar, the Forge, and the Heritage are attempting to build.`,
+      recalibrate: `Is there something unrepaired between you and your wife right now? Not a major conflict — a small fracture that has been left rather than addressed. Those accumulate. Name it. Then consider whether it is waiting for the right time or waiting for you to move first.`,
+      enter: `Go first today. Whatever needs repair, you move toward it before the day closes. The offering of leadership waits until the house is reconciled.`,
+    },
+  ],
+  heritage: [
+    {
+      pillar: `heritage`,
+      title: `Children as Arrows`,
+      verse: `Like arrows in the hand of a warrior are the children of one's youth. Blessed is the man who fills his quiver with them!`,
+      ref: `Psalm 127:3–5`,
+      reflect: `The arrow metaphor carries more weight than is often recognized. An arrow does not choose its direction — it is aimed. Its trajectory is set before it leaves the hand. The warrior's role is not to watch where it goes and hope for the best but to aim it deliberately before releasing it. The release is not the work. The aiming is the work. A man who releases children into the world without having aimed them has not done the harder portion of fatherhood. He has done the biological portion. The formation — the deliberate shaping of direction, character, and capacity — is what the metaphor is pointing at. That formation happens long before the release.`,
+      recalibrate: `Where are you currently aiming your children — in terms of character, values, and capacity? Not in terms of achievement or outcome, but in terms of the internal direction being set? Is the aiming deliberate or mostly incidental?`,
+      enter: `Invest one deliberate effort in formation today — not in outcome management, not in activity scheduling, but in the shaping of direction. A brief, honest conversation. A moment that transfers something worth carrying.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Inheritance`,
+      verse: `A good man leaves an inheritance to his children's children, but the sinner's wealth is laid up for the righteous.`,
+      ref: `Proverbs 13:22`,
+      reflect: `The inheritance that passes to grandchildren is not primarily financial, though it may include that. It is the compounded fruit of a man's faithfulness over decades — the character patterns, the relational skills, the financial habits, the spiritual orientation that his children received and were able to pass forward to theirs. That is what compounds. That is what constitutes the inheritance worth leaving. A man who accumulates wealth while neglecting formation leaves his children something they may not be prepared to steward. The inheritance is only as durable as the character of the people inheriting it. Formation is not a supplement to provision. It is the foundation that makes provision capable of lasting.`,
+      recalibrate: `What is currently being accumulated in your home that will outlast you — not financially, but in terms of character, pattern, and formation? And what is being neglected that your children will feel the absence of eventually?`,
+      enter: `Invest in formation today with the same intentionality you bring to financial stewardship. Both are inheritance. One is more visible. The other is more determinative.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Teach Diligently`,
+      verse: `And these words that I command you today shall be on your heart. You shall teach them diligently to your children, and shall talk of them when you sit in your house, and when you walk by the way, and when you lie down, and when you rise.`,
+      ref: `Deuteronomy 6:6–7`,
+      reflect: `The instruction is remarkable for what it does not say. It does not describe formal curriculum. It describes the ordinary fabric of the day — sitting, walking, lying down, rising. Formation happens in the margins of normal life, not primarily in scheduled moments set apart for instruction. The diligence is in the consistency of ordinary presence, not in the quality of formal lessons. The prerequisite is also worth noting: the words must first be on the man's heart before they can be taught to his children. A man cannot transmit what he does not inhabit. His ability to teach in the ordinary moments depends on what he is actually living in the private ones.`,
+      recalibrate: `What values and truths are currently on your heart — genuinely governing you — that your children could absorb through proximity to your ordinary life? And what have you been attempting to teach that is not yet fully governing you?`,
+      enter: `Be present in the ordinary moments today with enough intention to let formation happen in them. Walk alongside. Sit together. Talk about what actually matters in the regular flow of the day.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Training`,
+      verse: `Train up a child in the way he should go; even when he is old he will not depart from it.`,
+      ref: `Proverbs 22:6`,
+      reflect: `Training is distinguished from instruction by repetition and correction. Instruction communicates the standard once. Training establishes it through repeated practice, reinforcement, and gentle return when departure occurs. A man who tells his children what he expects and then is surprised when they do not sustain it has instructed without training. The way he should go implies attentiveness to the particular child — not a generic standard applied universally but a formation suited to the person being formed. This requires the father to actually know his child: the strengths, the particular vulnerabilities, the way that this person most needs to be developed. That knowledge comes from presence.`,
+      recalibrate: `Do you know your children well enough to train them — not just correct them — toward the specific formation they each need? Where does your knowledge of each child need to deepen in order for your guidance to be more precisely calibrated?`,
+      enter: `Observe one of your children carefully today rather than managing them. What do you see? What do they need? Let the observation inform your approach rather than applying a template.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Hearts Turned`,
+      verse: `And he will turn the hearts of fathers to their children and the hearts of children to their fathers.`,
+      ref: `Malachi 4:6`,
+      reflect: `The turning is in both directions. Fathers to children, children to fathers. The relationship that should be the most natural one in a family — the bond between a father and the children he raised — is described here as something that requires restoration. Which means it can drift. Which means the drift is a real and common enough problem that the promise of its correction is meaningful. A man whose heart is turned toward his children is not simply physically present or financially providing. His attention is genuinely on them — their inner life, their formation, their flourishing as people rather than as reflections of his effort. That orientation is not automatic. It is cultivated by intention over time.`,
+      recalibrate: `Is your heart turned toward your children — genuinely oriented toward them, curious about them, invested in who they are rather than what they produce? Or has the busyness of provision created a distance that has been normalized without being named?`,
+      enter: `Turn toward your children today with your full attention, even briefly. Ask a question that shows you have been paying attention to them specifically. Let them feel that your heart is actually on them.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Tell the Next Generation`,
+      verse: `We will not hide them from their children, but tell to the coming generation the glorious deeds of the Lord, and his might, and the wonders that he has done.`,
+      ref: `Psalm 78:4`,
+      reflect: `Most men default to the edited version of their story. The version that starts after the hard part. The one where the failure has already been resolved, the lesson already learned, the man already further along than he was when the difficulty was actual. His children receive the conclusion without the formation — the arrival without the road. They know what he became. They do not know what it cost, or where he was when the cost was being paid. A son who has never seen his father uncertain does not know what to do with his own uncertainty. A daughter who has never seen her father fail does not know what failure looks like when it is handled with dignity. The sanitized story protects the father's image and deprives the child of the formation material that only comes from watching a man navigate real terrain. Telling the next generation is not testimony management. It is the honest transfer of the actual life.`,
+      recalibrate: `What true story about your own formation — including a portion you usually skip — could one of your children actually use right now? What are you withholding that would serve them more than protect you?`,
+      enter: `Tell something true today that you have been editing. Not as confession — as transmission. The honest story is always more useful to the person inheriting it than the impressive one.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Entrust to Faithful Men`,
+      verse: `And what you have heard from me in the presence of many witnesses entrust to faithful men, who will be able to teach others also.`,
+      ref: `2 Timothy 2:2`,
+      reflect: `The chain has four links: what was received gets passed to faithful men who pass it to others. Each link requires a man to do something active — not just receive but transfer. The man who accumulates wisdom without transferring it has made himself a dead end. What he was given does not reach the people it was meant to reach, and the formation stops with him. Faithful men are not perfect men. They are men whose character has been verified through enough proximity to warrant the entrustment. The transmission requires relationship — which means investment, time, and the willingness to stay in someone's life long enough to actually see who they are. A man cannot entrust something significant to someone he barely knows.`,
+      recalibrate: `Who in your sphere — a son, a younger man, someone watching how you live — is ready to receive something you are carrying? What are you holding that someone needs, and what is actually preventing the transfer?`,
+      enter: `Pass something forward today. Say the thing that has been worth knowing. Point someone toward what you wish someone had pointed you toward earlier. The chain continues with you or it stops with you.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Walking in Integrity`,
+      verse: `The righteous who walks in his integrity — blessed are his children after him!`,
+      ref: `Proverbs 20:7`,
+      reflect: `The blessing flows from the walking, not from the instruction. A man who teaches integrity while his private life is disordered will eventually produce children who distrust the instruction. A man who walks in integrity — whose stated values and actual behavior are the same person — transmits something that does not require verbal reinforcement. His children inherit it through proximity. Integrity is costly because it eliminates the gap between who a man is publicly and who he is when no one is watching. That consistency — maintained across contexts, sustained over time — is the inheritance the verse is describing. It is the most transferable thing a man can possess.`,
+      recalibrate: `Where does the gap between your public and private self currently exist? Not a gap that requires confession, necessarily, but a gap that, if closed, would make what you are transmitting to your children more coherent and more real?`,
+      enter: `Walk with integrity today in the specific place where the gap is widest. The blessing described in the verse accumulates through the walking, not through the intending.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `The End Better Than Beginning`,
+      verse: `Better is the end of a thing than its beginning, and the patient in spirit is better than the proud in spirit.`,
+      ref: `Ecclesiastes 7:8`,
+      reflect: `Heritage is a long-horizon discipline. Its fruit is not immediately visible, which is why the impatient man struggles with it. The patient spirit that the verse commends is not passivity — it is the willingness to do the work that produces results on a timeline longer than a week or a year, trusting that what is being built has real and durable value even when the evidence is not yet visible. The proud spirit rushes toward outcomes. It wants the formation to be complete, the character to be established, the results to be apparent. Patience in formation means staying faithful to the process when it is slow, when the child is resistant, when the transmission does not seem to be landing. The end is better than the beginning, but only if the work is sustained until the end.`,
+      recalibrate: `Where is your patience with the long work of formation currently thin? Where are you losing confidence in the process because the results are not yet visible? Stay with it. Heritage compounds on the back end, not the front.`,
+      enter: `Do the formation work today that will not be visible for years. Do it anyway. Patient faithfulness in the ordinary days is what builds the end that is better than the beginning.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Command His Household`,
+      verse: `For I have chosen him, that he may command his children and his household after him to keep the way of the Lord by doing righteousness and justice.`,
+      ref: `Genesis 18:19`,
+      reflect: `The word command carries authority that softer translations lose. This is not suggestion or example alone — it is explicit, direct leadership in the household regarding the way of the Lord. The man who leads by silence, who never speaks explicitly about what he expects and what he values, has abdicated a portion of the role this verse describes. The purpose of the command is also significant: to keep the way of the Lord by doing righteousness and justice. The instruction is not to perform religion but to do something — to live in a particular way, to practice righteousness and justice as ordinary habits of the household. The formation is in the doing, not in the knowing.`,
+      recalibrate: `Where in your household are values implicit when they need to be explicit? What have you assumed your children know about what you expect and what matters to you, that you have never actually said clearly and directly?`,
+      enter: `Say something clearly today that has been left to assumption. Name what you value, what you expect, what the household stands for. Command is not harshness — it is the clarity your children need to be directed well.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Stones of Remembrance`,
+      verse: `When your children ask in time to come, 'What do those stones mean to you?' then you shall tell them...`,
+      ref: `Joshua 4:6–7`,
+      reflect: `The stones are deliberate markers — placed to prompt the question, designed to create the opportunity for transmission. The fathers who placed them understood that the story would not be passed forward automatically. It required structure: a visible marker that would interrupt ordinary life and open the conversation. A man who wants to transmit heritage must create the structures that make transmission possible. This does not require a formal ceremony. It requires the deliberate placement of markers — practices, objects, rituals, stories — that will prompt the question in his children and make the answer worth giving. The structure enables the transmission.`,
+      recalibrate: `What markers have you placed in your family's life that prompt the question and open the story? And what stories are you prepared to tell when the question comes?`,
+      enter: `Create one marker today — however small — that will open a transmission conversation with your children. It could be as simple as bringing out an object from your past and telling the story of what it means. Plant the stone.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `One Generation to Another`,
+      verse: `One generation shall commend your works to another, and shall declare your mighty acts.`,
+      ref: `Psalm 145:4`,
+      reflect: `Commendation is an active transfer — it is not what gets absorbed passively, but what is deliberately spoken, pointed toward, named out loud. The generation that commends the works of God to the next has made a choice to speak when silence was available. To say: here is what I have seen. Here is what held. Here is what was true in the year before you were born and is still true in the year we are in now. Most fathers do not withhold this intentionally. They withhold it because the moment never quite materializes in the form they imagined it would. They are waiting for the significant conversation rather than recognizing that the commendation happens in ordinary ones — at the dinner table when something goes wrong, in the car when no one is performing, in the quiet after a difficult week when a man says plainly: this is what I went back to and it was enough.`,
+      recalibrate: `What have you seen — in your own life, in your formation, in the faithfulness you have witnessed — that your children do not yet know about? What story of God's work in your life has not yet been told?`,
+      enter: `Tell the story today. Find the moment and speak what has been worth commending. The generation after you needs to hear it from you, not find it later in your absence.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Grandchildren as Crown`,
+      verse: `Grandchildren are the crown of the aged, and the glory of children is their fathers.`,
+      ref: `Proverbs 17:6`,
+      reflect: `The crown is not the man's own achievement — it is his grandchildren. The ultimate honor described for the old man is not what he built or accumulated but who his family produced after him. The fruit of a man's formation work is visible, generationally, in the people who follow. That is what the verse elevates as glory. Glory of children is their fathers — the father's consistent presence, character, and formation is itself the source of the children's glory. Not the provision, not the achievement, not the reputation in the world. The father himself, faithfully present and rightly ordered, is the gift that becomes the children's source of honor.`,
+      recalibrate: `What are you currently building in your home that will produce the kind of grandchildren described here? Not through control, but through the formation happening now in your children that will eventually flow through them?`,
+      enter: `Be the father your children will speak of with pride — not because of what you accomplished, but because of who you were with them. Let that be the goal shaping your ordinary day today.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `The Father's Posture`,
+      verse: `And he arose and came to his father. But while he was still a long way off, his father saw him and felt compassion, and ran and embraced him and kissed him.`,
+      ref: `Luke 15:20`,
+      reflect: `The father in the parable is watching. He sees the son while he is still a long way off — which means he had not stopped looking. His response to the return is not careful or conditional. He runs. He does not wait for the apology to be complete. He does not manage his welcome. He overwhelms it. The posture of the father in this passage is one of the most powerful images of fatherhood in Scripture — a man who has been wounded by his son's departure, who has every reason to protect himself from further damage, and who instead runs toward the returning child without reservation. That posture, sustained over years, is what produces children who know they can come home.`,
+      recalibrate: `Do your children know that the door is open — that return is met with embrace rather than management? Not naively, but genuinely: is the posture of your fatherhood one that runs toward rather than waits to evaluate?`,
+      enter: `Let your posture today be one that runs toward your children. Not past their failure — through it, to them. The embrace is not the reward for the right behavior. It is the condition of the relationship.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `No Greater Joy`,
+      verse: `I have no greater joy than to hear that my children are walking in the truth.`,
+      ref: `3 John 1:4`,
+      reflect: `The greatest joy is not their achievement, their success, or their happiness in the common sense. It is that they are walking in truth — living in genuine alignment with what is real, what is right, what endures. The father who has this joy has given his children something that produces it. Formation in truth was the gift. The walking is its fruit. This is also a statement about what a father values most. If he has no greater joy than this, it means he has organized his fatherhood around producing people who walk in truth — which required him to prioritize truth in his own walk first, to model it, to make it the standard of the household over comfort, performance, or approval.`,
+      recalibrate: `What do you most want for your children — in the deepest, clearest version of that want? Is it their happiness, their success, their safety, or their integrity? What you most want will determine what you most invest in.`,
+      enter: `Make one investment today in your children's walk in truth. Not an instruction necessarily — perhaps an honest conversation, a consistent example, or simply being a man whose own walk they can observe and respect.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Imitate Leaders`,
+      verse: `Remember your leaders, those who spoke to you the word of God. Consider the outcome of their way of life, and imitate their faith.`,
+      ref: `Hebrews 13:7`,
+      reflect: `The instruction to imitate is a recognition that formation is modeled before it is taught. The outcome of a man's way of life is what is imitated — not the syllabus but the life. What he does with his ordinary days, how he responds under pressure, how he treats the people closest to him. That is what is inherited. A man who understands this lives differently. He does not simply want to be respected — he wants to be imitable. He asks whether his way of life is worth reproducing, whether the faith he is living is one he would want the people who come after him to imitate. That question is a useful diagnostic on the current state of the inheritance.`,
+      recalibrate: `If your children imitate you faithfully — if they reproduce your way of life as precisely as possible — what kind of adults does that produce? Is that the outcome you are aiming for? Where does the answer change your investment?`,
+      enter: `Live today in a way you would not object to your children reproducing. Not perfectly — faithfully. The imitation will happen. The question is what is worth imitating.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Faithful Steward`,
+      verse: `His master said to him, 'Well done, good and faithful servant. You have been faithful over a little; I will set you over much. Enter into the joy of your master.'`,
+      ref: `Matthew 25:21`,
+      reflect: `The commendation is not for the size of the outcome — it is for faithfulness over what was given. The servant who received little and multiplied it faithfully receives the same commendation as the one who received much. The standard is not scale. It is faithfulness to the entrustment, which means the man with a small household and modest means is standing before the same standard as the man with considerable influence and resources. A man who has been faithful in the formation of his household — who stewarded the authority given to him, shaped the people entrusted to him, kept covenant and transmitted character — has been faithful over what was given. Whatever the visible results, that faithfulness is what endures. Legacy is not measured in outcomes. It is measured in the quality of the stewardship.`,
+      recalibrate: `What has been entrusted to you — specifically, not generally — that faithfulness requires you to tend well today? Not impressively. Faithfully. What does that look like in the most ordinary portion of your responsibilities?`,
+      enter: `Be faithful over what is yours today. Small faithfulness in the actual assignment is the standard. It is the same standard applied to the largest and smallest entrustments alike.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Covenant to Children`,
+      verse: `But the steadfast love of the Lord is from everlasting to everlasting on those who fear him, and his righteousness to children's children, to those who keep his covenant.`,
+      ref: `Psalm 103:17–18`,
+      reflect: `The covenant is kept in the present, but its reach extends to children's children — generationally forward in ways the man keeping it will not live to see. Faithfulness in one generation creates conditions in the next that would not otherwise exist. The man who keeps the covenant today is not only governing his present life. He is shaping the conditions his grandchildren will inhabit. This is the closing note of Heritage because it faces the direction Heritage is always facing — forward, past the horizon of what the man can see. He will not witness most of what his faithfulness produces. He keeps covenant anyway, for the sake of people he may never meet, because what is sustained in one generation compounds into the next in ways that cannot be fully calculated from the present.`,
+      recalibrate: `What are you currently keeping — in covenant, faith, integrity, formation — that will still be bearing fruit in the third generation? And is there anything being neglected right now whose absence will be felt by people who have not yet been born?`,
+      enter: `Keep covenant today for the sake of people you cannot yet see. What you sustain now reaches further than you know. That is the entire weight and dignity of the Heritage. Carry it faithfully. —`,
+    },
+    {
+      pillar: `heritage`,
+      title: `The Slow Transfer`,
+      verse: `And these words that I command you today shall be on your heart. You shall teach them diligently to your children, and shall talk of them when you sit in your house, and when you walk by the way.`,
+      ref: `Deuteronomy 6:6–7`,
+      reflect: `The teaching happens in motion, not in meetings. It happens in the car, at the table, walking the property line, in the minute before lights out. A man who intends to transfer values to his children but is waiting for the right structured moment will miss the actual opportunities — which arrive constantly, unremarkably, and quickly. The diligence the verse describes is not intensity. It is consistency over the texture of ordinary life.`,
+      recalibrate: `When did you last teach your children something — not in a formal way, but in a passing moment that became significant? Those moments are created by presence and availability, not by agenda. What is your current availability to those moments?`,
+      enter: `Be present enough today that one teaching moment can surface. Do not manufacture it. Just stay available and slow enough that you recognize it when it arrives.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `What They Will Remember`,
+      verse: `Fathers, do not provoke your children to anger, but bring them up in the discipline and instruction of the Lord.`,
+      ref: `Ephesians 6:4`,
+      reflect: `The prohibition comes first: do not provoke. Before instruction, before discipline, before the content of formation — the posture. A man can transmit the right information in a tone that makes his children unable to receive it. Provocation is not always harsh — it is sometimes simply the accumulated weight of correction without delight, of standards without warmth, of presence that only appears when something needs to be addressed. The man who brings himself as well as his standards creates the conditions under which formation is possible.`,
+      recalibrate: `What do your children currently associate with your presence — correction and pressure, or stability and warmth, or both? If you are uncertain, it is worth considering what the ratio has looked like this week specifically.`,
+      enter: `Show up today in a way that deposits, not just withdraws. One moment of unhurried presence with a child that has nothing to do with correcting something. That deposits the relational capital that makes correction effective when correction is needed.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Patience as Formation`,
+      verse: `A man of great wrath will pay the penalty, for if you deliver him, you will only have to do it again.`,
+      ref: `Proverbs 19:19`,
+      reflect: `The verse describes a pattern: rescue, repeat, rescue again. A father who removes consequences for his children is not protecting them. He is delaying their formation and guaranteeing a harder lesson arrives later under worse conditions. The most patient thing a father can do is sometimes to hold the line and let the consequence teach what his words have failed to reach. The discomfort of watching a child experience the result of their choices is one of the hardest parts of the Heritage. It is also one of its most essential tools.`,
+      recalibrate: `Where are you currently rescuing your children from consequences they need to experience? Not everywhere — look for the specific pattern. Where does the discomfort of watching them struggle activate the reflex to intervene before the lesson lands?`,
+      enter: `Hold the line today in one area where the reflex has been to soften or rescue. Not harshly — with calm clarity. The line held consistently is what teaches what words alone cannot.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `The Long Investment`,
+      verse: `The righteous man walks in his integrity — blessed are his children after him.`,
+      ref: `Proverbs 20:7`,
+      reflect: `The blessing in this verse is not produced by intention. It is produced by integrity — by a man who walks in it, day after day, long enough that it becomes observable to those around him. His children are blessed not because he planned their blessing but because he lived in a way that made it possible. The Heritage is built in the ordinary decisions no one is watching: how he handles the small financial temptation, how he speaks about people who are not present, how he responds when the outcome does not go his way.`,
+      recalibrate: `What are your children currently learning from watching you — not from what you are teaching them, from what you are demonstrating? Those two things sometimes align. Sometimes they do not. The gap is worth examining.`,
+      enter: `Walk in integrity today in one area where it is inconvenient to do so. Not for anyone to see. Because the man who walks that way in private is building something his children will eventually inherit.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Generational Weight`,
+      verse: `Know therefore that the Lord your God is God, the faithful God who keeps covenant and steadfast love with those who love him and keep his commandments, to a thousand generations.`,
+      ref: `Deuteronomy 7:9`,
+      reflect: `A thousand generations is not metaphor. It is the scope of faithful obedience — faithfulness that extends far beyond any single life. The man who governs himself, his household, and his formation of his children is not just managing the current generation. He is participating in something that extends beyond what he will live to see. This is what makes the Heritage more than parenting strategy — it is covenantal stewardship of a line that began before him and continues after him.`,
+      recalibrate: `When you make decisions about how you live and lead, how far forward does your thinking extend? Most men think to next week. The Heritage asks you to think to your grandchildren's children. What decisions look different from that vantage point?`,
+      enter: `Make one decision today from the thousand-generation frame. One choice that the long line of faithfulness requires, regardless of how it feels in the immediate moment.`,
+    },
+    {
+      pillar: `heritage`,
+      title: `Name What You Build`,
+      verse: `By wisdom a house is built, and by understanding it is established; by knowledge the rooms are filled with all precious and pleasant riches.`,
+      ref: `Proverbs 24:3–4`,
+      reflect: `The house in this verse is not a structure — it is a household. The materials are wisdom, understanding, and knowledge. Not income, not prestige, not connections. The man who builds his household with these materials is building something that does not depend on external conditions to stand. What fills the rooms is described as precious and pleasant — not merely functional, but genuinely good. A household built on wisdom has a quality that is felt before it is explained.`,
+      recalibrate: `What are you currently building your household with? Name the actual materials — not the intended ones. What do the daily rhythms, the standards, the conversations, the tone of correction actually reflect about what is being built?`,
+      enter: `Bring wisdom into one interaction today. Not information — wisdom. The kind that builds rather than just corrects. It will feel different in the room, even if it is quiet.`,
+    },
+  ],
+  fortress: [
+    {
+      pillar: `fortress`,
+      title: `City Without Walls`,
+      verse: `A man without self-control is like a city broken into and left without walls.`,
+      ref: `Proverbs 25:28`,
+      reflect: `Think about the last time you said yes to something you did not want to do — not because it was the right call, but because saying no felt too costly. The schedule filled up again. The boundary softened again. The thing you had decided not to allow worked its way back in because the resistance was uncomfortable and easier to release than to maintain. That is what no walls looks like in daily life. The city without walls is not free — it is exposed. Whatever approaches enters. Self-control is the internal perimeter that makes choice possible — so that what comes in is what the man has actually decided to let in rather than what simply found the gap. The wall is rebuilt one decision at a time, and it starts with the next thing that presents itself.`,
+      recalibrate: `What entered your household, your attention, or your time this week that you did not consciously choose — that got in simply because you were not watching or the resistance was too high? Name it specifically. That is where the wall needs work.`,
+      enter: `Make one deliberate perimeter decision today. Something that would have gotten through before, that you are choosing to stop this time. The governance of inputs is rebuilt exactly this way — one specific refusal, made with intention.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Fight for Your House`,
+      verse: `Do not be afraid of them. Remember the Lord, who is great and awesome, and fight for your brothers, your sons, your daughters, your wives, and your homes.`,
+      ref: `Nehemiah 4:14`,
+      reflect: `The call to fight is issued to men who are building something and facing opposition to it. The opposition in Nehemiah's context is external. In the context of the Fortress, the opposition is often more subtle — the slow erosion of margin, the gradual intrusion of what should not be there, the drift of standards under the pressure of convenience. Fighting for your home does not always look like confrontation. Often it looks like refusal — refusing to allow the pace to accelerate beyond what the household can sustain, refusing to allow access to what should not have access, refusing to normalize what has been allowed to creep in. That refusal is a form of protection as real as any visible defense.`,
+      recalibrate: `What is currently threatening the stability or character of your home that is not being actively defended against — not because you do not see it, but because pushing back would cost something you have been unwilling to spend?`,
+      enter: `Defend something today that has been allowed to erode. Not dramatically. Specifically. Name what is being allowed in that should not be, and make a concrete decision to stop allowing it.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Put on the Armor`,
+      verse: `Put on the whole armor of God, that you may be able to stand against the schemes of the devil.`,
+      ref: `Ephesians 6:11`,
+      reflect: `The armor is not put on once. It is put on — actively, daily, with intention. The instruction implies that the man who does not deliberately arm himself is not simply underprepared; he is exposed to something that is scheming against him. The schemes are not random. They are targeted and patient. Whole armor means no deliberate gap left unprotected. A man may be strong in some areas of governance while leaving others unattended — and the unattended area is where pressure finds its opening. The preparation is comprehensive or the protection is incomplete.`,
+      recalibrate: `Where are you currently unarmored — not through dramatic abandonment but through the gradual relaxation of vigilance in a specific area that has seemed secure enough not to require attention?`,
+      enter: `Attend to the area of your life currently least protected. Not the area you feel strongest in — the area where your guard has quietly lowered. That is where preparation is most needed today.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `The Watchman`,
+      verse: `Unless the Lord watches over the city, the watchman stays awake in vain.`,
+      ref: `Psalm 127:1`,
+      reflect: `The watchman's work is real and necessary. He does not stay awake in vain because vigilance is pointless — he stays awake in vain if he is standing guard without the source of actual protection being acknowledged. The distinction is between the man who guards as though everything depends on his guarding, and the man who guards faithfully while knowing that the ultimate protection is not his to provide. This prevents both extremes. It prevents the passivity of the man who does nothing because God is in control. And it prevents the exhaustion of the man who never rests because he believes the protection depends entirely on his vigilance. Both distortions are common. The verse holds the tension.`,
+      recalibrate: `Are you currently guarding from a place of trust or from a place of anxiety? The labor of vigilance is the same in both cases, but one is sustainable and one will eventually produce burnout or collapse.`,
+      enter: `Keep watch today from a position of trust rather than fear. Guard what is yours to guard. Then rest in the knowledge that what is not yours to guard is not left unattended.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Guard Your Path`,
+      verse: `Let your eyes look directly forward, and your gaze be straight before you. Ponder the path of your feet; then all your ways will be sure. Do not swerve to the right or to the left; turn your foot away from evil.`,
+      ref: `Proverbs 4:25–27`,
+      reflect: `The swerve is usually small. A man does not typically walk deliberately into what he knows to be destructive. He drifts — one small departure from the path, then another, then a normalization of the deviation until he is significantly off course and cannot remember when the drift began. Pondering the path of your feet is the advance work of protection. It is asking, before the swerve presents itself: what am I walking toward, and is the path I am on the one I have actually chosen? Deliberate attention to direction prevents the drift that only becomes visible after considerable distance.`,
+      recalibrate: `Where is your path currently drifting — not in a dramatic way, but in the small, incremental way that has not yet required acknowledgment because each individual step seemed minor?`,
+      enter: `Ponder your path today. Not anxiously — with honest attention. Where are you going, and is that where you mean to be going? Make one deliberate correction if the answer requires it.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Corrupting Influence`,
+      verse: `Do not be deceived: 'Bad company ruins good morals.'`,
+      ref: `1 Corinthians 15:33`,
+      reflect: `The warning begins with do not be deceived because the deception is extremely common. A man tells himself he is strong enough to remain unaffected. He has been around people whose direction is different and has not noticed any obvious damage yet. What he has not noticed is the gradual drift in what he now tolerates, what he now laughs at, what he no longer pushes back against — all of it absorbed through proximity, all of it feeling normal. A man becomes like the people he spends the most time with. Not the people he respects most. The people he is with most. The standard shifts not because he decided to lower it but because the environment established a new normal and he stopped noticing when it happened. That process is not dramatic. It is invisible until the distance from where he started is significant.`,
+      recalibrate: `Look honestly at the recurring influences currently shaping you — not the ones you intend to be shaped by, but the ones that actually are, based on time and exposure. Where has the standard shifted without your explicit decision to shift it?`,
+      enter: `Evaluate one recurring input today against what it is actually producing in you over time. If the honest answer is erosion rather than growth, treat that answer as permission to reduce or remove it. You do not owe access to what is ruining something.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Stay Awake`,
+      verse: `So then let us not sleep, as others do, but let us keep awake and be sober.`,
+      ref: `1 Thessalonians 5:6`,
+      reflect: `Spiritual sleep is not unconsciousness. A sleeping man looks productive from the outside — he is meeting obligations, maintaining appearances, handling what is required. But he has stopped noticing what is actually changing inside the days. The tone of his house has been shifting for three weeks and he has registered it without looking directly at it. The standard he holds at work has been quietly softening and he has accommodated each small departure without calling it by name. The man who is asleep in this sense has not abandoned anything. He has simply stopped paying attention with enough precision to notice what is drifting. The drift feels like normal life. It has the texture of a Tuesday, not a crisis. And that is exactly what makes it dangerous — because the Tuesday drift, sustained over enough Tuesdays, produces the crisis that finally forces him to look at what he stopped noticing months ago.`,
+      recalibrate: `What has been changing in your home or your inner life recently that you have been aware of but have not looked at directly? Not a crisis — a drift. The thing you know is there but have been too busy or too comfortable to address.`,
+      enter: `Stay awake today. Not anxiously — attentively. Notice what is actually present rather than what you assume is there. The man who sees clearly governs. The man who does not notice cannot.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Self-Control`,
+      verse: `For a bishop, as God's steward, must be above reproach. He must not be arrogant or quick-tempered or a drunkard or violent or greedy for gain, but hospitable, a lover of good, self-controlled, upright, holy, and disciplined.`,
+      ref: `Titus 1:7–8`,
+      reflect: `Self-controlled appears in the list not as one virtue among equals but as the capacity that makes the other virtues possible. A man who is not self-governed cannot sustain hospitality under pressure, remain upright when it is costly, or maintain discipline when the reasons to abandon it accumulate. Self-control is not one column in the list — it is the structural support of the others. The contrasts in the verse are instructive: not arrogant but humble, not quick-tempered but steady, not given to excess but disciplined. In each case, the negative is the failure of self-control in a specific domain. The man who sees himself in any of the negatives has identified a specific area of governance to attend to.`,
+      recalibrate: `Which of the failures listed — arrogance, quick temper, excess, greed — is most present in your current patterns? Name it specifically rather than generally. Then identify what self-governance in that area actually looks like in practice.`,
+      enter: `Exercise self-control today in the specific area where it has been thinnest. The discipline is not broad — it is one choice, in one domain, made with intention. That is where character is built.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `The Company You Keep`,
+      verse: `Whoever walks with the wise becomes wise, but the companion of fools will suffer harm.`,
+      ref: `Proverbs 13:20`,
+      reflect: `Walking with the wise is not a passive experience. It requires choosing proximity to people whose direction is upward and whose character is worth absorbing. That choice is active — it involves seeking out those relationships, investing in them, prioritizing them over the relationships that are more comfortable or more convenient. The companion of fools does not typically choose foolishness as an explicit destination. He chooses the company that is most available, most entertaining, or most affirming, and is shaped by that company over time without necessarily intending to be. The drift is a function of proximity, not of explicit decision.`,
+      recalibrate: `Who are you currently walking with most closely — and in what direction are those relationships moving you? Not the relationships you intend to have most influence, but the ones that actually do, based on the time and attention currently given to them?`,
+      enter: `Invest today in a relationship that is pulling you upward. Seek out wisdom rather than simply accepting whatever company presents itself. The people you walk with are shaping you whether the choice is conscious or not.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Clear Yes and No`,
+      verse: `Let what you say be simply 'Yes' or 'No'; anything more than this comes from evil.`,
+      ref: `Matthew 5:37`,
+      reflect: `The instruction is about integrity of word — that a man's yes and no are reliable without requiring elaborate qualification. But it also speaks to the clarity of decision-making. A man who cannot say a clear no to what does not belong in his life or home is not being hospitable — he is being ungoverned. The inability to say no clearly is a perimeter problem. Many men add so many qualifications to their no that it functions as a yes deferred. The social cost of a clear no feels too high, so the boundary is blurred until the thing that should have been refused has been admitted. Clarity of yes and no is not rigidity — it is the honest communication that makes relationships and governance both trustworthy.`,
+      recalibrate: `Where are you currently saying a blurred no — a response that functions as a yes because the actual no was too costly to say clearly? What would the clear no cost you, and is the cost of the blurred answer higher over time?`,
+      enter: `Practice a clear no today where one is warranted. Not harshly. Honestly. The clarity is a form of respect — for your own governance and for the person receiving an answer they can actually trust.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Taking Thoughts Captive`,
+      verse: `We destroy arguments and every lofty opinion raised against the knowledge of God, and take every thought captive to obey Christ.`,
+      ref: `2 Corinthians 10:5`,
+      reflect: `The battle for the Fortress is largely internal. External inputs matter, but what a man does with them in his mind — whether he examines them against the standard or allows them to circulate unchecked — determines whether they govern him. A thought allowed to rehearse without examination becomes a belief. A belief becomes a behavior. The governance of thought is the governance of self. Taking thoughts captive is an active image — not passive reception of whatever arrives, but the deliberate assessment of what enters and whether it is brought into alignment with what is true. This requires the man to have a standard against which thoughts are measured, and the willingness to reject what does not meet it.`,
+      recalibrate: `What thoughts have been circulating in your mind uncaptured recently — narratives, fears, resentments, comparisons — that you have been allowing to run without examination? What does bringing them captive look like in practice for those specific thoughts?`,
+      enter: `Examine the thoughts most persistent in your mind today against the standard of what is actually true. Refuse to let what is false or destructive continue circulating simply because it is familiar. That refusal is governance.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Setting No Worthless Thing`,
+      verse: `I will not set before my eyes anything that is worthless. I hate the work of those who fall away; it shall not cling to me.`,
+      ref: `Psalm 101:3`,
+      reflect: `The commitment is made in advance, before the specific object presents itself. That pre-commitment is the structure of governance. A man who decides in the moment of temptation whether to look is working with significantly less advantage than the man who made the decision before the moment arrived. The worthless thing is easier to refuse when the refusal is already decided. Not set before my eyes is a description of what a man chooses to place in his field of attention — what media, what content, what images, what arguments he allows to occupy his gaze. The eye is a gateway to the inner life. What a man consistently looks at consistently enters him.`,
+      recalibrate: `What are you currently setting before your eyes that is worthless — not dramatically harmful, but draining, distracting, or gradually shaping your imagination in directions you would not choose?`,
+      enter: `Make one pre-commitment today about what you will and will not look at. Govern the field of attention rather than managing it reactively. The decision made in advance is always more reliable than the decision made in the moment.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `No Other Gods`,
+      verse: `You shall have no other gods before me.`,
+      ref: `Exodus 20:3`,
+      reflect: `The commandment addresses the deepest perimeter issue — what sits on the throne of the man's ultimate loyalty. Other gods are not always recognizable as gods. They present as ambition, as the opinion of others, as financial security, as comfort, as reputation. They occupy the center quietly, govering decisions without announcing themselves as competitors to the first commandment. The man who has clarity about what is ultimate in his life can evaluate every other loyalty against that standard. What is given more devotion than it deserves, more fear than it warrants, more trust than it has earned? Those are the gods in the room. Naming them is the beginning of removing them.`,
+      recalibrate: `What is currently functioning as a god in your life — not in name, but in the functional sense of what governs your decisions, what you most fear losing, what you pursue with most consistent devotion?`,
+      enter: `Name the competing god most active in your life today. Name it honestly rather than defensively. The naming is the beginning of reordering what sits at the center.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Know the Condition`,
+      verse: `Know well the condition of your flocks, and give attention to your herds, for riches do not last forever.`,
+      ref: `Proverbs 27:23–24`,
+      reflect: `Knowing the condition requires looking. A man who manages his household without regularly assessing its actual state — the real condition of his finances, his relationships, his children's inner lives, his wife's experience of the marriage — will be surprised by deterioration that was visible to anyone paying attention. The instruction is to give attention — active, deliberate, regular attention to what is entrusted to him. Not paranoid monitoring, but the kind of honest appraisal that catches drift early before it becomes damage. The shepherd who knows his flocks is not surprised by what is failing. He sees it in time to address it.`,
+      recalibrate: `When did you last honestly assess the actual condition of your household — not its external presentation, but its real state? What would you find if you looked carefully right now?`,
+      enter: `Make one honest assessment today of something in your life or home that you have been managing from assumption rather than from current knowledge. Know the condition. Then tend it accordingly.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Faithful in Small Things`,
+      verse: `One who is faithful in a very little is also faithful in much, and one who is dishonest in a very little is also dishonest in much.`,
+      ref: `Luke 16:10`,
+      reflect: `The small things are not a test period before the real responsibilities arrive. They are the real responsibilities, and how a man governs them is an accurate and immediate picture of the man who will govern what comes later. There is no category of small things too minor to require faithfulness — the pattern of character is established in the small, not simply revealed in the large. A man who shortcuts the small task when no one is watching has told himself something about the standard. Not the stated standard — the operational one. The one that actually governs behavior when the cost of full faithfulness exceeds the visible consequence of cutting. That is the standard his children are watching, accurately, because children are reliable observers of the gap between what a father says and what he does when he does not know anyone is looking.`,
+      recalibrate: `Where are you currently faithful in small things — where your governance of minor responsibilities reflects the same standard you apply to significant ones? And where has the standard been lowered for smaller things in ways that are quietly eroding the pattern?`,
+      enter: `Be fully faithful today in one small thing you have been managing casually. Let the small faithfulness be a declaration about the character of the man governing it.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `The Man at His Post`,
+      verse: `I will take my stand at my watchpost and station myself on the tower, and look out to see what he will say to me.`,
+      ref: `Habakkuk 2:1`,
+      reflect: `The watchman does not wait to be summoned. He stations himself — actively, deliberately, before the threat has materialized. That positioning is the entire discipline. A man who only guards after the damage has started is not a watchman. He is a responder. The Fortress is built in the advance positioning, not in the reaction. Look out to see what he will say to me. There is a posture of expectancy in the watchman's stance — he is not only watching for threat but watching for instruction. The man who stations himself in this way is both protecting what is behind him and receiving what is coming toward him. The post is not a defensive crouch. It is an alert, forward-facing position of readiness.`,
+      recalibrate: `What does it look like for you to be stationed at your post today — not reacting to what has already breached the perimeter, but positioned in advance, before the pressures and influences of the day set the terms? What requires advance positioning rather than reactive response?`,
+      enter: `Take your post before the day takes it from you. The man who governs his threshold from a stationed position governs it. The man who responds to whatever arrives does not.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Directed Paths`,
+      verse: `Trust in the Lord with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths.`,
+      ref: `Proverbs 3:5–6`,
+      reflect: `Leaning on your own understanding is not the same as using your mind well. The verse does not commend thoughtlessness. It commends the posture that holds even well-reasoned conclusions loosely enough to receive correction — that acknowledges, in all your ways, the authority that governs above the man's own best judgment. The straightening of paths is the result of the acknowledgment, not its prerequisite. A man who wants clarity before committing to trust will wait indefinitely. A man who trusts and acknowledges receives the direction as he moves. The path becomes straight in the walking of it.`,
+      recalibrate: `Where are you currently leaning on your own understanding in ways that have not left room for direction from outside your own reasoning? Where would acknowledgment in that area require releasing a conclusion you have already arrived at?`,
+      enter: `Acknowledge God in one area today where you have been operating entirely on your own assessment. Hold your conclusions with an open hand. The direction follows the posture, not the other way around.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Dwelling Securely`,
+      verse: `He who dwells in the shelter of the Most High will abide in the shadow of the Almighty.`,
+      ref: `Psalm 91:1`,
+      reflect: `The closing devotional of the Fortress returns to the source of the security the whole chapter has been describing. A man can build every external boundary, maintain every perimeter, filter every input — and still not be secure. Security is not ultimately architectural. It is relational. It is the man dwelling in shelter not of his own construction. The Fortress, rightly understood, is not what the man builds around himself. It is what he dwells inside — an orientation of trust that allows him to govern without anxiety, to protect without fear, to maintain boundaries without the desperate edge of a man who believes the walls are all that stand between him and collapse.`,
+      recalibrate: `Is your governance of the Fortress coming from a place of security or from a place of fear? The walls built from security are maintained steadily. The walls built from fear require constant reinforcement and still do not fully reassure. What is the source of your security today?`,
+      enter: `Govern from rest today. Maintain the perimeter with the quiet confidence of a man who dwells in shelter rather than building it from scratch each morning. The security precedes the governance.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `The Perimeter First`,
+      verse: `Like a city whose walls are broken down is a man who lacks self-control.`,
+      ref: `Proverbs 25:28`,
+      reflect: `An ancient city without walls was not just vulnerable — it was open. Anyone could enter. Anything could come in. The man without self-control is the same: the perimeter is gone, and whatever has force enough will get through. His household lives inside a man who has no reliable boundary between what enters and what he allows to circulate. Self-control is not primarily about restraint in the dramatic moment. It is the maintained perimeter that determines what accumulates inside over time.`,
+      recalibrate: `Where is the perimeter thin right now? Not in general — specifically. What is entering your interior that you have not deliberately chosen? What has gotten in through the gap in the wall and is now affecting what your family experiences from you?`,
+      enter: `Close one gap today. One specific thing that has been entering without your permission. You do not have to rebuild the whole wall today. Identify the breach and address it.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `The Armor Is Worn`,
+      verse: `Therefore take up the whole armor of God, that you may be able to withstand in the evil day, and having done all, to stand firm.`,
+      ref: `Ephesians 6:13`,
+      reflect: `The armor is to be taken up — it does not appear automatically. A man who assumes the protection is in place without having engaged it is exposed in ways he does not realize until pressure arrives and finds no resistance. The Fortress requires active maintenance. Standing firm is the result, not the starting point. The man who has done all — who has engaged each piece with intention — is positioned to hold when the evil day arrives. Not because he was strong, but because he was prepared.`,
+      recalibrate: `What piece of the armor is currently missing or lying at your feet rather than worn? Not as a theological exercise — as a practical inventory. What area of your spiritual life is currently unguarded?`,
+      enter: `Pick up one piece today that has been lying down. The belt of truth — be honest about something you have been vague about. The shield of faith — act from trust rather than anxiety. One piece, worn with intention.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Choose Today`,
+      verse: `Choose this day whom you will serve... but as for me and my house, we will serve the Lord.`,
+      ref: `Joshua 24:15`,
+      reflect: `The declaration is two-part: the choice made internally, and the claim extended to the household. A man who has decided what governs him is positioned to lead what is around him. The Fortress is, at its foundation, this decision — made clearly, renewed regularly, and expressed through the ordered life that follows from it. A household that does not know what it is ordered around will drift toward whatever is loudest. The man who has made the choice and named it gives his house something to organize itself around.`,
+      recalibrate: `Have you named clearly — to yourself and to your household — what this house serves? Not assumed, not implied, not occasionally referenced. Named. The family that does not know what it is ordered around is not protected.`,
+      enter: `Live the declaration today in one specific way. One decision, one posture, one conversation that makes the choice visible rather than assumed.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `Margin as Protection`,
+      verse: `Better is a handful of quietness than two hands full of toil and a striving after wind.`,
+      ref: `Ecclesiastes 4:6`,
+      reflect: `A man who has no margin has no perimeter. When every hour is committed, every capacity spoken for, and every reserve depleted, there is nothing left to filter what enters. The Fortress requires margin to function — not laziness, not withdrawal, but intentional space that allows discernment. The man who is always at maximum output has lost the ability to choose what enters because he has no room to evaluate it. He absorbs whatever arrives simply because he does not have the bandwidth to push back.`,
+      recalibrate: `Where is margin in your current week? Not in the ideal week — this week. If there is none, that is the condition that makes everything else harder. What is generating the fullness, and is all of it necessary?`,
+      enter: `Protect one margin window today. One hour, one evening, one stretch that is not committed. Guard it as seriously as you would guard a meeting that matters. It is not less important — it is what makes the rest sustainable.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `What You Allow Shapes What Grows`,
+      verse: `Do not be deceived: bad company ruins good morals.`,
+      ref: `1 Corinthians 15:33`,
+      reflect: `Influence is not neutral. The voices, relationships, and content a man regularly exposes himself to do not simply inform him — they form him. Slowly, without announcement, what circulates most shapes what he believes, how he perceives, and what he expects. The Fortress governs what is allowed in at the level of relationship, media, conversation, and environment. A man who is careless about what enters his household's culture will eventually be surprised by what it has produced.`,
+      recalibrate: `What voices are you most regularly exposing yourself to? Who shapes your thinking about money, about marriage, about what a man should be? Are those voices producing what you want your household to become?`,
+      enter: `Remove one voice today that is pulling in the wrong direction. Or add one that is pulling in the right one. The Fortress is curated, not sealed — it filters, it does not isolate.`,
+    },
+    {
+      pillar: `fortress`,
+      title: `The Prepared House`,
+      verse: `Prepare your work outside; get everything ready for yourself in the field, and after that build your house.`,
+      ref: `Proverbs 24:27`,
+      reflect: `There is an order to building: prepare first, then build. A man who attempts to build the household before the work of preparation is done will build on unstable ground. The Fortress requires that the foundation — financial, relational, spiritual — be properly established before the structure rises above it. This is not a slow start. It is a right one. The speed of building matters far less than the integrity of what it is built on.`,
+      recalibrate: `Where are you building ahead of your preparation? Not to stop building — to identify where the foundation needs more work before the structure above it is stressed. What is currently holding weight it was not designed to hold yet?`,
+      enter: `Do one thing today that strengthens the foundation rather than adds to the structure. One decision that trades visible progress for actual stability. The house that holds is built from the ground up.`,
+    },
+  ],
+};
+// ── PILLAR ORDER & POSTURE ───────────────────────────────────────
+const PILLARS = ['altar','forge','covenant','heritage','fortress'];
+const PILLAR_LABELS = { altar:'Altar', forge:'Forge', covenant:'Covenant', heritage:'Heritage', fortress:'Fortress' };
+
+const POSTURE = [
+  { pillar:'Altar',    question:'What will govern me today? Not pressure. Not fear. Not approval. Choose again what you serve.' },
+  { pillar:'Forge',    question:'Where must I show strength today? Not loud strength — steady strength that does not collapse when the day becomes heavy.' },
+  { pillar:'Covenant', question:'Who needs my steadiness today? Your family feels your presence long before they hear your words. Carry calm into the room.' },
+  { pillar:'Heritage', question:'What small action today moves my family forward? Legacy is rarely built in grand moments. It is built in quiet consistency.' },
+  { pillar:'Fortress', question:'What will I refuse to let inside today? Noise. Comparison. Unnecessary agitation. Guard the gate.' }
+];
+
+// ── DATE UTILS ──────────────────────────────────────────────────
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function dayNumber(key) {
+  // Days since epoch — used for pillar rotation and intra-pillar shuffle
+  const [y,m,d] = key.split('-').map(Number);
+  return Math.floor(new Date(y,m-1,d).getTime() / 86400000);
+}
+function dateKeyToDisplay(key) {
+  const [y,m,d] = key.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+function dateKeyToShort(key) {
+  const [y,m,d] = key.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+// ── VERSE SELECTION ─────────────────────────────────────────────
+// Day 0 = Altar, Day 1 = Forge, Day 2 = Covenant, Day 3 = Heritage, Day 4 = Fortress, Day 5 = Altar...
+// Within each pillar, entry is selected by a deterministic shuffle seeded by dayNumber
+function getVerseForKey(key) {
+  const dn = dayNumber(key);
+  const pillarIdx = dn % 5;
+  const pillar = PILLARS[pillarIdx];
+  const pool = VERSES_BY_PILLAR[pillar];
+
+  // Fisher-Yates-style deterministic index using day seed
+  // We use a simple LCG hash of dn to pick within the pool
+  let seed = dn;
+  seed = ((seed * 1664525 + 1013904223) >>> 0);
+  // Also mix in the pillar cycle count so even same-pillar days differ
+  seed = ((seed ^ (dn >>> 3)) * 2246822519) >>> 0;
+  const idx = seed % pool.length;
+
+  return { ...pool[idx], pillarIdx };
+}
+
+// ── STORAGE ─────────────────────────────────────────────────────
+function saveToday() {
+  const key = todayKey();
+  const stored = JSON.parse(localStorage.getItem('steadfast_history') || '{}');
+  if (!stored[key]) { stored[key] = true; localStorage.setItem('steadfast_history', JSON.stringify(stored)); }
+}
+function getHistory() {
+  const stored = JSON.parse(localStorage.getItem('steadfast_history') || '{}');
+  const today = todayKey();
+  return Object.keys(stored).filter(k => k !== today).sort((a,b) => b.localeCompare(a));
+}
+
+// ── RENDER HELPERS ───────────────────────────────────────────────
+function pillarColor(p) { return `var(--${p})`; }
+
+function renderCycleStrip(activePillar) {
+  return `<div class="cycle-strip">${PILLARS.map(p =>
+    `<div class="cycle-item ${p} ${p===activePillar?'active':''}">${PILLAR_LABELS[p]}</div>`
+  ).join('')}</div>`;
+}
+
+function renderVerseBlock(v) {
+  return `
+    <div class="verse-day">
+      <div class="pillar-tag ${v.pillar}"><span class="pillar-dot"></span>${PILLAR_LABELS[v.pillar]}</div>
+      <div class="verse-title">${v.title}</div>
+      <div class="verse-text">"${v.verse}"</div>
+      <div class="verse-ref">${v.ref}</div>
+    </div>
+    <div class="section-label">Reflect</div>
+    <div class="reflect-text">${v.reflect}</div>
+    <div class="recalibrate-block">
+      <div class="section-label">Recalibrate</div>
+      <p>${v.recalibrate}</p>
+    </div>
+    <div class="divider"></div>
+    <div class="enter-day-block">
+      <div class="section-label">Enter the Day</div>
+      <p>${v.enter}</p>
+    </div>
+  `;
+}
+
+function renderPosture() {
+  return `
+    <div class="divider" style="margin-top:38px"></div>
+    <div class="section-label" style="margin-bottom:14px">Morning Posture</div>
+    <div class="posture-grid">
+      ${POSTURE.map(p=>`<div class="posture-item"><div class="posture-pillar">${p.pillar}</div><div class="posture-question">${p.question}</div></div>`).join('')}
+    </div>
+  `;
+}
+
+// ── INIT TODAY ───────────────────────────────────────────────────
+function initToday() {
+  const key = todayKey();
+  saveToday();
+  document.getElementById('header-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  const v = getVerseForKey(key);
+  document.getElementById('today-view').innerHTML = renderVerseBlock(v) + renderCycleStrip(v.pillar) + renderPosture();
+}
+
+// ── HISTORY ──────────────────────────────────────────────────────
+function renderHistory() {
+  const keys = getHistory();
+  const hv = document.getElementById('history-view');
+  if (keys.length === 0) {
+    hv.innerHTML = `<div class="history-header"><div class="history-title">Archive</div></div><div class="history-empty">No past days yet. Return tomorrow.</div>`;
+    return;
+  }
+  hv.innerHTML = `
+    <div class="history-header">
+      <div class="history-title">Archive</div>
+      <div class="history-count">${keys.length} day${keys.length!==1?'s':''}</div>
+    </div>
+    <div class="history-list">
+      ${keys.map(key => {
+        const v = getVerseForKey(key);
+        return `<div class="history-item" onclick="openDetail('${key}')">
+          <div class="history-date">${dateKeyToShort(key)}</div>
+          <div class="history-verse-col">
+            <div class="history-verse">"${v.verse}"</div>
+            <div class="history-meta">${v.title} &middot; ${v.ref}</div>
+          </div>
+          <div><span class="history-pillar ${v.pillar}">${PILLAR_LABELS[v.pillar]}</span></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ── VIEWS ────────────────────────────────────────────────────────
+function showView(view) {
+  const tv = document.getElementById('today-view');
+  const hv = document.getElementById('history-view');
+  const bt = document.getElementById('btn-today');
+  const bh = document.getElementById('btn-history');
+  if (view === 'today') {
+    tv.style.display='block'; hv.style.display='none';
+    bt.classList.add('active'); bh.classList.remove('active');
+  } else {
+    tv.style.display='none'; hv.style.display='block';
+    bt.classList.remove('active'); bh.classList.add('active');
+    renderHistory();
+  }
+}
+
+// ── DETAIL ───────────────────────────────────────────────────────
+function openDetail(key) {
+  const v = getVerseForKey(key);
+  document.getElementById('detail-content').innerHTML =
+    `<div class="detail-date-label">${dateKeyToDisplay(key)}</div>` + renderVerseBlock(v);
+  const o = document.getElementById('detail-overlay');
+  o.style.display='block'; o.scrollTop=0;
+}
+function closeDetail() { document.getElementById('detail-overlay').style.display='none'; }
+document.getElementById('detail-overlay').addEventListener('click',function(e){ if(e.target===this) closeDetail(); });
+
+// ── RUN ──────────────────────────────────────────────────────────
+initToday();
+</script>
+</body>
+</html>

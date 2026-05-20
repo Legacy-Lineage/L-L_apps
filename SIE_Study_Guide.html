@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIE Study Guide — Travis Nead</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f1e35;--navy2:#162640;--navy3:#1e3254;--navy4:#243a62;
+  --gold:#c9a84c;--gold2:#e8c96a;--gold3:rgba(201,168,76,.12);
+  --cream:#f5f0e8;--cream2:#e8e2d5;
+  --ink:#1a2840;--muted:#7a8faa;--muted2:#4a5f7a;
+  --green:#27ae60;--red:#c0392b;--orange:#e67e22;--blue:#2980b9;
+  --hot:#e74c3c;
+  --radius:10px;--radius-lg:14px;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--navy);color:var(--cream);font-family:'DM Sans',sans-serif;line-height:1.6;font-size:15px;}
+
+/* ── STICKY NAV ── */
+.top-nav{position:sticky;top:0;z-index:100;background:var(--navy2);border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:0;overflow-x:auto;scrollbar-width:none;}
+.top-nav::-webkit-scrollbar{display:none;}
+.nav-logo{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--gold);padding:12px 20px;white-space:nowrap;border-right:1px solid var(--navy3);flex-shrink:0;}
+.nav-logo span{color:var(--cream);}
+.nav-links{display:flex;gap:0;flex:1;}
+.nav-link{padding:12px 16px;font-size:.78rem;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;text-decoration:none;}
+.nav-link:hover,.nav-link.active{color:var(--gold);border-bottom-color:var(--gold);}
+.nav-progress{margin-left:auto;padding:8px 16px;font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);white-space:nowrap;flex-shrink:0;}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,var(--navy2) 0%,var(--navy3) 100%);border-bottom:1px solid var(--navy3);padding:48px 40px 40px;}
+.hero-tag{font-family:'DM Mono',monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.15em;color:var(--gold);margin-bottom:12px;}
+.hero-title{font-family:'DM Serif Display',serif;font-size:2.6rem;color:var(--cream);line-height:1.15;margin-bottom:10px;}
+.hero-sub{color:var(--muted);font-size:1rem;max-width:600px;line-height:1.6;margin-bottom:28px;}
+.hero-stats{display:flex;gap:28px;flex-wrap:wrap;}
+.hstat{text-align:center;}
+.hstat-n{font-family:'DM Mono',monospace;font-size:1.6rem;color:var(--gold2);font-weight:500;}
+.hstat-l{font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-top:2px;}
+.exam-box{display:inline-flex;gap:24px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:var(--radius);padding:14px 20px;margin-top:20px;flex-wrap:wrap;}
+.exam-item{font-size:.82rem;color:var(--cream2);}
+.exam-item strong{color:var(--gold);font-family:'DM Mono',monospace;}
+
+/* ── LAYOUT ── */
+.page{display:flex;gap:0;min-height:calc(100vh - 120px);}
+.sidebar{width:240px;flex-shrink:0;background:var(--navy2);border-right:1px solid var(--navy3);padding:24px 0;position:sticky;top:49px;height:calc(100vh - 49px);overflow-y:auto;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-track{background:transparent;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--navy3);}
+.sb-section{margin-bottom:20px;}
+.sb-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted2);padding:0 18px 6px;}
+.sb-link{display:flex;align-items:center;gap:8px;padding:7px 18px;font-size:.82rem;color:var(--muted);cursor:pointer;border-left:3px solid transparent;transition:all .12s;text-decoration:none;}
+.sb-link:hover{color:var(--cream);background:var(--navy3);}
+.sb-link.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,168,76,.06);}
+.sb-link .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-cap{background:#3498db;}
+.dot-prod{background:#9b59b6;}
+.dot-trade{background:#e67e22;}
+.dot-reg{background:#27ae60;}
+.sb-div{height:1px;background:var(--navy3);margin:10px 18px;}
+.content{flex:1;padding:36px 40px;max-width:880px;min-width:0;}
+
+/* ── SECTION HEADERS ── */
+.section{margin-bottom:48px;scroll-margin-top:60px;}
+.section-header{display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--navy3);}
+.section-badge{font-family:'DM Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;padding:4px 10px;border-radius:20px;font-weight:500;}
+.badge-cap{background:rgba(52,152,219,.15);color:#5dade2;border:1px solid rgba(52,152,219,.25);}
+.badge-prod{background:rgba(155,89,182,.15);color:#bb8fce;border:1px solid rgba(155,89,182,.25);}
+.badge-trade{background:rgba(230,126,34,.15);color:#f0a050;border:1px solid rgba(230,126,34,.25);}
+.badge-reg{background:rgba(39,174,96,.15);color:#52be80;border:1px solid rgba(39,174,96,.25);}
+.section-title{font-family:'DM Serif Display',serif;font-size:1.7rem;color:var(--cream);}
+.section-weight{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);margin-left:auto;}
+
+/* ── HOT TOPIC CALLOUT ── */
+.hot-strip{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.3);border-left:4px solid var(--hot);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;}
+.hot-label{font-family:'DM Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;color:var(--hot);margin-bottom:8px;}
+.hot-items{display:flex;flex-wrap:wrap;gap:8px;}
+.hot-tag{background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.2);border-radius:20px;padding:3px 10px;font-size:.75rem;color:#e88;}
+
+/* ── TOPIC CARDS ── */
+.topic-grid{display:grid;gap:14px;}
+.topic-card{background:var(--navy2);border:1px solid var(--navy3);border-radius:var(--radius-lg);overflow:hidden;}
+.topic-card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;user-select:none;transition:background .12s;}
+.topic-card-head:hover{background:var(--navy3);}
+.topic-card-head.open{background:rgba(201,168,76,.05);border-bottom:1px solid var(--navy3);}
+.tc-title{font-weight:600;font-size:.92rem;color:var(--cream);}
+.tc-sub{font-size:.72rem;color:var(--muted);margin-top:2px;}
+.tc-arrow{font-size:.75rem;color:var(--muted);transition:transform .2s;}
+.tc-arrow.open{transform:rotate(180deg);}
+.topic-card-body{display:none;padding:18px;}
+.topic-card-body.open{display:block;}
+
+/* ── CONTENT ELEMENTS ── */
+.concept-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.concept-list li{display:flex;gap:10px;font-size:.875rem;line-height:1.5;}
+.concept-list li::before{content:"›";color:var(--gold);flex-shrink:0;font-weight:600;margin-top:1px;}
+.concept-list li strong{color:var(--gold2);}
+
+.formula-box{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:var(--radius);padding:14px 16px;font-family:'DM Mono',monospace;font-size:.82rem;line-height:1.8;margin:12px 0;color:var(--cream2);}
+.formula-box .f-label{font-family:'DM Sans',sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:6px;}
+
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+.compare-card{background:var(--navy3);border-radius:var(--radius);padding:12px 14px;}
+.compare-card h4{font-size:.8rem;font-weight:600;color:var(--gold);margin-bottom:8px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+.compare-card ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.compare-card ul li{font-size:.8rem;color:var(--cream2);display:flex;gap:6px;line-height:1.4;}
+.compare-card ul li::before{content:"·";color:var(--muted);flex-shrink:0;}
+
+.memory-box{background:rgba(39,174,96,.06);border:1px solid rgba(39,174,96,.2);border-radius:var(--radius);padding:12px 14px;margin:12px 0;}
+.memory-box .m-label{font-family:'DM Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin-bottom:6px;}
+.memory-box p{font-size:.82rem;color:var(--cream2);line-height:1.55;}
+.memory-box strong{color:var(--green);}
+
+.warn-box{background:rgba(230,126,34,.06);border:1px solid rgba(230,126,34,.2);border-radius:var(--radius);padding:12px 14px;margin:12px 0;}
+.warn-box .w-label{font-family:'DM Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);margin-bottom:6px;}
+.warn-box p{font-size:.82rem;color:var(--cream2);line-height:1.55;}
+
+.number-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin:10px 0;}
+.num-card{background:var(--navy3);border-radius:var(--radius);padding:12px 14px;text-align:center;}
+.num-card .n-val{font-family:'DM Mono',monospace;font-size:1.25rem;color:var(--gold2);font-weight:500;}
+.num-card .n-label{font-size:.72rem;color:var(--muted);margin-top:4px;line-height:1.3;}
+
+.table-wrap{overflow-x:auto;margin:12px 0;}
+table{width:100%;border-collapse:collapse;font-size:.82rem;}
+th{background:var(--navy3);color:var(--gold);font-family:'DM Mono',monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;padding:9px 12px;text-align:left;border-bottom:2px solid var(--navy4);}
+td{padding:8px 12px;border-bottom:1px solid var(--navy3);color:var(--cream2);vertical-align:top;}
+tr:hover td{background:rgba(255,255,255,.02);}
+td strong{color:var(--gold2);}
+
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+.pill{background:var(--navy3);border:1px solid var(--navy4);border-radius:20px;padding:4px 12px;font-size:.75rem;color:var(--cream2);}
+.pill.hot{background:rgba(231,76,60,.1);border-color:rgba(231,76,60,.25);color:#e88;}
+.pill.green{background:rgba(39,174,96,.1);border-color:rgba(39,174,96,.25);color:#7ec8a0;}
+.pill.gold{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.25);color:var(--gold2);}
+
+h3{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--cream);margin:18px 0 10px;}
+h4{font-size:.85rem;font-weight:600;color:var(--gold2);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.04em;font-family:'DM Mono',monospace;}
+p.note{font-size:.82rem;color:var(--muted);line-height:1.55;margin:8px 0;}
+
+.divider{height:1px;background:var(--navy3);margin:18px 0;}
+
+/* ── QUICK REF ── */
+.quick-ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px;}
+.qr-card{background:var(--navy2);border:1px solid var(--navy3);border-radius:var(--radius);padding:18px;}
+.qr-card h4{margin-top:0;}
+
+/* ── MOBILE ── */
+@media(max-width:800px){
+  .sidebar{display:none;}
+  .content{padding:20px 16px;}
+  .hero{padding:28px 16px;}
+  .hero-title{font-size:1.8rem;}
+  .compare-grid,.quick-ref-grid{grid-template-columns:1fr;}
+  .number-grid{grid-template-columns:repeat(2,1fr);}
+  .exam-box{flex-direction:column;gap:10px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="nav-logo">SIE <span>Study Guide</span></div>
+  <div class="nav-links">
+    <a class="nav-link" href="#capital">Capital Markets</a>
+    <a class="nav-link" href="#products">Products & Risks</a>
+    <a class="nav-link" href="#trading">Trading & Accounts</a>
+    <a class="nav-link" href="#regulatory">Regulatory</a>
+    <a class="nav-link" href="#numbers">Key Numbers</a>
+    <a class="nav-link" href="#hotlist">Hot Topics</a>
+  </div>
+  <div class="nav-progress">75 Q · 85 min · 70% to pass</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Securities Industry Essentials — Full Study Guide</div>
+  <h1 class="hero-title">SIE Exam Prep<br><em style="font-style:italic;color:var(--gold);">Master Reference</em></h1>
+  <p class="hero-sub">Four domains. Every hot topic. All critical numbers. Built for the exam, structured for retention.</p>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-n">75</div><div class="hstat-l">Questions</div></div>
+    <div class="hstat"><div class="hstat-n">85</div><div class="hstat-l">Minutes</div></div>
+    <div class="hstat"><div class="hstat-n">70%</div><div class="hstat-l">To Pass</div></div>
+    <div class="hstat"><div class="hstat-n">4</div><div class="hstat-l">Domains</div></div>
+  </div>
+  <div class="exam-box">
+    <div class="exam-item">Domain 1 Capital Markets <strong>~16%</strong></div>
+    <div class="exam-item">Domain 2 Products & Risks <strong>~44%</strong></div>
+    <div class="exam-item">Domain 3 Trading & Accounts <strong>~31%</strong></div>
+    <div class="exam-item">Domain 4 Regulatory Framework <strong>~9%</strong></div>
+  </div>
+</div>
+
+<div class="page">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Domain 1</div>
+    <a class="sb-link" href="#capital"><span class="dot dot-cap"></span>Capital Markets Overview</a>
+    <a class="sb-link" href="#cap-structure"><span class="dot dot-cap"></span>Market Structure</a>
+    <a class="sb-link" href="#cap-fed"><span class="dot dot-cap"></span>The Fed & Monetary Policy</a>
+    <a class="sb-link" href="#cap-yield"><span class="dot dot-cap"></span>Yield Curve</a>
+    <a class="sb-link" href="#cap-indicators"><span class="dot dot-cap"></span>Economic Indicators</a>
+  </div>
+  <div class="sb-div"></div>
+  <div class="sb-section">
+    <div class="sb-label">Domain 2</div>
+    <a class="sb-link" href="#products"><span class="dot dot-prod"></span>Products Overview</a>
+    <a class="sb-link" href="#prod-equity"><span class="dot dot-prod"></span>Equity Securities</a>
+    <a class="sb-link" href="#prod-debt"><span class="dot dot-prod"></span>Debt Securities</a>
+    <a class="sb-link" href="#prod-options"><span class="dot dot-prod"></span>Options</a>
+    <a class="sb-link" href="#prod-funds"><span class="dot dot-prod"></span>Mutual Funds & ETFs</a>
+    <a class="sb-link" href="#prod-annuities"><span class="dot dot-prod"></span>Annuities & REITs</a>
+  </div>
+  <div class="sb-div"></div>
+  <div class="sb-section">
+    <div class="sb-label">Domain 3</div>
+    <a class="sb-link" href="#trading"><span class="dot dot-trade"></span>Trading Overview</a>
+    <a class="sb-link" href="#trade-orders"><span class="dot dot-trade"></span>Order Types</a>
+    <a class="sb-link" href="#trade-margin"><span class="dot dot-trade"></span>Margin Accounts</a>
+    <a class="sb-link" href="#trade-accounts"><span class="dot dot-trade"></span>Account Types</a>
+    <a class="sb-link" href="#trade-prohibited"><span class="dot dot-trade"></span>Prohibited Activities</a>
+  </div>
+  <div class="sb-div"></div>
+  <div class="sb-section">
+    <div class="sb-label">Domain 4</div>
+    <a class="sb-link" href="#regulatory"><span class="dot dot-reg"></span>Regulatory Overview</a>
+    <a class="sb-link" href="#reg-acts"><span class="dot dot-reg"></span>Key Securities Acts</a>
+    <a class="sb-link" href="#reg-finra"><span class="dot dot-reg"></span>FINRA Rules</a>
+    <a class="sb-link" href="#reg-aml"><span class="dot dot-reg"></span>AML / BSA</a>
+    <a class="sb-link" href="#reg-suitability"><span class="dot dot-reg"></span>Suitability & Reg BI</a>
+  </div>
+  <div class="sb-div"></div>
+  <div class="sb-section">
+    <div class="sb-label">Quick Reference</div>
+    <a class="sb-link" href="#numbers"><span class="dot" style="background:var(--gold)"></span>Critical Numbers</a>
+    <a class="sb-link" href="#hotlist"><span class="dot" style="background:var(--hot)"></span>Hot Topic List</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="content">
+
+<!-- ═══════════════════════════════════════════════════
+     DOMAIN 1 — CAPITAL MARKETS
+═══════════════════════════════════════════════════ -->
+<section class="section" id="capital">
+  <div class="section-header">
+    <span class="section-badge badge-cap">Domain 1</span>
+    <h2 class="section-title">Capital Markets</h2>
+    <span class="section-weight">~16% of exam</span>
+  </div>
+
+  <div class="hot-strip">
+    <div class="hot-label">🔥 High-Frequency Test Topics</div>
+    <div class="hot-items">
+      <span class="hot-tag">Primary vs. Secondary Market</span>
+      <span class="hot-tag">Fed OMOs (buy vs. sell)</span>
+      <span class="hot-tag">Yield Curve shapes + meanings</span>
+      <span class="hot-tag">Leading vs. Lagging indicators</span>
+      <span class="hot-tag">Firm Commitment vs. Best Efforts</span>
+      <span class="hot-tag">Money market instruments</span>
+      <span class="hot-tag">Bid vs. Ask / Spread</span>
+    </div>
+  </div>
+
+  <!-- Market Structure -->
+  <div id="cap-structure" class="topic-grid">
+    <div class="topic-card">
+      <div class="topic-card-head open" onclick="toggle(this)">
+        <div><div class="tc-title">Market Structure & Participants</div><div class="tc-sub">Primary/secondary markets, broker vs. dealer, market makers</div></div>
+        <span class="tc-arrow open">▼</span>
+      </div>
+      <div class="topic-card-body open">
+        <div class="compare-grid">
+          <div class="compare-card">
+            <h4>Primary Market</h4>
+            <ul>
+              <li>New securities issued for first time</li>
+              <li>Proceeds go to the issuer</li>
+              <li>IPOs and follow-on offerings</li>
+              <li>Regulated by Securities Act of 1933</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>Secondary Market</h4>
+            <ul>
+              <li>Investors trade among themselves</li>
+              <li>No proceeds to issuer</li>
+              <li>NYSE, Nasdaq, OTC markets</li>
+              <li>Regulated by Exchange Act of 1934</li>
+            </ul>
+          </div>
+        </div>
+        <h4>Market Tiers</h4>
+        <ul class="concept-list">
+          <li><strong>Third Market:</strong> OTC trading of exchange-listed securities by non-member firms</li>
+          <li><strong>Fourth Market:</strong> Direct institution-to-institution trading, no broker-dealer involved</li>
+          <li><strong>Dark Pools:</strong> Private ATSs where large orders trade anonymously to reduce market impact</li>
+        </ul>
+        <h4>Broker vs. Dealer</h4>
+        <div class="compare-grid">
+          <div class="compare-card">
+            <h4>Broker (Agent)</h4>
+            <ul><li>Acts on behalf of customer</li><li>Earns a commission</li><li>Does NOT take the other side of the trade</li></ul>
+          </div>
+          <div class="compare-card">
+            <h4>Dealer (Principal)</h4>
+            <ul><li>Trades from its own inventory</li><li>Earns a markup/markdown</li><li>Takes the other side of the trade</li></ul>
+          </div>
+        </div>
+        <div class="memory-box">
+          <div class="m-label">💡 Memory Hook</div>
+          <p><strong>Bid = Buy (dealer buys)</strong> · <strong>Ask = Sell (dealer sells)</strong><br>
+          The spread (Ask − Bid) is the dealer's profit for providing liquidity.</p>
+        </div>
+        <h4>Underwriting Types</h4>
+        <div class="table-wrap"><table>
+          <tr><th>Type</th><th>Risk Bearer</th><th>Key Detail</th></tr>
+          <tr><td><strong>Firm Commitment</strong></td><td>Underwriter buys all shares; bears full risk</td><td>Most common; underwriter profits from spread</td></tr>
+          <tr><td><strong>Best Efforts</strong></td><td>Issuer bears risk; unsold shares returned</td><td>Underwriter acts as agent only</td></tr>
+          <tr><td><strong>All-or-None</strong></td><td>Issuer</td><td>Full amount must be sold or deal cancelled</td></tr>
+          <tr><td><strong>Mini-Max</strong></td><td>Issuer</td><td>Minimum threshold must be met</td></tr>
+        </table></div>
+        <div class="warn-box">
+          <div class="w-label">⚠️ Common Trap</div>
+          <p>Green shoe / overallotment option = underwriter sells up to 15% MORE shares, then covers in aftermarket (buys if price falls = stabilization; exercises option if price rises = new shares). This is legal stabilization, NOT manipulation.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fed & Monetary Policy -->
+    <div class="topic-card" id="cap-fed">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">The Federal Reserve & Monetary Policy</div><div class="tc-sub">OMOs, rates, QE, dual mandate</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <h4>Fed Tools (Memorize These)</h4>
+        <div class="table-wrap"><table>
+          <tr><th>Tool</th><th>Expansionary Action</th><th>Contractionary Action</th></tr>
+          <tr><td><strong>Open Market Ops</strong></td><td>Buy securities → inject reserves → rates ↓</td><td>Sell securities → drain reserves → rates ↑</td></tr>
+          <tr><td><strong>Discount Rate</strong></td><td>Lower rate → cheaper bank borrowing</td><td>Raise rate → more expensive borrowing</td></tr>
+          <tr><td><strong>Reserve Requirement</strong></td><td>Lower req → more lending power</td><td>Raise req → less lending power (rarely used now)</td></tr>
+          <tr><td><strong>IORB Rate</strong></td><td>Lower → banks lend more</td><td>Raise → banks hold more reserves (floor on fed funds)</td></tr>
+        </table></div>
+        <div class="memory-box">
+          <div class="m-label">💡 Key Rates</div>
+          <p><strong>Federal Funds Rate</strong> = overnight interbank lending rate (market rate, Fed targets it)<br>
+          <strong>Discount Rate</strong> = set directly by Fed, charged to banks at the discount window<br>
+          <strong>Prime Rate</strong> = Fed Funds + 3% — what banks charge best corporate customers<br>
+          Rule: Discount Rate > Fed Funds Rate > SOFR (roughly)</p>
+        </div>
+        <ul class="concept-list">
+          <li><strong>Dual Mandate:</strong> Maximum employment AND stable prices (low inflation ~2%)</li>
+          <li><strong>FOMC:</strong> Meets 8×/year to set fed funds target; 7 governors + 5 regional bank presidents vote</li>
+          <li><strong>Quantitative Easing (QE):</strong> Fed buys long-term securities when short-term rates are near zero — pushes down long-term rates</li>
+          <li><strong>Since March 2020:</strong> Reserve requirements eliminated for all depository institutions</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Yield Curve -->
+    <div class="topic-card" id="cap-yield">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Yield Curve & Interest Rate Theory</div><div class="tc-sub">Shapes, theories, bond price relationship</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <div class="table-wrap"><table>
+          <tr><th>Shape</th><th>What It Means</th><th>Signals</th></tr>
+          <tr><td><strong>Normal (upward)</strong></td><td>Long rates > short rates</td><td>Healthy growth expected; investors want premium for longer maturities</td></tr>
+          <tr><td><strong>Inverted (downward)</strong></td><td>Short rates > long rates</td><td>Recession warning — market expects Fed to cut rates</td></tr>
+          <tr><td><strong>Flat</strong></td><td>Similar yields across maturities</td><td>Transition period; uncertainty</td></tr>
+          <tr><td><strong>Humped</strong></td><td>Medium rates highest</td><td>Intermediate-term uncertainty</td></tr>
+        </table></div>
+        <h4>Interest Rate Theories</h4>
+        <ul class="concept-list">
+          <li><strong>Pure Expectations:</strong> Long rates = expected future short rates only; no premium</li>
+          <li><strong>Liquidity Preference:</strong> Long rates = expected short rates + liquidity premium (explains normal upward slope)</li>
+          <li><strong>Market Segmentation:</strong> Different investors prefer different maturities; supply/demand in each segment sets rates</li>
+        </ul>
+        <div class="memory-box">
+          <div class="m-label">💡 Core Relationship — Never Forget</div>
+          <p><strong>Interest rates ↑ → Bond prices ↓</strong><br>
+          <strong>Interest rates ↓ → Bond prices ↑</strong><br>
+          They move in opposite directions. Always. Without exception.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Economic Indicators -->
+    <div class="topic-card" id="cap-indicators">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Economic Indicators & Money Markets</div><div class="tc-sub">Leading/lagging, inflation, money market instruments</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <div class="table-wrap"><table>
+          <tr><th>Category</th><th>Examples</th><th>Timing</th></tr>
+          <tr><td><strong>Leading</strong></td><td>Stock prices, building permits, consumer confidence, new orders, yield curve</td><td>Move BEFORE economy</td></tr>
+          <tr><td><strong>Coincident</strong></td><td>GDP, industrial production, personal income, employment level</td><td>Move WITH economy</td></tr>
+          <tr><td><strong>Lagging</strong></td><td>Unemployment rate, CPI, average loan duration, commercial loans outstanding</td><td>Move AFTER economy</td></tr>
+        </table></div>
+        <h4>Money Market Instruments (all mature ≤ 1 year)</h4>
+        <ul class="concept-list">
+          <li><strong>T-Bills:</strong> U.S. government, 4/13/26/52 weeks, issued at discount, zero coupon — risk-free benchmark</li>
+          <li><strong>Commercial Paper:</strong> Unsecured, highly-rated corporations, up to 270 days, sold at discount</li>
+          <li><strong>Banker's Acceptances:</strong> Short-term bank-guaranteed drafts, used in international trade</li>
+          <li><strong>Repos (Repurchase Agreements):</strong> Collateralized overnight borrowing — sell securities + agree to repurchase next day</li>
+          <li><strong>Eurodollars:</strong> USD deposits in foreign banks, outside U.S. regulation, no reserve requirements</li>
+          <li><strong>Federal Funds:</strong> Overnight interbank loans of excess reserves</li>
+        </ul>
+      </div>
+    </div>
+  </div><!-- /topic-grid -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     DOMAIN 2 — PRODUCTS & THEIR RISKS
+═══════════════════════════════════════════════════ -->
+<section class="section" id="products">
+  <div class="section-header">
+    <span class="section-badge badge-prod">Domain 2</span>
+    <h2 class="section-title">Products & Their Risks</h2>
+    <span class="section-weight">~44% of exam — HEAVIEST DOMAIN</span>
+  </div>
+
+  <div class="hot-strip">
+    <div class="hot-label">🔥 High-Frequency Test Topics</div>
+    <div class="hot-items">
+      <span class="hot-tag">Options break-even calculations</span>
+      <span class="hot-tag">Covered call vs. naked call</span>
+      <span class="hot-tag">Duration & convexity</span>
+      <span class="hot-tag">YTM vs. YTC vs. current yield</span>
+      <span class="hot-tag">Cumulative preferred</span>
+      <span class="hot-tag">CMOs / MBS tranches</span>
+      <span class="hot-tag">Variable annuity M&E charge</span>
+      <span class="hot-tag">Mutual fund share classes A/B/C</span>
+      <span class="hot-tag">REIT 90% distribution rule</span>
+      <span class="hot-tag">ETF vs. mutual fund NAV</span>
+    </div>
+  </div>
+
+  <div class="topic-grid" id="prod-equity">
+    <!-- Equity -->
+    <div class="topic-card">
+      <div class="topic-card-head open" onclick="toggle(this)">
+        <div><div class="tc-title">Equity Securities</div><div class="tc-sub">Common, preferred, ADRs, rights, warrants</div></div>
+        <span class="tc-arrow open">▼</span>
+      </div>
+      <div class="topic-card-body open">
+        <div class="compare-grid">
+          <div class="compare-card">
+            <h4>Common Stock</h4>
+            <ul>
+              <li>Voting rights on corporate matters</li>
+              <li>Residual claimant (last in liquidation)</li>
+              <li>Dividends not guaranteed</li>
+              <li>Capital appreciation potential</li>
+              <li>Preemptive rights (buy new shares first)</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>Preferred Stock</h4>
+            <ul>
+              <li>Priority over common for dividends & liquidation</li>
+              <li>Usually NO voting rights</li>
+              <li>Fixed dividend rate</li>
+              <li>Callable — issuer can redeem at set price</li>
+              <li>Convertible — can convert to common shares</li>
+            </ul>
+          </div>
+        </div>
+        <h4>Types of Preferred Stock</h4>
+        <ul class="concept-list">
+          <li><strong>Cumulative:</strong> Unpaid dividends accumulate (dividends in arrears) — must all be paid before common receives any dividend</li>
+          <li><strong>Non-cumulative:</strong> Missed dividends are lost forever</li>
+          <li><strong>Participating:</strong> Can earn extra dividends beyond stated rate if company does well</li>
+          <li><strong>Convertible:</strong> Holder can convert to common stock at a set ratio</li>
+          <li><strong>Callable:</strong> Issuer can redeem at call price — benefits issuer, creates reinvestment risk for holder</li>
+        </ul>
+        <h4>Key Concepts</h4>
+        <ul class="concept-list">
+          <li><strong>Stock Split (2-for-1):</strong> Shares double, price halves — market cap unchanged</li>
+          <li><strong>Reverse Split (1-for-10):</strong> Shares reduce, price rises — often done to meet minimum listing requirements</li>
+          <li><strong>Treasury Shares:</strong> Shares repurchased by issuer — no dividends, no voting rights</li>
+          <li><strong>ADRs:</strong> USD-denominated certificates representing foreign company shares — trade on U.S. exchanges</li>
+          <li><strong>Rights:</strong> Short-term (weeks), below-market subscription price to buy new shares — preemptive rights protection</li>
+          <li><strong>Warrants:</strong> Long-term (years), issued by company, exercise creates new shares</li>
+        </ul>
+        <div class="formula-box">
+          <div class="f-label">Key Formulas</div>
+          Market Cap = Share Price × Shares Outstanding<br>
+          Book Value per Share = Total Shareholders' Equity ÷ Shares Outstanding<br>
+          P/E Ratio = Price per Share ÷ Earnings per Share (EPS)<br>
+          Dividend Yield = Annual Dividend per Share ÷ Current Price<br>
+          EPS = Net Income ÷ Shares Outstanding
+        </div>
+      </div>
+    </div>
+
+    <!-- Debt -->
+    <div class="topic-card" id="prod-debt">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Debt Securities</div><div class="tc-sub">Bonds, yields, duration, Treasuries, munis, corporates, MBS</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <h4>Yield Calculations</h4>
+        <div class="formula-box">
+          <div class="f-label">Bond Yield Formulas</div>
+          Current Yield = Annual Coupon ÷ Current Market Price<br>
+          YTM = Total return if held to maturity (accounts for capital gain/loss + all coupons)<br>
+          YTC = Total return if called at first call date and call price<br>
+          Nominal Yield (Coupon Rate) = Annual Coupon ÷ Par Value<br><br>
+          If bond trades at DISCOUNT: Nominal &lt; Current &lt; YTM<br>
+          If bond trades at PREMIUM: Nominal &gt; Current &gt; YTM<br>
+          Always compute "yield to worst" = lower of YTM or YTC
+        </div>
+        <h4>Duration & Convexity</h4>
+        <ul class="concept-list">
+          <li><strong>Macaulay Duration:</strong> Weighted average time to receive all cash flows — measured in years</li>
+          <li><strong>Modified Duration:</strong> % price change for 1% (100 bps) change in yield. Duration 5 → price changes ~5% per 1% rate move</li>
+          <li><strong>Rules:</strong> Higher coupon → lower duration. Longer maturity → higher duration. Zero-coupon has highest duration for its maturity</li>
+          <li><strong>Convexity:</strong> The curvature; positive convexity means price rises more than duration predicts when rates fall (beneficial)</li>
+          <li><strong>Negative Convexity:</strong> Callable bonds — price appreciation is capped because issuer calls bond as rates fall</li>
+        </ul>
+        <h4>Types of Bonds</h4>
+        <div class="table-wrap"><table>
+          <tr><th>Type</th><th>Backed By</th><th>Tax Treatment</th><th>Key Risk</th></tr>
+          <tr><td><strong>U.S. Treasuries</strong></td><td>Full faith & credit of U.S. govt</td><td>Federal taxable; state/local exempt</td><td>Interest rate risk only</td></tr>
+          <tr><td><strong>TIPS</strong></td><td>U.S. govt; principal adjusts with CPI</td><td>Federal taxable (phantom income)</td><td>Deflation risk</td></tr>
+          <tr><td><strong>STRIPS</strong></td><td>Separated Treasury cash flows</td><td>Federal taxable (accrued annually)</td><td>High interest rate risk</td></tr>
+          <tr><td><strong>GO Municipals</strong></td><td>Issuer's full taxing power</td><td>Federal exempt; usually state exempt</td><td>Credit/default risk</td></tr>
+          <tr><td><strong>Revenue Munis</strong></td><td>Project revenues only</td><td>Federal exempt; usually state exempt</td><td>Higher credit risk than GOs</td></tr>
+          <tr><td><strong>Corporate</strong></td><td>Issuer's creditworthiness</td><td>Fully taxable</td><td>Credit risk + interest rate risk</td></tr>
+          <tr><td><strong>CMOs/MBS</strong></td><td>Mortgage pools; tranches</td><td>Fully taxable</td><td>Prepayment risk; negative convexity</td></tr>
+        </table></div>
+        <div class="memory-box">
+          <div class="m-label">💡 Municipal Bond Tax Rule</div>
+          <p>Municipal bond interest is generally <strong>federal income tax exempt</strong>. If you live in the same state as the issuer, it may also be exempt from <strong>state and local taxes</strong> (triple tax-exempt). This is why munis offer lower coupon rates — the after-tax yield is often comparable to higher-rate taxable bonds.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Options -->
+    <div class="topic-card" id="prod-options">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Options</div><div class="tc-sub">Calls, puts, strategies, Greeks, break-even calculations</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <div class="compare-grid">
+          <div class="compare-card">
+            <h4>Call Options</h4>
+            <ul>
+              <li>Right to BUY at strike price</li>
+              <li>Buyer: bullish (wants price to rise)</li>
+              <li>Seller: neutral/bearish</li>
+              <li>Max gain buyer: unlimited</li>
+              <li>Max loss buyer: premium paid</li>
+              <li>Max gain seller: premium received</li>
+              <li>Max loss seller: unlimited (naked)</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>Put Options</h4>
+            <ul>
+              <li>Right to SELL at strike price</li>
+              <li>Buyer: bearish (wants price to fall)</li>
+              <li>Seller: bullish/neutral</li>
+              <li>Max gain buyer: strike − premium</li>
+              <li>Max loss buyer: premium paid</li>
+              <li>Max gain seller: premium received</li>
+              <li>Max loss seller: strike − premium (stock → $0)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="formula-box">
+          <div class="f-label">Break-Even Calculations (Memorize)</div>
+          Long Call Break-Even = Strike Price + Premium<br>
+          Long Put Break-Even = Strike Price − Premium<br>
+          Short Call Break-Even = Strike Price + Premium<br>
+          Short Put Break-Even = Strike Price − Premium<br><br>
+          Option Premium = Intrinsic Value + Time Value<br>
+          Intrinsic Value (Call) = Stock Price − Strike Price (if positive; else $0)<br>
+          Intrinsic Value (Put) = Strike Price − Stock Price (if positive; else $0)
+        </div>
+        <h4>Key Strategies</h4>
+        <div class="table-wrap"><table>
+          <tr><th>Strategy</th><th>Components</th><th>Outlook</th><th>Max Gain</th><th>Max Loss</th></tr>
+          <tr><td><strong>Covered Call</strong></td><td>Long stock + Short call</td><td>Neutral/slightly bullish</td><td>Strike − stock cost + premium</td><td>Stock to $0 minus premium received</td></tr>
+          <tr><td><strong>Protective Put</strong></td><td>Long stock + Long put</td><td>Bullish with downside protection</td><td>Unlimited</td><td>Stock cost − strike + premium</td></tr>
+          <tr><td><strong>Long Straddle</strong></td><td>Long call + Long put (same strike/exp)</td><td>Expects large move, direction unknown</td><td>Unlimited</td><td>Total premium paid</td></tr>
+          <tr><td><strong>Short Straddle</strong></td><td>Short call + Short put</td><td>Expects stock to stay near strike</td><td>Total premium received</td><td>Unlimited</td></tr>
+          <tr><td><strong>Collar</strong></td><td>Long stock + Long put + Short call</td><td>Protection at low/no cost</td><td>Capped at call strike</td><td>Limited by put strike</td></tr>
+        </table></div>
+        <h4>The Greeks (Know These Definitions)</h4>
+        <ul class="concept-list">
+          <li><strong>Delta:</strong> $ change in option price per $1 change in stock. Calls: 0 to +1. Puts: -1 to 0. ATM ≈ ±0.50</li>
+          <li><strong>Gamma:</strong> Rate of change in delta per $1 stock move — highest for near-expiration ATM options</li>
+          <li><strong>Theta:</strong> Time decay — option loses value daily as expiration approaches; accelerates near expiry</li>
+          <li><strong>Vega:</strong> Change in option price per 1% change in implied volatility — long options benefit from rising vol</li>
+          <li><strong>Rho:</strong> Sensitivity to interest rate changes — least important Greek on SIE</li>
+        </ul>
+        <div class="warn-box">
+          <div class="w-label">⚠️ Naked Call = Unlimited Risk</div>
+          <p>A naked (uncovered) call writer has no cap on losses because the stock can rise indefinitely. This is the highest-risk option position. A covered call writer owns the underlying stock, capping risk at the stock's decline to zero minus premium received.</p>
+        </div>
+        <p class="note">1 equity option contract = 100 shares of underlying stock. Premium quoted per share; multiply × 100 for total cost.</p>
+      </div>
+    </div>
+
+    <!-- Mutual Funds & ETFs -->
+    <div class="topic-card" id="prod-funds">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Mutual Funds & ETFs</div><div class="tc-sub">NAV, share classes, expense ratios, ETF mechanics</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <div class="formula-box">
+          <div class="f-label">Mutual Fund NAV Formula</div>
+          NAV per share = (Total Assets − Total Liabilities) ÷ Shares Outstanding<br>
+          Calculated once daily after market close (4 PM ET)<br>
+          Purchase price = NAV + any front-end load (A shares)
+        </div>
+        <h4>Share Classes</h4>
+        <div class="table-wrap"><table>
+          <tr><th>Class</th><th>Sales Load</th><th>12b-1 Fee</th><th>Best For</th></tr>
+          <tr><td><strong>Class A</strong></td><td>Front-end (paid at purchase)</td><td>Low (0.25%)</td><td>Long-term investors; breakpoints reduce load</td></tr>
+          <tr><td><strong>Class B</strong></td><td>Back-end CDSC (declines over time)</td><td>Higher (~0.75%)</td><td>Converts to A shares after 7-8 years</td></tr>
+          <tr><td><strong>Class C</strong></td><td>No front-end; small 1-yr CDSC</td><td>Highest (1.00%)</td><td>Short-term investors; most expensive long-term</td></tr>
+          <tr><td><strong>Class I (Inst.)</strong></td><td>None</td><td>None/minimal</td><td>Institutional investors; minimum investment high</td></tr>
+        </table></div>
+        <h4>ETF vs. Mutual Fund</h4>
+        <div class="compare-grid">
+          <div class="compare-card">
+            <h4>ETFs</h4>
+            <ul>
+              <li>Trade on exchange throughout day at market price</li>
+              <li>Price ≠ NAV (can trade at premium or discount)</li>
+              <li>In-kind creation/redemption mechanism</li>
+              <li>Generally more tax-efficient</li>
+              <li>May have bid-ask spread transaction cost</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>Open-End Mutual Funds</h4>
+            <ul>
+              <li>Priced once daily at NAV after close</li>
+              <li>Always transact at NAV (± load)</li>
+              <li>Continuously issue/redeem shares</li>
+              <li>May distribute capital gains annually</li>
+              <li>No secondary market trading</li>
+            </ul>
+          </div>
+        </div>
+        <ul class="concept-list">
+          <li><strong>Closed-End Fund:</strong> Fixed shares issued at IPO, then trade on exchange — price can diverge significantly from NAV (premium or discount)</li>
+          <li><strong>12b-1 Fee:</strong> Annual fee charged to fund assets for distribution/marketing; capped at 1%; ≤0.25% for "no-load" designation</li>
+          <li><strong>Expense Ratio:</strong> Annual operating costs ÷ average net assets; paid daily from fund assets, not separately invoiced</li>
+          <li><strong>Turnover Rate:</strong> High turnover → more realized capital gains → less tax-efficient</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Annuities & REITs -->
+    <div class="topic-card" id="prod-annuities">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Annuities & REITs</div><div class="tc-sub">Fixed vs. variable, M&E charge, REITs 90% rule</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <div class="compare-grid">
+          <div class="compare-card">
+            <h4>Fixed Annuity</h4>
+            <ul>
+              <li>Guaranteed interest rate</li>
+              <li>Insurance company bears investment risk</li>
+              <li>No market risk to annuitant</li>
+              <li>Sold by insurance agents</li>
+              <li>NOT a security (generally)</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>Variable Annuity</h4>
+            <ul>
+              <li>Return tied to subaccount performance</li>
+              <li>Annuitant bears investment risk</li>
+              <li>IS a security — requires securities license</li>
+              <li>M&E charge: ~1–1.5% annually</li>
+              <li>Surrender charges: typically 6–10 years</li>
+            </ul>
+          </div>
+        </div>
+        <h4>Annuity Phases</h4>
+        <ul class="concept-list">
+          <li><strong>Accumulation Phase:</strong> Contributions grow tax-deferred; no current tax on earnings</li>
+          <li><strong>Annuitization / Payout Phase:</strong> Converts value to income stream; generally irrevocable</li>
+          <li><strong>Life Only:</strong> Highest payment; stops at death — nothing to heirs</li>
+          <li><strong>Life with Period Certain:</strong> Guaranteed minimum period (e.g., 20 years); heirs get remainder if death is early</li>
+          <li><strong>Joint & Survivor:</strong> Continues for spouse's life — lower payment</li>
+        </ul>
+        <div class="warn-box">
+          <div class="w-label">⚠️ Tax Treatment of Withdrawals</div>
+          <p>Non-qualified annuity withdrawals are taxed LIFO — earnings come out first and are taxed as ordinary income. A 10% penalty applies to withdrawals before age 59½. Contributions (cost basis) come out last, tax-free.</p>
+        </div>
+        <h4>REITs</h4>
+        <ul class="concept-list">
+          <li><strong>Must distribute ≥ 90%</strong> of taxable income to shareholders (no corporate income tax on distributed amounts)</li>
+          <li><strong>Equity REIT:</strong> Owns and operates properties; income from rent</li>
+          <li><strong>Mortgage REIT:</strong> Invests in mortgage loans/MBS; income from interest; sensitive to rate changes</li>
+          <li><strong>Publicly traded REITs</strong> provide real estate exposure with stock-like liquidity</li>
+          <li>REIT dividends are generally taxed as <strong>ordinary income</strong> (not qualified dividend rate)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Municipal Securities -->
+    <div class="topic-card">
+      <div class="topic-card-head open" onclick="toggle(this)">
+        <div><div class="tc-title">Municipal Securities</div><div class="tc-sub">GO vs. revenue bonds, tax treatment, MSRB, tax-equivalent yield</div></div>
+        <span class="tc-arrow open">▼</span>
+      </div>
+      <div class="topic-card-body open">
+        <div class="hot-strip" style="margin-bottom:14px;">
+          <div class="hot-label">🔥 High-Frequency Muni Topics</div>
+          <div class="hot-items">
+            <span class="hot-tag">GO vs. Revenue bond backing</span>
+            <span class="hot-tag">Triple tax-exempt</span>
+            <span class="hot-tag">Tax-equivalent yield formula</span>
+            <span class="hot-tag">MSRB jurisdiction</span>
+            <span class="hot-tag">Serial bond structure</span>
+          </div>
+        </div>
+        <div class="compare-grid">
+          <div class="compare-card">
+            <h4>General Obligation (GO) Bonds</h4>
+            <ul>
+              <li>Backed by full faith, credit, and <strong>taxing power</strong> of issuer</li>
+              <li>Voter approval usually required</li>
+              <li>Considered safer — issuer can raise taxes</li>
+              <li>Lower yields than comparable revenue bonds</li>
+              <li>Examples: schools, roads, general infrastructure</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>Revenue Bonds</h4>
+            <ul>
+              <li>Backed by revenues of a <strong>specific project only</strong></li>
+              <li>No access to general tax base</li>
+              <li>Higher yields to compensate for higher risk</li>
+              <li>No voter approval required (typically)</li>
+              <li>Examples: toll roads, airports, hospitals, water utilities</li>
+            </ul>
+          </div>
+        </div>
+        <div class="memory-box">
+          <div class="m-label">💡 Memory Hook</div>
+          <p><strong>GO = Government-backed taxing power</strong> (safer, lower yield)<br>
+          <strong>Revenue = Revenue from the project only</strong> (riskier, higher yield)<br>
+          If the toll bridge earns no revenue, revenue bondholders have no recourse to the city's general funds.</p>
+        </div>
+        <h4>Tax Treatment</h4>
+        <ul class="concept-list">
+          <li><strong>Federal income tax:</strong> Muni interest is generally EXEMPT</li>
+          <li><strong>State/local tax:</strong> Exempt if investor lives in the issuing state → "double tax-exempt"</li>
+          <li><strong>All three levels exempt:</strong> "Triple tax-exempt" — federal + state + local</li>
+          <li><strong>AMT (Alternative Minimum Tax):</strong> Some "private activity bonds" (stadiums, airports) may be subject to AMT even though they're technically munis</li>
+          <li><strong>Capital gains:</strong> Always taxable, even on municipal bonds</li>
+        </ul>
+        <div class="formula-box">
+          <div class="f-label">Tax-Equivalent Yield Formula (TEY)</div>
+          TEY = Muni Yield ÷ (1 − Marginal Tax Rate)<br><br>
+          Example: Muni yields 4%; investor in 35% tax bracket<br>
+          TEY = 4% ÷ (1 − 0.35) = 4% ÷ 0.65 = <strong>6.15%</strong><br><br>
+          Interpretation: The investor would need a 6.15% taxable yield to equal the 4% tax-free muni yield.<br>
+          If taxable bonds yield less than 6.15%, the muni is the better after-tax choice.
+        </div>
+        <h4>MSRB — Municipal Securities Rulemaking Board</h4>
+        <ul class="concept-list">
+          <li><strong>Jurisdiction:</strong> Broker-dealers and bank dealers that underwrite, trade, and sell municipal securities</li>
+          <li><strong>Does NOT regulate:</strong> Municipal issuers themselves — the MSRB has no authority over cities, states, or school districts</li>
+          <li><strong>Key function:</strong> Writes rules for muni dealers; maintains EMMA (Electronic Municipal Market Access) — public disclosure database</li>
+          <li><strong>Enforcement:</strong> MSRB writes rules; SEC and FINRA enforce them against broker-dealers; bank regulators enforce for bank dealers</li>
+          <li><strong>Series 52:</strong> Municipal Securities Representative exam (required for muni dealer reps)</li>
+          <li><strong>Series 53:</strong> Municipal Securities Principal exam</li>
+        </ul>
+        <h4>Municipal Bond Structures</h4>
+        <ul class="concept-list">
+          <li><strong>Serial Bonds:</strong> Portions of the issue mature at different dates — like a mortgage amortization schedule; most common muni structure</li>
+          <li><strong>Term Bonds:</strong> All bonds in the issue mature on the same date; often paired with a sinking fund</li>
+          <li><strong>Variable Rate Demand Obligations (VRDOs):</strong> Long-term bonds with short-term interest rate resets; investor has right to put back to issuer</li>
+        </ul>
+        <div class="warn-box">
+          <div class="w-label">⚠️ Common Trap: Not All Munis Are Tax-Free</div>
+          <p>While most muni interest is federally tax-exempt, <strong>capital gains on muni bonds are fully taxable</strong>. Also, private activity bonds may trigger AMT. And muni bond interest earned in a tax-advantaged account (IRA, 401k) loses its tax-exempt advantage — you'd be paying tax on withdrawal anyway, so the lower muni yield may not be worthwhile in a tax-deferred account.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Investment Risks -->
+    <div class="topic-card">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Investment Risk Types</div><div class="tc-sub">Market, credit, inflation, liquidity, concentration, interest rate, reinvestment</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <div class="hot-strip" style="margin-bottom:14px;">
+          <div class="hot-label">🔥 Know Which Products Carry Which Risks</div>
+          <div class="hot-items">
+            <span class="hot-tag">Inflation risk → fixed-rate bonds</span>
+            <span class="hot-tag">Reinvestment risk → callable bonds</span>
+            <span class="hot-tag">Prepayment risk → MBS/CMOs</span>
+            <span class="hot-tag">Concentration risk → undiversified portfolio</span>
+          </div>
+        </div>
+        <div class="table-wrap"><table>
+          <tr><th>Risk Type</th><th>Definition</th><th>Most Affects</th><th>Mitigation</th></tr>
+          <tr><td><strong>Market Risk</strong><br><em>(Systematic)</em></td><td>Risk from broad market movements; cannot be diversified away</td><td>All equity and debt securities</td><td>Asset allocation; cannot be eliminated</td></tr>
+          <tr><td><strong>Credit Risk</strong><br><em>(Default Risk)</em></td><td>Risk that issuer fails to make interest or principal payments</td><td>Corporate bonds, municipal bonds, preferred stock</td><td>Diversification; buy higher-rated bonds; use Treasury bonds</td></tr>
+          <tr><td><strong>Interest Rate Risk</strong></td><td>Risk that rising rates reduce bond prices</td><td>All fixed-income securities; greater for longer duration</td><td>Shorter duration bonds; floating rate notes; TIPS</td></tr>
+          <tr><td><strong>Inflation Risk</strong><br><em>(Purchasing Power)</em></td><td>Risk that returns don't keep up with inflation, eroding purchasing power</td><td>Fixed-rate bonds, cash, CDs</td><td>TIPS; equities; real assets</td></tr>
+          <tr><td><strong>Liquidity Risk</strong></td><td>Risk of not being able to sell an investment quickly at a fair price</td><td>Small-cap stocks, municipal bonds, private placements, real estate</td><td>Invest in liquid markets; maintain cash reserves</td></tr>
+          <tr><td><strong>Reinvestment Risk</strong></td><td>Risk that future cash flows must be reinvested at lower rates</td><td>Callable bonds, mortgage-backed securities, bonds in declining rate environment</td><td>Bullet bonds (non-callable); laddered maturity strategy</td></tr>
+          <tr><td><strong>Concentration Risk</strong></td><td>Risk of over-exposure to a single security, sector, or issuer</td><td>Any undiversified portfolio</td><td>Diversification across sectors, asset classes, geographies</td></tr>
+          <tr><td><strong>Prepayment Risk</strong></td><td>Risk that mortgages in MBS are paid off early when rates fall</td><td>Mortgage-backed securities (MBS), CMOs</td><td>PAC tranches; sequential-pay CMOs</td></tr>
+          <tr><td><strong>Political / Regulatory Risk</strong></td><td>Risk from changes in laws, regulations, or political stability</td><td>Foreign investments; regulated industries</td><td>Diversification; international diversification</td></tr>
+          <tr><td><strong>Currency / Exchange Rate Risk</strong></td><td>Risk from fluctuating exchange rates on international investments</td><td>ADRs, foreign bonds, international mutual funds</td><td>Hedging; avoid overweighting foreign assets</td></tr>
+          <tr><td><strong>Call Risk</strong></td><td>Risk issuer calls bonds early, forcing reinvestment at lower rates</td><td>Callable bonds, preferred stock</td><td>Non-callable bonds; bullet structures</td></tr>
+          <tr><td><strong>Timing Risk</strong></td><td>Risk of buying at market peak or selling at market trough</td><td>All securities</td><td>Dollar-cost averaging; long time horizon</td></tr>
+        </table></div>
+        <div class="memory-box">
+          <div class="m-label">💡 Systematic vs. Unsystematic Risk</div>
+          <p><strong>Systematic (Market) Risk:</strong> Affects all securities; cannot be diversified away. Beta measures systematic risk. Examples: recessions, interest rate changes, inflation.<br><br>
+          <strong>Unsystematic (Specific) Risk:</strong> Affects only a company or industry; CAN be eliminated through diversification. Examples: management scandal, product recall, industry disruption.<br><br>
+          Diversification eliminates unsystematic risk. It cannot eliminate systematic risk. This distinction is a frequent SIE test question.</p>
+        </div>
+      </div>
+    </div>
+  </div><!-- /products topic-grid -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     DOMAIN 3 — TRADING, ACCOUNTS & PROHIBITED ACTIVITIES
+═══════════════════════════════════════════════════ -->
+<section class="section" id="trading">
+  <div class="section-header">
+    <span class="section-badge badge-trade">Domain 3</span>
+    <h2 class="section-title">Trading, Accounts & Prohibited Activities</h2>
+    <span class="section-weight">~31% of exam</span>
+  </div>
+
+  <div class="hot-strip">
+    <div class="hot-label">🔥 High-Frequency Test Topics</div>
+    <div class="hot-items">
+      <span class="hot-tag">Margin call calculation</span>
+      <span class="hot-tag">Reg T 50% / maintenance 25%</span>
+      <span class="hot-tag">T+1 vs. T+2 settlement</span>
+      <span class="hot-tag">Stop order mechanics</span>
+      <span class="hot-tag">JTWROS vs. TIC</span>
+      <span class="hot-tag">PDT $25K rule</span>
+      <span class="hot-tag">Churning / front-running / insider trading</span>
+      <span class="hot-tag">Reg SHO locate requirement</span>
+    </div>
+  </div>
+
+  <div class="topic-grid" id="trade-orders">
+    <!-- Order Types -->
+    <div class="topic-card">
+      <div class="topic-card-head open" onclick="toggle(this)">
+        <div><div class="tc-title">Order Types & Settlement</div><div class="tc-sub">Market, limit, stop, stop-limit, time qualifiers, settlement dates</div></div>
+        <span class="tc-arrow open">▼</span>
+      </div>
+      <div class="topic-card-body open">
+        <div class="table-wrap"><table>
+          <tr><th>Order Type</th><th>Price Guarantee</th><th>Execution Guarantee</th><th>Use Case</th></tr>
+          <tr><td><strong>Market</strong></td><td>None — best available</td><td>Yes (liquid markets)</td><td>When execution certainty matters more than price</td></tr>
+          <tr><td><strong>Limit</strong></td><td>Yes (price or better)</td><td>No — may not fill</td><td>When price certainty is the priority</td></tr>
+          <tr><td><strong>Stop (Stop-Loss)</strong></td><td>None (becomes market)</td><td>Not guaranteed</td><td>Limit losses; triggers when price hits stop</td></tr>
+          <tr><td><strong>Stop-Limit</strong></td><td>Limit price or better</td><td>No — may not fill</td><td>Combines stop trigger with price limit; gap risk</td></tr>
+          <tr><td><strong>Buy Stop</strong></td><td>Placed above market</td><td>No</td><td>Short seller covers if price rises; momentum entry</td></tr>
+          <tr><td><strong>Sell Stop</strong></td><td>Placed below market</td><td>No</td><td>Stop-loss on long position</td></tr>
+        </table></div>
+        <h4>Time Qualifiers</h4>
+        <ul class="concept-list">
+          <li><strong>Day Order:</strong> Expires at end of trading day — default for most orders</li>
+          <li><strong>GTC (Good Till Cancelled):</strong> Active until executed or customer cancels; broker sets internal limits</li>
+          <li><strong>IOC (Immediate or Cancel):</strong> Fill what you can immediately; cancel the rest</li>
+          <li><strong>FOK (Fill or Kill):</strong> Fill entire order immediately or cancel entirely — no partial fills</li>
+          <li><strong>AON (All or None):</strong> Fill entire amount or don't fill — not necessarily immediate</li>
+          <li><strong>Not Held:</strong> Gives broker/trader discretion over timing and price for best execution</li>
+        </ul>
+        <h4>Settlement Periods</h4>
+        <div class="number-grid">
+          <div class="num-card"><div class="n-val">T+1</div><div class="n-label">U.S. Treasuries, agency bonds, options</div></div>
+          <div class="num-card"><div class="n-val">T+2</div><div class="n-label">Equities, corporate bonds, municipal bonds</div></div>
+          <div class="num-card"><div class="n-val">T+0</div><div class="n-label">Same-day (cash) settlement — negotiated</div></div>
+        </div>
+        <p class="note">Note: The U.S. moved from T+2 to T+1 for equities in May 2024. The SIE exam reflects this update. Options exercise results in T+1 settlement for the underlying shares.</p>
+      </div>
+    </div>
+
+    <!-- Margin -->
+    <div class="topic-card" id="trade-margin">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Margin Accounts</div><div class="tc-sub">Reg T, maintenance, margin calls, short margin, SMA</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <div class="number-grid">
+          <div class="num-card"><div class="n-val">50%</div><div class="n-label">Reg T initial margin requirement (long)</div></div>
+          <div class="num-card"><div class="n-val">25%</div><div class="n-label">FINRA minimum maintenance margin (long)</div></div>
+          <div class="num-card"><div class="n-val">30%</div><div class="n-label">Maintenance margin for short positions</div></div>
+          <div class="num-card"><div class="n-val">$2,000</div><div class="n-label">Minimum equity to open a margin account</div></div>
+          <div class="num-card"><div class="n-val">$25,000</div><div class="n-label">PDT minimum equity balance required</div></div>
+        </div>
+        <div class="formula-box">
+          <div class="f-label">Margin Math — Must Know</div>
+          Equity = Market Value − Debit Balance<br>
+          Equity % = Equity ÷ Market Value<br><br>
+          Margin Call Trigger: MV − Debit = 0.25 × MV → MV = Debit ÷ 0.75<br><br>
+          Example: Debit = $9,000 → MV = $9,000 ÷ 0.75 = $12,000 triggers maintenance call<br><br>
+          Buying Power = SMA × 2 (each $1 SMA supports $2 of new purchases at 50%)<br><br>
+          Short Margin Equity = Credit Balance − Short Market Value
+        </div>
+        <ul class="concept-list">
+          <li><strong>SMA (Special Memorandum Account):</strong> Accumulated buying power from excess equity — can be withdrawn as cash or used for new purchases</li>
+          <li><strong>Restricted Account:</strong> Equity below 50% Reg T but above 25% maintenance — cannot make new purchases; must sell to release funds</li>
+          <li><strong>Pattern Day Trader (PDT):</strong> ≥4 day trades in 5 business days in a margin account (if >6% of total trades) → requires $25,000 minimum equity</li>
+          <li><strong>Loan Value:</strong> Maximum amount broker will lend = 50% of marginable market value</li>
+        </ul>
+        <div class="warn-box">
+          <div class="w-label">⚠️ Meeting a Margin Call</div>
+          <p>Options: (1) Deposit cash, (2) Deposit marginable securities, (3) Sell securities in the account. Brokers may liquidate positions WITHOUT notice if a margin call is not met promptly.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Types -->
+    <div class="topic-card" id="trade-accounts">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Account Types</div><div class="tc-sub">JTWROS, TIC, UGMA/UTMA, discretionary, trust, corporate</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <div class="table-wrap"><table>
+          <tr><th>Account Type</th><th>Key Feature</th><th>On Death</th></tr>
+          <tr><td><strong>Individual</strong></td><td>Sole owner; full control</td><td>Passes per will / estate</td></tr>
+          <tr><td><strong>JTWROS</strong></td><td>Equal ownership; requires equal %</td><td>Automatically to surviving owner(s) — bypasses probate</td></tr>
+          <tr><td><strong>TIC (Tenants in Common)</strong></td><td>Unequal % allowed; each owns divisible share</td><td>Passes to deceased's estate per will</td></tr>
+          <tr><td><strong>UGMA/UTMA</strong></td><td>Custodian manages for minor; irrevocable gift</td><td>Minor gains full control at age of majority (18-21)</td></tr>
+          <tr><td><strong>Trust</strong></td><td>Trustee manages for beneficiary; fiduciary duty</td><td>Per trust document</td></tr>
+          <tr><td><strong>Corporate</strong></td><td>Corporate resolution specifies authorized traders</td><td>N/A — entity account</td></tr>
+          <tr><td><strong>Discretionary</strong></td><td>Written POA grants broker authority over security/price/quantity</td><td>N/A</td></tr>
+        </table></div>
+        <ul class="concept-list">
+          <li><strong>Street Name:</strong> Securities registered in broker-dealer's name on issuer's books; customer is beneficial owner — simplifies settlement</li>
+          <li><strong>Wrap Account:</strong> All-inclusive fee (% of AUM) covers management, trading, and custody — eliminates per-trade commissions</li>
+          <li><strong>TOD Designation:</strong> Transfer on death — assets pass directly to beneficiary, bypassing probate</li>
+          <li><strong>Discretionary Account:</strong> Written authorization must be obtained BEFORE any discretionary trade; principal must review frequently</li>
+        </ul>
+        <div class="warn-box">
+          <div class="w-label">⚠️ UGMA/UTMA Key Rule</div>
+          <p>Gifts to UGMA/UTMA accounts are <strong>irrevocable</strong> — the custodian cannot take back the gift. The minor gains full, irrevocable control at the age of majority, regardless of what the former custodian wants.</p>
+
+        <h4>Retirement Account Basics</h4>
+        <div class="table-wrap"><table>
+          <tr><th>Account</th><th>2024 Contribution Limit</th><th>Catch-Up (50+)</th><th>Withdrawal Rules</th></tr>
+          <tr><td><strong>Traditional IRA</strong></td><td>$7,000/year</td><td>+$1,000</td><td>10% penalty before 59½; RMDs start at age 73</td></tr>
+          <tr><td><strong>Roth IRA</strong></td><td>$7,000/year (income limits apply)</td><td>+$1,000</td><td>Contributions can be withdrawn anytime tax/penalty-free; earnings tax-free after 59½ and 5-year rule</td></tr>
+          <tr><td><strong>401(k) / 403(b)</strong></td><td>$23,000/year (employee deferral)</td><td>+$7,500</td><td>10% penalty before 59½; RMDs start at 73</td></tr>
+          <tr><td><strong>SEP IRA</strong></td><td>Lesser of 25% of compensation or $69,000</td><td>None</td><td>Same as Traditional IRA</td></tr>
+          <tr><td><strong>SIMPLE IRA</strong></td><td>$16,000/year</td><td>+$3,500</td><td>25% penalty if withdrawn within first 2 years of participation</td></tr>
+        </table></div>
+        <ul class="concept-list">
+          <li><strong>RMD (Required Minimum Distribution):</strong> Must begin by April 1 following the year you turn 73 (SECURE Act 2.0). Applies to Traditional IRAs, 401(k)s, SEPs, SIMPLEs — NOT Roth IRAs (during owner's lifetime). Penalty for missing RMD = 25% of the amount not withdrawn.</li>
+          <li><strong>Direct Rollover:</strong> Funds move directly from old plan to new plan; no tax withheld; no limit on frequency</li>
+          <li><strong>Indirect Rollover:</strong> Check made out to account holder; 20% withheld for taxes; must redeposit 100% within 60 days or the withheld amount is taxable income + potential penalty; limited to once per 12-month period per IRA</li>
+          <li><strong>Roth Conversion:</strong> Can convert Traditional IRA to Roth at any time; pay income tax on converted amount in year of conversion; no income limit; 5-year rule applies to each conversion</li>
+          <li><strong>Early Withdrawal Exceptions (no 10% penalty):</strong> Death, disability, substantially equal periodic payments (SEPP/72t), first-time home purchase (IRA only, $10K lifetime), higher education expenses (IRA), health insurance premiums while unemployed (IRA), medical expenses exceeding 7.5% of AGI</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Prohibited Activities -->
+    <div class="topic-card" id="trade-prohibited">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Prohibited Activities & Short Selling</div><div class="tc-sub">Manipulation, fraud, Reg SHO, short squeeze mechanics</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <div class="table-wrap"><table>
+          <tr><th>Violation</th><th>Definition</th><th>Key Indicator</th></tr>
+          <tr><td><strong>Churning</strong></td><td>Excessive trading primarily to generate commissions</td><td>High turnover; low cost-equity ratio</td></tr>
+          <tr><td><strong>Front-Running</strong></td><td>Trading own account ahead of pending customer order</td><td>Broker profits from customer's market impact</td></tr>
+          <tr><td><strong>Insider Trading</strong></td><td>Trading on material non-public information</td><td>Unusual volume/profit before news</td></tr>
+          <tr><td><strong>Painting the Tape</strong></td><td>Wash trades to create artificial volume</td><td>No change in beneficial ownership</td></tr>
+          <tr><td><strong>Spoofing</strong></td><td>Placing orders with intent to cancel — creates false demand/supply</td><td>Large orders immediately cancelled</td></tr>
+          <tr><td><strong>Pump & Dump</strong></td><td>Inflate price through false claims; sell before collapse</td><td>Penny stocks; aggressive social media promotion</td></tr>
+          <tr><td><strong>Selling Away</strong></td><td>Selling securities not approved by firm, without firm knowledge</td><td>Private deals outside firm supervision</td></tr>
+          <tr><td><strong>Marking the Close</strong></td><td>Trading near close to influence closing price</td><td>Closing price affects NAV, margins, benchmarks</td></tr>
+          <tr><td><strong>Unauthorized Trading</strong></td><td>Executing trades without customer prior approval</td><td>No discretionary agreement in place</td></tr>
+          <tr><td><strong>Free-Riding</strong></td><td>Buying securities and selling before paying, using proceeds to pay</td><td>Cash account violation; 90-day freeze penalty</td></tr>
+        </table></div>
+        <h4>Short Selling & Regulation SHO</h4>
+        <ul class="concept-list">
+          <li><strong>Locate Requirement:</strong> Before accepting a short sale, broker must have reasonable grounds to believe shares can be borrowed</li>
+          <li><strong>Close-Out Requirement:</strong> Fails to deliver must be closed out by end of settlement day +3</li>
+          <li><strong>Threshold Securities:</strong> Fails ≥10,000 shares + ≥0.5% of float for 5 consecutive days → enhanced close-out requirements</li>
+          <li><strong>Rule 201 (Alt Uptick Rule):</strong> Circuit breaker — if stock falls 10%+ from prior close, short sales restricted to above current best bid for that day and next</li>
+          <li><strong>Short Squeeze:</strong> Rising prices → forced covering → more buying → price rises further (self-reinforcing)</li>
+          <li><strong>Dividend obligation:</strong> Short seller must pay "payment in lieu of dividends" to lender when stock pays dividends</li>
+        </ul>
+      </div>
+    </div>
+  </div><!-- /trading topic-grid -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     DOMAIN 4 — REGULATORY FRAMEWORK
+═══════════════════════════════════════════════════ -->
+<section class="section" id="regulatory">
+  <div class="section-header">
+    <span class="section-badge badge-reg">Domain 4</span>
+    <h2 class="section-title">Regulatory Framework</h2>
+    <span class="section-weight">~9% of exam</span>
+  </div>
+
+  <div class="hot-strip">
+    <div class="hot-label">🔥 High-Frequency Test Topics</div>
+    <div class="hot-items">
+      <span class="hot-tag">1933 vs. 1934 Act distinction</span>
+      <span class="hot-tag">CTR $10K / SAR $5K thresholds</span>
+      <span class="hot-tag">SIPC $500K / $250K cash limits</span>
+      <span class="hot-tag">Reg BI care obligation</span>
+      <span class="hot-tag">Howey Test (what is a security)</span>
+      <span class="hot-tag">Rule 144 / 144A</span>
+      <span class="hot-tag">AML three stages</span>
+      <span class="hot-tag">Form U4 vs. U5</span>
+    </div>
+  </div>
+
+  <div class="topic-grid" id="reg-acts">
+    <div class="topic-card">
+      <div class="topic-card-head open" onclick="toggle(this)">
+        <div><div class="tc-title">Key Securities Acts</div><div class="tc-sub">1933, 1934, 1940 Acts, SOX, Dodd-Frank, JOBS Act</div></div>
+        <span class="tc-arrow open">▼</span>
+      </div>
+      <div class="topic-card-body open">
+        <div class="table-wrap"><table>
+          <tr><th>Act</th><th>Nickname</th><th>What It Regulates</th><th>Key Provision</th></tr>
+          <tr><td><strong>Securities Act 1933</strong></td><td>"Truth in Securities"</td><td>PRIMARY market — new issuances</td><td>Registration + prospectus requirement; Section 11 civil liability; antifraud</td></tr>
+          <tr><td><strong>Securities Exchange Act 1934</strong></td><td>"Exchange Act"</td><td>SECONDARY market + broker-dealers</td><td>Created SEC; Rule 10b-5 (antifraud); Reg FD; Section 16(b) short-swing profits</td></tr>
+          <tr><td><strong>Investment Company Act 1940</strong></td><td>ICA</td><td>Mutual funds, ETFs, closed-end funds, UITs</td><td>Requires SEC registration; governance; fee disclosure</td></tr>
+          <tr><td><strong>Investment Advisers Act 1940</strong></td><td>Advisers Act</td><td>Investment advisers for compensation</td><td>SEC registration ($110M+ AUM) or state; fiduciary duty; Form ADV</td></tr>
+          <tr><td><strong>SOX 2002</strong></td><td>Sarbanes-Oxley</td><td>Public company governance</td><td>CEO/CFO certify financials; PCAOB created; whistleblower protections</td></tr>
+          <tr><td><strong>Dodd-Frank 2010</strong></td><td>Dodd-Frank</td><td>Systemic risk; OTC derivatives; consumer protection</td><td>FSOC; Volcker Rule; mandatory derivatives clearing; CFPB</td></tr>
+          <tr><td><strong>JOBS Act 2012</strong></td><td>JOBS Act</td><td>Capital formation for small companies</td><td>Reg CF (crowdfunding $5M); Reg A+ Tier 2 ($75M); EGC on-ramp; Rule 506(c)</td></tr>
+        </table></div>
+        <h4>Critical Exemptions from Registration</h4>
+        <h4>Additional Key Regulations</h4>
+        <ul class="concept-list">
+          <li><strong>Blue Sky Laws:</strong> State-level securities regulations — require registration of securities offerings and broker-dealers in each state, unless a federal exemption applies. NSMIA preempted state registration for "covered securities" (exchange-listed stocks, Reg D Rule 506 offerings, investment company securities). States retain anti-fraud authority.</li>
+          <li><strong>Regulation S-P:</strong> SEC rule requiring broker-dealers and investment advisers to adopt policies protecting the privacy of customer financial information. Requires annual privacy notices to customers; customers can opt out of information sharing with unaffiliated third parties.</li>
+          <li><strong>USA PATRIOT Act:</strong> Post-9/11 law that significantly strengthened AML/BSA requirements. Key provision: requires financial institutions to implement Customer Identification Programs (CIP) to verify identity of customers opening new accounts. Enhanced due diligence for high-risk customers and jurisdictions.</li>
+          <li><strong>Customer Identification Program (CIP):</strong> Under PATRIOT Act, firms must verify: name, date of birth, address, and ID number (SSN for U.S. persons; passport/alien ID for foreign persons) for all new account holders.</li>
+          <li><strong>Regulation S-ID (Red Flags Rule):</strong> Requires firms to implement written identity theft prevention programs to detect, prevent, and mitigate identity theft in customer accounts.</li>
+        </ul>
+        <ul class="concept-list">
+          <li><strong>Rule 506(b) — Reg D:</strong> Up to 35 non-accredited + unlimited accredited investors; no general solicitation; restricted securities</li>
+          <li><strong>Rule 506(c) — Reg D:</strong> General solicitation permitted; ALL investors must be accredited and verified</li>
+          <li><strong>Rule 144A:</strong> Resale of restricted securities to QIBs (institutions with $100M+ in securities); no holding period between QIBs</li>
+          <li><strong>Rule 144:</strong> Resale of restricted/control securities by affiliates — holding periods, volume limits, manner of sale requirements</li>
+          <li><strong>Reg A+ Tier 1:</strong> Up to $20M in 12 months; simplified disclosure</li>
+          <li><strong>Reg A+ Tier 2:</strong> Up to $75M in 12 months; offering circular (not full S-1)</li>
+          <li><strong>Reg CF:</strong> Crowdfunding up to $5M from general public including non-accredited investors; must use registered portal</li>
+          <li><strong>Section 3(a)(11) / Rule 147:</strong> Intrastate exemption — offer and sale entirely within one state</li>
+        </ul>
+        <div class="memory-box">
+          <div class="m-label">💡 Howey Test — What Makes Something a Security</div>
+          <p>SEC v. W.J. Howey Co. (1946): An investment contract is a security if there is: <strong>(1) Investment of money</strong> + <strong>(2) In a common enterprise</strong> + <strong>(3) Expectation of profits</strong> + <strong>(4) Derived from the efforts of others</strong>. Courts apply this to crypto, LLCs, citrus groves, and other novel arrangements.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINRA Rules -->
+    <div class="topic-card" id="reg-finra">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">FINRA Rules & Registration</div><div class="tc-sub">Key rules, U4/U5, BrokerCheck, CRD, 5% policy</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <div class="table-wrap"><table>
+          <tr><th>Rule</th><th>Subject</th><th>Key Requirement</th></tr>
+          <tr><td><strong>2090</strong></td><td>Know Your Customer (KYC)</td><td>Essential facts about every customer and account</td></tr>
+          <tr><td><strong>2111</strong></td><td>Suitability</td><td>Reasonable basis + customer-specific + quantitative (anti-churning)</td></tr>
+          <tr><td><strong>2210</strong></td><td>Communications with the Public</td><td>Retail comms need principal approval; all must be fair and balanced</td></tr>
+          <tr><td><strong>3110</strong></td><td>Supervision</td><td>Written supervisory procedures; designated supervisors; OSJ designation</td></tr>
+          <tr><td><strong>3280</strong></td><td>Private Securities Transactions</td><td>Written notice to firm required before any transaction outside regular employment</td></tr>
+          <tr><td><strong>4370</strong></td><td>Business Continuity Planning</td><td>BCP covering significant disruptions, customer access, data recovery</td></tr>
+          <tr><td><strong>4511</strong></td><td>Record Retention</td><td>Most records: 6 years (2 years easily accessible); some records: life of firm + 6 years</td></tr>
+          <tr><td><strong>4530</strong></td><td>Reporting Requirements</td><td>Promptly report felonies, securities misdemeanors, regulatory sanctions to firm; firm to FINRA within 30 days</td></tr>
+        </table></div>
+        <h4>Registration & Forms</h4>
+        <ul class="concept-list">
+          <li><strong>Form U4:</strong> Registration application for associated persons — updated within 30 days of material changes; filed with CRD</li>
+          <li><strong>Form U5:</strong> Termination notice — filed within 30 days of separation; becomes permanent CRD record</li>
+          <li><strong>CRD (Central Registration Depository):</strong> Central database for all registered persons and broker-dealers</li>
+          <li><strong>BrokerCheck:</strong> Public-facing portion of CRD — investors can verify broker registration and check disciplinary history</li>
+          <li><strong>Statutory Disqualification:</strong> Felony conviction within 10 years, certain securities misdemeanors, regulatory bars → barred from FINRA membership without special approval</li>
+        </ul>
+        <div class="memory-box">
+          <div class="m-label">💡 FINRA 5% Markup Policy</div>
+          <p>A <strong>guideline, not an absolute rule</strong>. Markups, markdowns, and commissions on OTC transactions should not exceed 5%. Factors: security type, price, availability, firm costs. Some low-priced/illiquid securities are held to a tighter standard. Significantly above 5% = potential unfair dealing violation.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- AML -->
+    <div class="topic-card" id="reg-aml">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Anti-Money Laundering (AML) / Bank Secrecy Act</div><div class="tc-sub">CTR, SAR, structuring, beneficial ownership, Travel Rule</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <div class="number-grid">
+          <div class="num-card"><div class="n-val">$10,000</div><div class="n-label">CTR threshold — cash transactions</div></div>
+          <div class="num-card"><div class="n-val">$5,000</div><div class="n-label">SAR threshold — suspicious transactions</div></div>
+          <div class="num-card"><div class="n-val">$3,000</div><div class="n-label">Travel Rule threshold — ID must travel with wire</div></div>
+          <div class="num-card"><div class="n-val">25%</div><div class="n-label">Beneficial ownership threshold for legal entities</div></div>
+          <div class="num-card"><div class="n-val">30 days</div><div class="n-label">SAR filing deadline after detection</div></div>
+        </div>
+        <h4>Three Stages of Money Laundering</h4>
+        <div class="compare-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="compare-card"><h4>1. Placement</h4><ul><li>Introducing dirty money into financial system</li><li>Cash deposits, smurfing, casino exchanges</li></ul></div>
+          <div class="compare-card"><h4>2. Layering</h4><ul><li>Obscuring the trail</li><li>Wire transfers, shell companies, currency conversion</li></ul></div>
+          <div class="compare-card"><h4>3. Integration</h4><ul><li>Funds re-enter legitimate economy</li><li>Real estate purchases, business investments</li></ul></div>
+        </div>
+        <h4>Red Flags for SAR Filing</h4>
+        <ul class="concept-list">
+          <li><strong>Structuring/Smurfing:</strong> Breaking deposits into sub-$10K amounts to avoid CTR — illegal REGARDLESS of whether funds are clean</li>
+          <li>Transactions inconsistent with customer's stated business or financial profile</li>
+          <li>Customer unusually secretive about the source of funds or purpose of transactions</li>
+          <li>Requests to bypass normal documentation procedures</li>
+          <li>Large, unexplained wire transfers to/from high-risk jurisdictions</li>
+        </ul>
+        <div class="warn-box">
+          <div class="w-label">⚠️ SAR Tipping-Off Prohibition</div>
+          <p>Once a SAR is filed, the firm <strong>cannot inform the subject</strong> of the report. Tipping off the subject of a SAR is itself a federal crime. The SAR process is confidential.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suitability & Reg BI -->
+    <div class="topic-card" id="reg-suitability">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Suitability, Reg BI & SIPC</div><div class="tc-sub">Three suitability prongs, best interest obligations, SIPC coverage</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <h4>FINRA Rule 2111 — Suitability (Three Prongs)</h4>
+        <ul class="concept-list">
+          <li><strong>Reasonable Basis Suitability:</strong> The recommendation must be suitable for at least some investors based on thorough analysis</li>
+          <li><strong>Customer-Specific Suitability:</strong> Must be suitable for THIS particular customer's full investment profile</li>
+          <li><strong>Quantitative Suitability (Anti-Churning):</strong> The overall number of recommended transactions must not be excessive for the customer's profile</li>
+        </ul>
+        <h4>Regulation Best Interest (Reg BI) — Four Obligations</h4>
+        <ul class="concept-list">
+          <li><strong>Disclosure:</strong> Before or at the time of recommendation; must disclose capacity (broker vs. adviser), fees, conflicts</li>
+          <li><strong>Care:</strong> Exercise reasonable diligence, care, skill — understand risks/rewards; have a reasonable basis that it's in the customer's best interest</li>
+          <li><strong>Conflict of Interest:</strong> Establish, maintain, and enforce policies to identify and disclose (or eliminate) material conflicts</li>
+          <li><strong>Compliance:</strong> Maintain written policies and procedures reasonably designed to achieve compliance</li>
+        </ul>
+        <p class="note">Reg BI applies to <strong>retail customers only</strong>. It goes further than suitability — broker may not put their financial interest ahead of customer's. Form CRS must be delivered at or before start of relationship.</p>
+        <h4>SIPC Coverage</h4>
+        <div class="number-grid">
+          <div class="num-card"><div class="n-val">$500K</div><div class="n-label">Maximum per customer at failed broker-dealer</div></div>
+          <div class="num-card"><div class="n-val">$250K</div><div class="n-label">Sub-limit for cash claims only</div></div>
+        </div>
+        <ul class="concept-list">
+          <li><strong>SIPC covers:</strong> Stocks, bonds, mutual fund shares, and cash held at a failed broker-dealer</li>
+          <li><strong>SIPC does NOT cover:</strong> Market losses, investment fraud losses, commodities futures, fixed annuities, currencies, or investment contracts</li>
+          <li>SIPC is not government-funded — it is a nonprofit membership corporation funded by member broker-dealers</li>
+        </ul>
+        <div class="warn-box">
+          <div class="w-label">⚠️ SIPC Is Not FDIC</div>
+          <p>SIPC does NOT protect against investment losses. If your broker fails and your securities are missing — SIPC replaces them up to limits. If the market tanks and your portfolio loses value — SIPC does nothing. This is the most common SIPC misconception on the exam.</p>
+        </div>
+      </div>
+    </div>
+  </div><!-- /regulatory topic-grid -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     CRITICAL NUMBERS QUICK REFERENCE
+═══════════════════════════════════════════════════ -->
+<section class="section" id="numbers">
+  <div class="section-header">
+    <span class="section-badge badge-reg">Quick Ref</span>
+    <h2 class="section-title">Critical Numbers & Thresholds</h2>
+  </div>
+  <p class="note" style="margin-bottom:16px;">Every number here has appeared on SIE exams. Know them cold.</p>
+
+  <div class="quick-ref-grid">
+    <div class="qr-card">
+      <h4>Margin</h4>
+      <ul class="concept-list">
+        <li><strong>50%</strong> — Reg T initial margin (long positions)</li>
+        <li><strong>25%</strong> — FINRA maintenance margin (long)</li>
+        <li><strong>30%</strong> — Maintenance margin (short positions)</li>
+        <li><strong>$2,000</strong> — Minimum equity to open margin account</li>
+        <li><strong>$25,000</strong> — Pattern day trader minimum equity</li>
+        <li><strong>4+</strong> — Day trades in 5 days triggers PDT status</li>
+      </ul>
+    </div>
+    <div class="qr-card">
+      <h4>AML / BSA</h4>
+      <ul class="concept-list">
+        <li><strong>$10,000</strong> — CTR threshold (cash transactions)</li>
+        <li><strong>$5,000</strong> — SAR threshold (suspicious transactions)</li>
+        <li><strong>$3,000</strong> — Travel Rule (wire transfer ID requirement)</li>
+        <li><strong>25%</strong> — Beneficial ownership threshold for legal entities</li>
+        <li><strong>30 days</strong> — SAR filing deadline after detection</li>
+        <li><strong>5 years</strong> — BSA record retention minimum</li>
+      </ul>
+    </div>
+    <div class="qr-card">
+      <h4>SIPC / FINRA</h4>
+      <ul class="concept-list">
+        <li><strong>$500,000</strong> — SIPC max per customer</li>
+        <li><strong>$250,000</strong> — SIPC cash sub-limit</li>
+        <li><strong>5%</strong> — FINRA markup policy guideline</li>
+        <li><strong>6 years</strong> — Most FINRA record retention</li>
+        <li><strong>30 days</strong> — Form U4/U5 update deadline</li>
+        <li><strong>10 days</strong> — Customer complaint acknowledgment</li>
+      </ul>
+    </div>
+    <div class="qr-card">
+      <h4>Registration Exemptions</h4>
+      <ul class="concept-list">
+        <li><strong>$5M</strong> — Reg CF (crowdfunding) annual limit</li>
+        <li><strong>$20M</strong> — Reg A+ Tier 1 annual limit</li>
+        <li><strong>$75M</strong> — Reg A+ Tier 2 annual limit</li>
+        <li><strong>$100M</strong> — QIB threshold for Rule 144A</li>
+        <li><strong>$110M</strong> — AUM requiring SEC registration (adviser)</li>
+        <li><strong>35</strong> — Max non-accredited investors in Rule 506(b)</li>
+      </ul>
+    </div>
+    <div class="qr-card">
+      <h4>Settlement</h4>
+      <ul class="concept-list">
+        <li><strong>T+1</strong> — Treasuries, agency bonds, options</li>
+        <li><strong>T+2</strong> — Equities, corporate bonds, munis</li>
+        <li><strong>T+0</strong> — Cash settlement (negotiated)</li>
+        <li><strong>90 days</strong> — Account freeze for free-riding violation</li>
+      </ul>
+    </div>
+    <div class="qr-card">
+      <h4>Tax / Other</h4>
+      <ul class="concept-list">
+        <li><strong>10%</strong> — Early withdrawal penalty (annuities before 59½)</li>
+        <li><strong>90%</strong> — REIT must distribute to maintain pass-through status</li>
+        <li><strong>10%</strong> — Stock drops triggering Rule 201 short-sale restriction</li>
+        <li><strong>15%</strong> — Green shoe overallotment option max</li>
+        <li><strong>6 months</strong> — Section 16(b) short-swing profit period for insiders</li>
+        <li><strong>8×/year</strong> — FOMC meeting frequency</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     HOT TOPICS MASTER LIST
+═══════════════════════════════════════════════════ -->
+<section class="section" id="hotlist">
+  <div class="section-header">
+    <span class="section-badge" style="background:rgba(231,76,60,.15);color:#e88;border-color:rgba(231,76,60,.3);">🔥 Hot List</span>
+    <h2 class="section-title">High-Frequency Exam Topics</h2>
+  </div>
+  <p class="note" style="margin-bottom:20px;">These concepts appear disproportionately often. If you're short on time, drill these first.</p>
+
+  <div class="quick-ref-grid" style="grid-template-columns:1fr 1fr 1fr;">
+    <div class="qr-card">
+      <h4 style="color:var(--hot)">Domain 1 Hottest</h4>
+      <ul class="concept-list">
+        <li>Fed buys securities → rates ↓ (expansionary)</li>
+        <li>Fed sells securities → rates ↑ (contractionary)</li>
+        <li>Inverted yield curve → recession signal</li>
+        <li>Firm commitment: underwriter bears all risk</li>
+        <li>Bid = dealer buys; Ask = dealer sells</li>
+        <li>Primary market → proceeds to issuer</li>
+        <li>Leading indicators PREDICT; lagging CONFIRM</li>
+        <li>Unemployment rate = lagging indicator</li>
+      </ul>
+    </div>
+    <div class="qr-card">
+      <h4 style="color:var(--hot)">Domain 2 Hottest</h4>
+      <ul class="concept-list">
+        <li>Long call break-even = strike + premium</li>
+        <li>Long put break-even = strike − premium</li>
+        <li>Naked call = unlimited loss potential</li>
+        <li>Covered call = limited upside, some protection</li>
+        <li>Bond price ↑ when rates ↓ (always inverse)</li>
+        <li>Zero-coupon bond = highest duration</li>
+        <li>Callable bond = negative convexity</li>
+        <li>Cumulative preferred = arrears must be paid</li>
+        <li>REIT distributes ≥ 90% of taxable income</li>
+        <li>ETF trades intraday at market price (not NAV)</li>
+        <li>Variable annuity M&E charge = insurance cost</li>
+        <li>Class C shares = highest ongoing 12b-1 fee</li>
+      </ul>
+    </div>
+    <div class="qr-card">
+      <h4 style="color:var(--hot)">Domains 3 & 4 Hottest</h4>
+      <ul class="concept-list">
+        <li>Reg T = 50% initial margin</li>
+        <li>Maintenance margin = 25% (long) / 30% (short)</li>
+        <li>JTWROS → survivor gets everything (no probate)</li>
+        <li>TIC → deceased's share goes to estate</li>
+        <li>CTR > $10K cash; SAR ≥ $5K suspicious</li>
+        <li>SIPC = $500K total / $250K cash — NOT market losses</li>
+        <li>Howey Test = what makes something a "security"</li>
+        <li>1933 Act = new issuances; 1934 Act = secondary market</li>
+        <li>SOX created PCAOB</li>
+        <li>Reg BI applies to RETAIL customers only</li>
+        <li>Structuring (smurfing) is illegal even with clean money</li>
+        <li>Selling away = FINRA Rule 3280 violation</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px;">Most Common Exam Traps</h3>
+  <div class="topic-grid" style="margin-top:12px;">
+    <div class="topic-card">
+      <div class="topic-card-head open" onclick="toggle(this)">
+        <div><div class="tc-title">Trap: SIPC vs. FDIC</div></div>
+        <span class="tc-arrow open">▼</span>
+      </div>
+      <div class="topic-card-body open">
+        <p class="note"><strong>SIPC</strong> covers securities and cash at a failed <em>broker-dealer</em>. It does NOT cover market losses, fraud, or investment failure. <strong>FDIC</strong> covers deposits at failed <em>banks</em>. If a question says "SIPC protects against investment losses" — that's WRONG.</p>
+      </div>
+    </div>
+    <div class="topic-card">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Trap: Stop Order ≠ Price Guarantee</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <p class="note">A stop order converts to a <em>market order</em> when triggered. In fast markets, you can be filled significantly worse than the stop price. Only a stop-<em>limit</em> order provides a price guarantee — but then it may not execute at all if the price gaps through the limit.</p>
+      </div>
+    </div>
+    <div class="topic-card">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Trap: Reg T is Initial, Not Ongoing</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <p class="note">Regulation T (50%) applies at the <em>time of purchase</em>. After purchase, the ongoing requirement drops to the FINRA maintenance margin (25% long / 30% short). A margin call is triggered when equity falls below maintenance — NOT when it falls below 50%.</p>
+      </div>
+    </div>
+    <div class="topic-card">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Trap: Discount Rate vs. Fed Funds Rate</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <p class="note">The <strong>federal funds rate</strong> is a market rate — the Fed targets it through open market operations but doesn't directly set it. The <strong>discount rate</strong> is directly set by the Fed and is charged to banks borrowing at the discount window. The discount rate is typically <em>higher</em> than the fed funds rate to discourage overuse of the discount window.</p>
+      </div>
+    </div>
+    <div class="topic-card">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Trap: 1933 Act vs. 1934 Act</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <p class="note"><strong>1933 Act</strong> = primary market, new issuances, prospectus, registration. Think "truth about new securities." <strong>1934 Act</strong> = secondary market, created the SEC, broker-dealer regulation, Rule 10b-5 fraud, Reg FD, Section 16. Think "ongoing market regulation and the SEC itself."</p>
+      </div>
+    </div>
+    <div class="topic-card">
+      <div class="topic-card-head" onclick="toggle(this)">
+        <div><div class="tc-title">Trap: Structuring Is Always Illegal</div></div>
+        <span class="tc-arrow">▼</span>
+      </div>
+      <div class="topic-card-body">
+        <p class="note">Structuring (breaking transactions into sub-$10K pieces to avoid CTR filing) is a <em>federal crime</em> under the Bank Secrecy Act — <strong>even if the underlying funds are completely legitimate</strong>. The act of deliberately structuring to avoid reporting is the crime, regardless of the source of funds.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div><!-- /page -->
+
+<script>
+function toggle(head) {
+  const body = head.nextElementSibling;
+  const arrow = head.querySelector('.tc-arrow');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  head.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+// Nav link active state on scroll
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+const sbLinks = document.querySelectorAll('.sb-link');
+
+function updateActive() {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 120) current = s.id;
+  });
+  navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + current));
+  sbLinks.forEach(l => {
+    const href = l.getAttribute('href');
+    l.classList.toggle('active', href === '#' + current || (href && document.querySelector(href) && window.scrollY >= document.querySelector(href).offsetTop - 120 && (!document.querySelector(href).nextElementSibling || window.scrollY < document.querySelector(href).nextElementSibling.offsetTop - 120)));
+  });
+}
+window.addEventListener('scroll', updateActive, {passive:true});
+updateActive();
+</script>
+</body>
+</html>
