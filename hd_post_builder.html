@@ -525,6 +525,158 @@ html, body { width: 100%; background: #0E0C0A; }
   background: #0E0C0A;
 }
 
+/* ══ REFRAME CONTROLS ══ */
+.reframe-bar {
+  background: #0A0806;
+  border-top: 1px solid #1A1510;
+  padding: 10px 16px 12px;
+}
+.reframe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.reframe-label {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #3A3028;
+}
+.reframe-reset-btn {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: none;
+  border: 1px solid #2A2520;
+  color: #555;
+  padding: 3px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.reframe-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.reframe-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.reframe-axis {
+  font-family: system-ui;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--rule-gold);
+  width: 28px;
+  flex-shrink: 0;
+}
+.reframe-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 2px;
+  background: #2A2018;
+  border-radius: 1px;
+  outline: none;
+  cursor: pointer;
+}
+.reframe-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--rule-gold);
+  cursor: pointer;
+  border: 2px solid #0A0806;
+}
+.reframe-val {
+  font-family: system-ui;
+  font-size: 9px;
+  color: #444;
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ══ WEEKLY CADENCE GUIDE ══ */
+.weekly-guide {
+  background: #0A0806;
+  border-top: 1px solid #1A1510;
+  padding: 10px 16px 14px;
+}
+.weekly-guide-header {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #3A3028;
+  margin-bottom: 8px;
+}
+.weekly-days {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.weekly-day {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 3px;
+  background: #111009;
+  border: 1px solid #1A1510;
+}
+.weekly-day.today {
+  background: #1C1508;
+  border-color: var(--rule-gold);
+}
+.day-name {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #555;
+  width: 24px;
+  flex-shrink: 0;
+}
+.weekly-day.today .day-name { color: var(--rule-gold); }
+.today-badge {
+  font-family: system-ui;
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--rule-gold);
+  color: #0A0806;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.day-type {
+  font-family: system-ui;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #4A3E2E;
+  flex-shrink: 0;
+  min-width: 72px;
+}
+.day-note {
+  font-family: Georgia, serif;
+  font-size: 10px;
+  color: #3A3028;
+  font-style: italic;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.weekly-day.today .day-note { color: rgba(220,210,190,0.6); }
+
 /* ══ STATUS LINE ══ */
 .action-status {
   font-size: 11px;
@@ -652,8 +804,38 @@ html, body { width: 100%; background: #0E0C0A; }
   <div class="hashtag-display" id="hashtag-display"></div>
 </div>
 
-<!-- ══ PHOTO LIBRARY ══ -->
-<div class="photo-library" id="photo-library">
+<!-- ══ PHOTO REFRAME ══ -->
+<div class="reframe-bar" id="reframe-bar">
+  <div class="reframe-header">
+    <div class="reframe-label">Photo Reframe</div>
+    <button class="reframe-reset-btn" onclick="resetReframe()">Reset</button>
+  </div>
+  <div class="reframe-sliders">
+    <div class="reframe-row">
+      <div class="reframe-axis">X</div>
+      <input type="range" class="reframe-slider" id="reframe-x" min="0" max="100" value="50" oninput="applyReframe()">
+      <div class="reframe-val" id="reframe-x-val">50%</div>
+    </div>
+    <div class="reframe-row">
+      <div class="reframe-axis">Y</div>
+      <input type="range" class="reframe-slider" id="reframe-y" min="0" max="100" value="50" oninput="applyReframe()">
+      <div class="reframe-val" id="reframe-y-val">50%</div>
+    </div>
+    <div class="reframe-row">
+      <div class="reframe-axis">Zoom</div>
+      <input type="range" class="reframe-slider" id="reframe-zoom" min="100" max="200" value="100" oninput="applyReframe()">
+      <div class="reframe-val" id="reframe-zoom-val">1×</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WEEKLY CADENCE GUIDE ══ -->
+<div class="weekly-guide">
+  <div class="weekly-guide-header">Weekly Post Plan — HD Cadence</div>
+  <div class="weekly-days" id="weekly-days"></div>
+</div>
+
+
   <div class="photo-library-header">
     <div class="photo-library-label">Photo Library</div>
     <div class="photo-library-count" id="photo-count">0 photos</div>
@@ -1243,11 +1425,76 @@ function initLibrary() {
   renderLibrary();
 }
 
+// ── PHOTO REFRAME ──
+function applyReframe() {
+  const x = document.getElementById('reframe-x').value;
+  const y = document.getElementById('reframe-y').value;
+  const zoom = document.getElementById('reframe-zoom').value;
+  const img = document.getElementById('el-photo');
+  img.style.objectPosition = `${x}% ${y}%`;
+  img.style.transform = `scale(${zoom / 100})`;
+  img.style.transformOrigin = `${x}% ${y}%`;
+  document.getElementById('reframe-x-val').textContent = `${x}%`;
+  document.getElementById('reframe-y-val').textContent = `${y}%`;
+  document.getElementById('reframe-zoom-val').textContent = `${(zoom / 100).toFixed(1)}×`;
+  // Persist
+  localStorage.setItem('hd_reframe', JSON.stringify({ x, y, zoom }));
+}
+
+function resetReframe() {
+  document.getElementById('reframe-x').value = 50;
+  document.getElementById('reframe-y').value = 50;
+  document.getElementById('reframe-zoom').value = 100;
+  applyReframe();
+}
+
+function initReframe() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('hd_reframe'));
+    if (saved) {
+      if (saved.x !== undefined) document.getElementById('reframe-x').value = saved.x;
+      if (saved.y !== undefined) document.getElementById('reframe-y').value = saved.y;
+      if (saved.zoom !== undefined) document.getElementById('reframe-zoom').value = saved.zoom;
+    }
+  } catch {}
+  applyReframe();
+}
+
+// ── WEEKLY CADENCE GUIDE ──
+const HD_WEEK_PLAN = [
+  { day: 'Sun', type: 'Recognition', note: 'Identity + fatherhood stakes — anchor the week' },
+  { day: 'Mon', type: 'Presence',    note: 'Transition / arrival — hit the felt tension' },
+  { day: 'Tue', type: 'Relief',      note: 'Low-barrier, accessible — name the load' },
+  { day: 'Wed', type: 'Connection',  note: 'Marriage or kids — midweek relational pull' },
+  { day: 'Thu', type: 'Presence',    note: 'Availability / distraction — second presence beat' },
+  { day: 'Fri', type: 'Relief',      note: 'End-of-week tension release — ready to arrive' },
+  { day: 'Sat', type: 'Connection',  note: 'Predictability / steadiness — weekend compound' },
+];
+
+function renderWeeklyGuide() {
+  const todayIdx = new Date().getDay(); // 0=Sun
+  const el = document.getElementById('weekly-days');
+  el.innerHTML = '';
+  HD_WEEK_PLAN.forEach((d, i) => {
+    const isToday = i === todayIdx;
+    const row = document.createElement('div');
+    row.className = 'weekly-day' + (isToday ? ' today' : '');
+    row.innerHTML = `
+      <div class="day-name">${d.day}</div>
+      ${isToday ? '<div class="today-badge">Today</div>' : ''}
+      <div class="day-type">${d.type}</div>
+      <div class="day-note">${d.note}</div>`;
+    el.appendChild(row);
+  });
+}
+
 // Init
 document.getElementById('post-select').value = 'R3';
 loadPost();
 renderHDCadence();
 initLibrary();
+initReframe();
+renderWeeklyGuide();
 </script>
 </body>
 </html>
