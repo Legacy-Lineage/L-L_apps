@@ -662,6 +662,51 @@ html, body { width: 100%; background: #0A0806; }
   border-top: 1px solid #1A1510;
   padding-top: 10px;
 }
+
+/* ══ PHOTO LIBRARY ══ */
+.photo-lib-label {
+  font-family: system-ui;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 6px;
+}
+.photo-lib-grid {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.photo-lib-thumb {
+  width: 52px;
+  height: 52px;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid transparent;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+.photo-lib-thumb.active { border-color: var(--gold); }
+.photo-lib-thumb .lib-del {
+  position: absolute;
+  top: 2px; right: 2px;
+  background: rgba(0,0,0,0.75);
+  color: var(--gold);
+  font-size: 9px;
+  width: 14px; height: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.photo-lib-empty {
+  font-family: system-ui;
+  font-size: 9px;
+  color: #333;
+  letter-spacing: 0.15em;
+  padding: 4px 0;
+}
+#photo-file-input { display: none; }
 </style>
 </head>
 <body>
@@ -701,88 +746,16 @@ html, body { width: 100%; background: #0A0806; }
         <option value="reminder">Reminder — walnut, heavy statement</option>
       </select>
     </div>
-    <div class="editor-group">
-      <div class="editor-label">Post from Bank</div>
+    <div class="editor-group" style="flex:1;">
+      <div class="editor-label" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Post from Bank</span>
+        <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:system-ui;font-weight:400;">
+          <input type="checkbox" id="show-all-posts" onchange="onShowAllChange()" style="accent-color:var(--gold);width:11px;height:11px;">
+          Show All
+        </label>
+      </div>
       <select id="in-post" onchange="loadPost()">
         <option value="">— Choose post —</option>
-        <optgroup label="Observational">
-          <option value="O3">O3 · Responsibility without structure. That leaks.</option>
-          <option value="O4">O4 · Leadership failures begin internally</option>
-        </optgroup>
-        <optgroup label="Atmosphere">
-          <option value="A1">A1 · Nervous system becomes home architecture</option>
-          <option value="A2">A2 · Leadership felt as atmosphere before direction</option>
-          <option value="A3">A3 · Responsibility does not shrink when ignored</option>
-          <option value="A4">A4 · Peace and silence are not the same thing</option>
-        </optgroup>
-        <optgroup label="Hidden Burden">
-          <option value="HB1">HB1 · When leadership is inconsistent, someone compensates</option>
-          <option value="HB2">HB2 · What a man won't regulate internally leaks externally</option>
-          <option value="HB3">HB3 · Most resentment begins as prolonged compensation</option>
-          <option value="HB4">HB4 · Drift redistributes weight before visible consequences</option>
-        </optgroup>
-        <optgroup label="Contrast / Paradox">
-          <option value="CP1">CP1 · Physically present. Emotionally absent.</option>
-          <option value="CP2">CP2 · Avoiding tension creates more tension</option>
-          <option value="CP3">CP3 · Strength without containment becomes instability</option>
-          <option value="CP4">CP4 · Many men mistake exhaustion for sacrifice</option>
-        </optgroup>
-        <optgroup label="Governance / Orientation">
-          <option value="G1">G1 · Governance is decided before pressure arrives</option>
-          <option value="G2">G2 · Order prevents pressure from governing the household</option>
-          <option value="G3">G3 · Authority becomes quieter as governance matures</option>
-          <option value="G4">G4 · Stability built through ordinary rhythms</option>
-        </optgroup>
-        <optgroup label="Lived Experience — Altar">
-          <option value="LE_A1">LE-A1 · If the world gets to you first, you're already behind</option>
-          <option value="LE_A2">LE-A2 · Choices signal identity</option>
-          <option value="LE_A3">LE-A3 · I don't have a routine problem. I have an identity problem.</option>
-          <option value="LE_A4">LE-A4 · The schedule isn't the source of my overload</option>
-          <option value="LE_A5">LE-A5 · Grinding seasons don't build you</option>
-          <option value="LE_A6">LE-A6 · Not tired from working hard — tired from living misaligned</option>
-        </optgroup>
-        <optgroup label="Lived Experience — Forge">
-          <option value="LE_F1">LE-F1 · Nervous system couldn't stand down. Not an anger problem.</option>
-          <option value="LE_F2">LE-F2 · The version of you at 9pm isn't leading anyone</option>
-          <option value="LE_F3">LE-F3 · You held it together — they got the exhaust, not the man</option>
-          <option value="LE_F4">LE-F4 · You've been strong for everyone. That always costs.</option>
-          <option value="LE_F5">LE-F5 · Discipline without direction isn't strength</option>
-        </optgroup>
-        <optgroup label="Lived Experience — Covenant">
-          <option value="LE_C1">LE-C1 · Your wife is lonely with you in the room</option>
-          <option value="LE_C2">LE-C2 · If she has to ask, it doesn't count</option>
-          <option value="LE_C3">LE-C3 · Her silence is a language your atmosphere created</option>
-          <option value="LE_C4">LE-C4 · She stopped bringing it up. That's not peace.</option>
-          <option value="LE_C5">LE-C5 · You apologized. You didn't change.</option>
-          <option value="LE_C6">LE-C6 · She's not too sensitive. Your atmosphere is too loud.</option>
-          <option value="LE_C7">LE-C7 · You were listening. You weren't present.</option>
-          <option value="LE_C8">LE-C8 · Her presence isn't an attack. It's a cry to be seen.</option>
-          <option value="LE_C9">LE-C9 · Unspoken expectations building the silence</option>
-          <option value="LE_C10">LE-C10 · The day you stop pursuing her the drift begins</option>
-          <option value="LE_C11">LE-C11 · Almost lost my marriage doing everything right</option>
-        </optgroup>
-        <optgroup label="Lived Experience — Heritage">
-          <option value="LE_H1">LE-H1 · Your kids see you provide. They don't see you.</option>
-          <option value="LE_H2">LE-H2 · Are you the man you're raising them to become?</option>
-          <option value="LE_H3">LE-H3 · Their future is created by your atmosphere today</option>
-          <option value="LE_H4">LE-H4 · Provision without presence — paycheck with a face</option>
-          <option value="LE_H5">LE-H5 · Your son is taking notes you don't know he's keeping</option>
-          <option value="LE_H6">LE-H6 · He'll remember how it felt to be around you</option>
-          <option value="LE_H7">LE-H7 · Your kids are growing up in this season</option>
-        </optgroup>
-        <optgroup label="Lived Experience — Fortress">
-          <option value="LE_FT1">LE-FT1 · Work gets your best. They get the rest.</option>
-          <option value="LE_FT2">LE-FT2 · The list she keeps is a map of where you've been absent</option>
-          <option value="LE_FT3">LE-FT3 · House is clean, bills paid, something still wrong</option>
-          <option value="LE_FT4">LE-FT4 · You've optimized everything except what matters most</option>
-        </optgroup>
-        <optgroup label="Lived Experience — Drift">
-          <option value="LE_D1">LE-D1 · Drift doesn't announce itself</option>
-          <option value="LE_D2">LE-D2 · Your drive is killing your presence</option>
-          <option value="LE_D3">LE-D3 · The man your family needs isn't more productive</option>
-          <option value="LE_D4">LE-D4 · Your parents shaped you. You govern your home.</option>
-          <option value="LE_D5">LE-D5 · Alcohol — numbing the governor</option>
-        </optgroup>
       </select>
     </div>
   </div>
@@ -809,9 +782,16 @@ html, body { width: 100%; background: #0A0806; }
     </div>
   </div>
 
-  <div class="btn-row" id="photo-row" style="display:none">
-    <button class="btn btn-secondary" onclick="document.getElementById('photo-input').click()">📷 Choose Photo</button>
-    <input type="file" id="photo-input" accept="image/*" onchange="loadPhoto(event)">
+  <div id="photo-row" style="display:none;margin-bottom:8px">
+    <div class="photo-lib-label">Photo Library — tap to use</div>
+    <div class="photo-lib-grid" id="photo-lib-grid">
+      <div class="photo-lib-empty">No photos saved.</div>
+    </div>
+    <div class="btn-row" style="margin-top:0">
+      <button class="btn btn-secondary" onclick="document.getElementById('photo-file-input').click()">+ Add Photos</button>
+      <button class="btn btn-secondary" id="clear-photo-btn" onclick="clearCurrentPhoto()" style="display:none;color:#8B3A3A;border-color:#8B3A3A;">✕ Clear</button>
+    </div>
+    <input type="file" id="photo-file-input" accept="image/*" multiple onchange="addPhotosToLibrary(event)">
   </div>
 
   <div class="btn-row" style="margin-top:8px">
@@ -847,115 +827,6 @@ html, body { width: 100%; background: #0A0806; }
 <script>
 // ══ POST BANK ══
 const POSTS = {
-  O3: {
-    headline: "Many men are carrying responsibility without structure.\n*That eventually leaks.*",
-    body: "The weight is real. The will is often there. What's missing is the framework that decides, in advance, how the weight gets distributed — so it isn't constantly improvised under pressure.",
-    eyebrow: "Legacy & Lineage",
-    ref: "",
-    layout: "doctrine",
-    caption: `Many men are carrying responsibility without structure. That eventually leaks somewhere.
-
-The responsibility is real — provider, husband, father, leader. Most men feel the weight of it. What they rarely have is a decided framework for how to carry it.
-
-Without structure, weight defaults to the most urgent thing. Which means the important things — the relational ones, the spiritual ones, the ones that don't announce themselves as emergencies — get deferred until they become exactly that.
-
-Structure is not about control. It is about deciding where the weight goes before pressure makes the decision for you.`,
-    hashtags: "#christianmen #biblicalmanhood #householdleadership #intentionalliving #menonpurpose #christianleadership #faithandfamily #menofgod #godlyman #masculinity"
-  },
-  O4: {
-    headline: "Most leadership failures begin internally *long before they become visible.*",
-    body: "The home doesn't drift first. The man does. By the time the household shows the strain, the internal disorder has usually been present for some time — unaddressed, unexamined, unreported.",
-    eyebrow: "Legacy & Lineage",
-    ref: "",
-    layout: "doctrine",
-    caption: `Most leadership failures begin internally long before they become relationally visible.
-
-The drift that eventually shows up in a marriage, in children, in the culture of a household — it did not originate there. It originated in the man.
-
-The unexamined anger. The spiritual neglect. The absence of personal order that was being masked by functional productivity. The internal disorder that was never named because the external performance was still holding.
-
-Governance begins with the man. What is not ordered inside eventually disorders what is outside.`,
-    hashtags: "#biblicalmanhood #christianmen #menofgod #householdleadership #menonpurpose #intentionalliving #christianleadership #faithandfamily #godlyman #spiritualleadership"
-  },
-  A1: {
-    headline: "A man's nervous system eventually becomes part of *the architecture of the home.*",
-    body: "Not metaphorically. Practically. The emotional baseline of the household forms around the emotional baseline of the man who leads it. His regulation — or lack of it — becomes the air the family breathes.",
-    eyebrow: "Legacy & Lineage",
-    ref: "",
-    layout: "field-note",
-    caption: `A man's nervous system eventually becomes part of the architecture of the home.
-
-This is not a motivational claim. It is an observable reality.
-
-The household calibrates to him. His reactivity sets the ceiling for everyone else's anxiety. His steadiness creates the floor on which they rest. His unresolved pressure becomes ambient — something the family carries without being told to.
-
-A man who governs himself does not merely benefit himself. He creates a household with a different internal climate. One that is not organized around managing him.
-
-That is what governance produces over time.`,
-    hashtags: "#householdleadership #christianmen #biblicalmanhood #menofgod #christianleadership #menonpurpose #faithandfamily #intentionalliving #spiritualleadership #masculinity"
-  },
-  A2: {
-    headline: "Leadership is often experienced as atmosphere *before it is experienced as direction.*",
-    body: "Before the family hears what the man decides, they feel what the man carries. Authority is established in the atmosphere before it is exercised in the directive.",
-    eyebrow: "Legacy & Lineage",
-    ref: "",
-    layout: "directive",
-    caption: `Leadership is often experienced as atmosphere before it is experienced as direction.
-
-Most men think of leadership as what they decide, what they say, what they require.
-
-The household experiences it differently. Before they hear the decision, they feel the man. Before the direction is given, the atmosphere has already communicated whether it will hold.
-
-A man who leads from a regulated, settled interior creates a different atmosphere than one who leads from urgency or anxiety — regardless of whether the same words are spoken.
-
-The atmosphere is the first act of leadership. Most men skip it entirely.`,
-    hashtags: "#householdleadership #christianmen #biblicalmanhood #menofgod #menonpurpose #intentionalliving #christianleadership #faithandfamily #spiritualleadership #masculinity"
-  },
-  A3: {
-    headline: "Responsibility does not shrink *when it is ignored.*",
-    body: "It relocates. To his wife's vigilance. To his children's adaptation. To the quiet strain of a household carrying what one man will not hold.",
-    eyebrow: "Legacy & Lineage",
-    ref: "",
-    layout: "reminder",
-    caption: `Responsibility does not shrink when it is ignored.
-
-This is one of the governing realities of household leadership.
-
-The man who avoids the difficult conversation does not eliminate its weight. He relocates it — to his wife, who now manages around the unresolved thing. To his children, who learn to read the edges of what is safe to bring. To the household itself, which quietly reorganizes around what the man will not hold.
-
-Abdication is not a neutral act. It is a transfer. Someone always carries what the man puts down.`,
-    hashtags: "#householdleadership #biblicalmanhood #christianmen #menofgod #menonpurpose #faithandfamily #intentionalliving #christianleadership #masculinity #fatherlegacy"
-  },
-  A4: {
-    headline: "Peace and silence are not always *the same thing.*",
-    body: "A quiet house can be a governed one. It can also be one where everyone has simply stopped expecting resolution. The governed man learns to tell the difference.",
-    eyebrow: "Legacy & Lineage",
-    ref: "",
-    layout: "field-note",
-    caption: `Peace and silence are not always the same thing.
-
-A household can be quiet because it is settled. It can also be quiet because everyone has learned that certain things do not get addressed here — that raising them creates friction without resolution, so the easier thing is to stop raising them.
-
-That silence is not peace. It is the household holding its breath.
-
-The governed man knows the difference by what the silence costs. Peace requires nothing to be suppressed. The other kind is maintained by suppression — and it compounds over time.`,
-    hashtags: "#christianmen #householdleadership #biblicalmanhood #menofgod #menonpurpose #christianleadership #intentionalliving #faithandfamily #masculinity #godlyman"
-  },
-  HB1: {
-    headline: "When leadership becomes inconsistent, *someone else quietly compensates.*",
-    body: "The weight does not disappear. It relocates. To his wife's vigilance. To his children's learned adaptability. To the quiet strain of people carrying what was never meant to be theirs.",
-    eyebrow: "Legacy & Lineage",
-    ref: "",
-    layout: "doctrine",
-    caption: `When leadership becomes inconsistent, someone else quietly compensates for it.
-
-This is not a dramatic transfer. It happens gradually, without announcement. A man steps back — not intentionally, usually — and the people closest to him step forward to fill the space.
-
-His wife carries more vigilance. His children develop a finely tuned awareness of what moods mean, what questions are safe, what the room requires. The household reorganizes around the gap.
-
-The weight does not disappear. It relocates. And the people it relocates to were not built to carry it long-term.`,
-    hashtags: "#householdleadership #christianmen #biblicalmanhood #menofgod #christianleadership #menonpurpose #faithandfamily #intentionalliving #spiritualleadership #fatherlegacy"
-  },
   HB2: {
     headline: "What a man refuses to regulate internally *becomes relationally expensive externally.*",
     body: "The anger that is not examined. The anxiety that is not addressed. The wound that is not named. All of it finds a place to go — and that place is almost always the household.",
@@ -1007,23 +878,6 @@ By the time it is visible, it has already been operating for months, sometimes y
 Governance does not wait for visible consequences. It reads the signs that precede them.`,
     hashtags: "#householdleadership #christianmen #biblicalmanhood #menonpurpose #intentionalliving #christianleadership #faithandfamily #menofgod #fatherlegacy #masculinity"
   },
-  CP1: {
-    headline: "A man can be physically present for years *while emotionally absent the entire time.*",
-    body: "Presence is not proximity. A man who is never away from home can still be consistently unreachable — and his family will feel the distance regardless of the geography.",
-    eyebrow: "Legacy & Lineage",
-    ref: "",
-    layout: "excerpt",
-    caption: `A man can be physically present for years while emotionally absent the entire time.
-
-He is there at the dinner table. He attends the events. He is not, by any visible measure, absent from his family's life.
-
-And yet his wife cannot reach him. His children have learned not to bring certain things to him. There is a functional distance that no amount of physical proximity closes.
-
-Emotional presence is not the same as physical proximity. A man who is always home can still leave his family to lead themselves.
-
-The question is not whether you are there. It is whether you are reachable when you are.`,
-    hashtags: "#christianmen #biblicalmanhood #householdleadership #menofgod #menonpurpose #intentionalliving #christianleadership #faithandfamily #spiritualleadership #masculinity"
-  },
   CP2: {
     headline: "Avoiding tension often creates *more tension than addressing it early.*",
     body: "The conversation that gets avoided does not disappear. It accumulates interest. What could have been a brief, direct exchange becomes a loaded interaction that now has to carry the weight of every time it was deferred.",
@@ -1040,21 +894,6 @@ Avoidance is not the absence of conflict. It is conflict deferred with interest.
 
 The governed man addresses things when they are small. Not because he enjoys difficulty — because he understands compounding.`,
     hashtags: "#householdleadership #christianmen #biblicalmanhood #menofgod #christianleadership #menonpurpose #intentionalliving #faithandfamily #godlyman #masculinity"
-  },
-  CP3: {
-    headline: "Strength without containment eventually *becomes instability.*",
-    body: "Force is not governance. A man who leads from intensity rather than from settled conviction will find that intensity increasingly difficult to sustain — and the household will absorb the variability.",
-    eyebrow: "Legacy & Lineage",
-    ref: "",
-    layout: "reminder",
-    caption: `Strength without containment eventually becomes instability.
-
-The man who leads through force — through the weight of his personality, his volume, his capacity to dominate a room — is not governing. He is performing.
-
-Performance requires an audience and a stage. It does not function as a foundation. And over time, a household built on intensity rather than steadiness begins to require the intensity to function — and collapses when it is absent.
-
-Strength contained within settled conviction produces a different kind of leadership. Quieter. More durable. Less dependent on the man's mood to hold together.`,
-    hashtags: "#biblicalmanhood #christianmen #householdleadership #menofgod #menonpurpose #christianleadership #intentionalliving #spiritualleadership #faithandfamily #masculinity"
   },
   CP4: {
     headline: "Many men mistake exhaustion *for sacrifice.*",
@@ -1107,23 +946,6 @@ What order provides is the internal structure that allows difficulty to be met r
 Pressure tests a man's governance. It does not have to define it.`,
     hashtags: "#householdleadership #christianmen #biblicalmanhood #intentionalliving #menofgod #christianleadership #menonpurpose #faithandfamily #masculinity #godlyman"
   },
-  G3: {
-    headline: "Authority becomes quieter *as governance becomes more consistent.*",
-    body: "The man who must assert himself loudly has not yet established authority. Real authority does not announce itself. It accumulates — through consistency, through steadiness, through showing up the same way long enough that it no longer requires demonstration.",
-    eyebrow: "Legacy & Lineage",
-    ref: "",
-    layout: "observation",
-    caption: `Authority becomes quieter as governance becomes more consistent.
-
-The man who is still establishing authority tends to be loud about it. He corrects frequently. He announces standards. He reminds people of what is expected.
-
-The man whose authority is established does none of this. He doesn't have to. The household already knows what he holds. His consistency has made the standard visible without declaration.
-
-This is what governance produces over time — not a household that performs in response to demands, but one that has internalized the standard because the man holding it has never wavered from it.
-
-Quiet authority is not weak authority. It is mature authority.`,
-    hashtags: "#householdleadership #biblicalmanhood #christianmen #menonpurpose #christianleadership #faithandfamily #menofgod #intentionalliving #spiritualleadership #fatherlegacy"
-  },
   G4: {
     headline: "Stability is often built through ordinary rhythms *repeated long enough to be trusted.*",
     body: "The household does not become stable through dramatic interventions. It becomes stable through the accumulation of ordinary days governed well — until the pattern itself is the foundation.",
@@ -1141,21 +963,6 @@ Over time, that repetition becomes trust. And trust becomes the foundation the h
   },
 
   // ══ LIVED EXPERIENCE — ALTAR ══
-  LE_A1: {
-    headline: "If the world gets to you first,\n*you're already behind.*",
-    body: "The first frame of the day belongs to someone. The man who opens his phone before he's governed himself has already handed it away.",
-    eyebrow: "Lived Experience",
-    ref: "Altar",
-    layout: "doctrine",
-    caption: `If the world gets to you first, you're already behind.
-
-The algorithm, the inbox, the news — they don't wait. They have a version of you already loaded before you've decided who you are today.
-
-The man who anchors first governs from identity. The man who doesn't spends the morning recovering ground he already lost.
-
-That's not a productivity problem. That's an anchoring failure.`,
-    hashtags: "#christianmen #biblicalmanhood #morningroutine #intentionalliving #householdleadership #menonpurpose #menofgod #faithandfamily #godlyman #legacylineage"
-  },
   LE_A2: {
     headline: "*Choices signal identity.*",
     body: "Not the choices you announce. The ones you make when no one is watching and nothing forces your hand.",
@@ -1231,21 +1038,6 @@ Misalignment is expensive in a way that doesn't show up on the calendar. It show
   },
 
   // ══ LIVED EXPERIENCE — FORGE ══
-  LE_F1: {
-    headline: "It's been days and everything irritated me.\n*It's not an anger problem.*",
-    body: "My nervous system couldn't stand down. That's not anger. That's a man who lost his governor and is running on reserve.",
-    eyebrow: "Lived Experience",
-    ref: "Forge",
-    layout: "doctrine",
-    caption: `It's been days and everything irritated me. I couldn't name it.
-
-My nervous system couldn't stand down. Every small thing was friction. The dog. The question. The tone.
-
-It's not an anger problem. It's an anchoring failure compounded over days until the body starts managing what the mind stopped governing.
-
-Movement. Structure. Return. Not self-analysis. Not apology. Return.`,
-    hashtags: "#christianmen #biblicalmanhood #intentionalliving #menonpurpose #householdleadership #menofgod #faithandfamily #masculinity #godlyman #legacylineage"
-  },
   LE_F2: {
     headline: "The version of you at 9pm\n*isn't leading anyone.*",
     body: "You gave that man away all day. The household gets what's left — and left isn't leadership.",
@@ -1471,19 +1263,6 @@ The structured man who misses his wife is still drifting. He just has better met
   },
 
   // ══ LIVED EXPERIENCE — HERITAGE ══
-  LE_H1: {
-    headline: "Your kids see you provide.\n*They don't see you.*",
-    body: "",
-    eyebrow: "Lived Experience",
-    ref: "Heritage",
-    layout: "reminder",
-    caption: `Your kids see you provide. They don't see you.
-
-They see the man who leaves and returns. Who works and provides. Who is present in schedule and absent in contact.
-
-They are building their understanding of what a father is from what you're showing them right now. Not from what you intend. From what you do.`,
-    hashtags: "#christiandad #christianmen #biblicalmanhood #fatherlegacy #householdleadership #intentionalliving #menonpurpose #faithandfamily #menofgod #legacylineage"
-  },
   LE_H2: {
     headline: "*Are you the man you're raising them to become?*",
     body: "",
@@ -1726,7 +1505,7 @@ function renderPost() {
 
   // Show/hide photo button
   const needsPhoto = layout === 'excerpt' || layout === 'observation';
-  document.getElementById('photo-row').style.display = needsPhoto ? 'flex' : 'none';
+  document.getElementById('photo-row').style.display = needsPhoto ? 'block' : 'none';
 
   // Font size auto
   const len = headline.replace(/\*(.*?)\*/g, '$1').replace(/\n/g, '').length;
@@ -1850,13 +1629,28 @@ function loadPost() {
   const key = document.getElementById('in-post').value;
   if (!key || !POSTS[key]) return;
   const p = POSTS[key];
+  const layoutEl     = document.getElementById('in-layout');
+  const currentLayout = layoutEl.value;
+  const photoLayouts  = ['excerpt', 'observation'];
+  const showAllEl     = document.getElementById('show-all-posts');
+  const showAll       = showAllEl && showAllEl.checked;
+
   document.getElementById('in-headline').value = p.headline;
   document.getElementById('in-body').value     = p.body;
   document.getElementById('in-eyebrow').value  = p.eyebrow;
   document.getElementById('in-ref').value      = p.ref || '';
-  document.getElementById('in-layout').value   = p.layout;
-  document.getElementById('caption-display').textContent  = p.caption;
-  document.getElementById('hashtag-display').textContent  = p.hashtags;
+
+  // If on photo overlay, keep card; otherwise always match post's coded card
+  if (!photoLayouts.includes(currentLayout)) {
+    layoutEl.value = p.layout;
+    // If we switched card via show-all, rebuild dropdown to reflect the new card filter
+    if (showAll && p.layout !== currentLayout) {
+      // keep show-all checked — just re-render
+    }
+  }
+
+  document.getElementById('caption-display').textContent = p.caption;
+  document.getElementById('hashtag-display').textContent = p.hashtags;
   renderPost();
 }
 
@@ -1887,11 +1681,24 @@ function importPosts(event) {
   reader.readAsText(file);
 }
 
-function rebuildPostDropdown() {
+const LAYOUT_SHORT = {
+  'doctrine':    'Doctrine',
+  'field-note':  'Field Note',
+  'excerpt':     'Excerpt',
+  'directive':   'Directive',
+  'observation': 'Observation',
+  'reminder':    'Reminder'
+};
+
+function rebuildPostDropdown(filterLayout) {
   const sel = document.getElementById('in-post');
   const current = sel.value;
+  const showAll = document.getElementById('show-all-posts') && document.getElementById('show-all-posts').checked;
 
-  // Group posts by their optgroup label
+  // Photo overlay cards accept any post — treat as show-all
+  const photoCard = filterLayout === 'observation' || filterLayout === 'excerpt';
+  const filtering = filterLayout && !photoCard && !showAll;
+
   const groups = {
     'Observational': [],
     'Atmosphere': [],
@@ -1921,18 +1728,31 @@ function rebuildPostDropdown() {
     LE_D: 'Lived Experience — Drift',
   };
 
+  const sortedPrefixes = Object.keys(groupKeys).sort((a,b) => b.length - a.length);
+
   Object.keys(POSTS).forEach(key => {
-    // Match longest prefix first (handles LE_FT before LE_F)
-    const sortedPrefixes = Object.keys(groupKeys).sort((a,b) => b.length - a.length);
+    const post = POSTS[key];
+    // When filtering, only show posts coded to this card
+    if (filtering && post.layout !== filterLayout) return;
     let group = 'Other';
     for (const prefix of sortedPrefixes) {
       if (key.startsWith(prefix)) { group = groupKeys[prefix]; break; }
     }
     groups[group] = groups[group] || [];
-    groups[group].push({ key, post: POSTS[key] });
+    groups[group].push({ key, post });
   });
 
-  sel.innerHTML = '<option value="">— Choose post —</option>';
+  // Build placeholder label
+  let filterLabel;
+  if (showAll || photoCard) {
+    filterLabel = '— All posts —';
+  } else if (filtering) {
+    filterLabel = `— ${LAYOUT_SHORT[filterLayout] || filterLayout} posts only —`;
+  } else {
+    filterLabel = '— Choose post —';
+  }
+
+  sel.innerHTML = `<option value="">${filterLabel}</option>`;
   Object.keys(groups).forEach(groupName => {
     if (!groups[groupName].length) return;
     const og = document.createElement('optgroup');
@@ -1940,40 +1760,124 @@ function rebuildPostDropdown() {
     groups[groupName].forEach(({ key, post }) => {
       const opt = document.createElement('option');
       opt.value = key;
-      const shortHL = post.headline.replace(/\*(.*?)\*/g, '$1').replace(/\n/g, ' ').substring(0, 50);
-      opt.textContent = `${key} · ${shortHL}`;
+      const shortHL = post.headline.replace(/\*(.*?)\*/g, '$1').replace(/\n/g, ' ').substring(0, 42);
+      // In show-all mode, prefix with card type so you can see what card each post belongs to
+      const badge = (showAll || photoCard) ? `[${LAYOUT_SHORT[post.layout] || post.layout}] ` : '';
+      opt.textContent = `${badge}${key} · ${shortHL}`;
+      // Visually dim posts that don't match the current card (show-all mode)
+      if (showAll && filterLayout && !photoCard && post.layout !== filterLayout) {
+        opt.style.color = '#888';
+      }
       og.appendChild(opt);
     });
     sel.appendChild(og);
   });
 
-  // Restore selection if still exists
-  if (current && POSTS[current]) sel.value = current;
+  // Restore selection if still valid under current filter
+  if (current && POSTS[current]) {
+    const stillVisible = !filtering || POSTS[current].layout === filterLayout;
+    if (stillVisible) sel.value = current;
+  }
 }
 
+function onShowAllChange() {
+  const layout = document.getElementById('in-layout').value;
+  rebuildPostDropdown(layout);
+}
 
 function onLayoutChange() {
   const layout = document.getElementById('in-layout').value;
-  // Find first post in bank matching this layout
-  const match = Object.keys(POSTS).find(k => POSTS[k].layout === layout);
+  // Uncheck show-all when switching cards — re-filter to the new card
+  const showAllEl = document.getElementById('show-all-posts');
+  if (showAllEl) showAllEl.checked = false;
+  rebuildPostDropdown(layout);
+  // Auto-load first matching post for this card
+  const match = Object.keys(POSTS).find(k =>
+    layout === 'observation' || layout === 'excerpt' ? true : POSTS[k].layout === layout
+  );
   if (match) {
     document.getElementById('in-post').value = match;
-    loadPost(); // loadPost calls renderPost internally
+    loadPost();
   } else {
     renderPost();
   }
 }
 
-// ══ PHOTO ══
-function loadPhoto(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    currentPhoto = e.target.result;
-    renderPost();
-  };
-  reader.readAsDataURL(file);
+// ══ PHOTO LIBRARY ══
+const PHOTO_LIB_KEY = 'll_photo_library';
+
+function getLibrary() {
+  try { return JSON.parse(localStorage.getItem(PHOTO_LIB_KEY)) || []; }
+  catch { return []; }
+}
+function saveLibrary(lib) {
+  localStorage.setItem(PHOTO_LIB_KEY, JSON.stringify(lib));
+}
+
+function addPhotosToLibrary(event) {
+  const files = Array.from(event.target.files);
+  let loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const lib = getLibrary();
+      const id = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,5);
+      lib.push({ id, dataUrl: e.target.result });
+      saveLibrary(lib);
+      loaded++;
+      if (loaded === files.length) renderPhotoLibrary();
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function selectLibraryPhoto(id) {
+  const lib = getLibrary();
+  const photo = lib.find(p => p.id === id);
+  if (!photo) return;
+  currentPhoto = photo.dataUrl;
+  document.getElementById('clear-photo-btn').style.display = '';
+  renderPhotoLibrary();
+  renderPost();
+}
+
+function deleteLibraryPhoto(id, e) {
+  e.stopPropagation();
+  let lib = getLibrary();
+  const photo = lib.find(p => p.id === id);
+  if (photo && photo.dataUrl === currentPhoto) {
+    currentPhoto = null;
+    document.getElementById('clear-photo-btn').style.display = 'none';
+  }
+  lib = lib.filter(p => p.id !== id);
+  saveLibrary(lib);
+  renderPhotoLibrary();
+  renderPost();
+}
+
+function clearCurrentPhoto() {
+  currentPhoto = null;
+  document.getElementById('clear-photo-btn').style.display = 'none';
+  renderPhotoLibrary();
+  renderPost();
+}
+
+function renderPhotoLibrary() {
+  const grid = document.getElementById('photo-lib-grid');
+  if (!grid) return;
+  const lib = getLibrary();
+  if (lib.length === 0) {
+    grid.innerHTML = '<div class="photo-lib-empty">No photos saved.</div>';
+    return;
+  }
+  grid.innerHTML = lib.map(p => `
+    <div class="photo-lib-thumb ${p.dataUrl === currentPhoto ? 'active' : ''}"
+         style="background-image:url('${p.dataUrl}')"
+         onclick="selectLibraryPhoto('${p.id}')">
+      <div class="lib-del" onclick="deleteLibraryPhoto('${p.id}', event)">×</div>
+    </div>
+  `).join('');
 }
 
 // ══ CAPTION COPY ══
@@ -2103,21 +2007,49 @@ function renderCadence() {
   }
 }
 
+// ══ USED POSTS PERSISTENCE ══
+const USED_KEY = 'll_used_posts';
+
+function getUsedSet() {
+  try { return new Set(JSON.parse(localStorage.getItem(USED_KEY)) || []); }
+  catch { return new Set(); }
+}
+
+function saveUsedKey(key) {
+  const used = getUsedSet();
+  used.add(key);
+  localStorage.setItem(USED_KEY, JSON.stringify([...used]));
+}
+
+function purgeUsedPosts() {
+  const used = getUsedSet();
+  used.forEach(key => { delete POSTS[key]; });
+}
+
 // ══ MARK USED ══
 function markUsed() {
   const key = document.getElementById('in-post').value;
   if (!key || !POSTS[key]) return;
-  if (!confirm(`Remove "${key}" from the post bank? This can't be undone.`)) return;
+  if (!confirm(`Mark "${key}" as used and permanently remove it from the bank?\n\nThis persists across reloads.`)) return;
+  saveUsedKey(key);
   delete POSTS[key];
-  rebuildPostDropdown();
-  // Clear fields
-  document.getElementById('in-post').value = '';
-  document.getElementById('in-headline').value = '';
-  document.getElementById('in-body').value = '';
-  document.getElementById('caption-display').textContent = 'Select a post from the bank to see its caption.';
-  document.getElementById('hashtag-display').textContent = '';
+  const layout = document.getElementById('in-layout').value;
+  rebuildPostDropdown(layout);
+  const next = Object.keys(POSTS).find(k =>
+    layout === 'observation' || layout === 'excerpt' ? true : POSTS[k].layout === layout
+  );
+  if (next) {
+    document.getElementById('in-post').value = next;
+    loadPost();
+  } else {
+    document.getElementById('in-post').value = '';
+    document.getElementById('in-headline').value = '';
+    document.getElementById('in-body').value = '';
+    document.getElementById('caption-display').textContent = 'Select a post from the bank to see its caption.';
+    document.getElementById('hashtag-display').textContent = '';
+  }
   const status = document.getElementById('import-status');
-  status.textContent = `✓ ${key} removed`;
+  status.textContent = `✓ ${key} permanently removed`;
   setTimeout(() => status.textContent = '', 2500);
 }
 
@@ -2182,11 +2114,17 @@ function renderSequence() {
 }
 
 // ══ INIT ══
-document.getElementById('in-post').value   = 'O3';
+purgeUsedPosts(); // remove any previously marked-used posts before rendering
+document.getElementById('show-all-posts').checked = false;
 document.getElementById('in-layout').value = 'doctrine';
-loadPost();
+// Default to first available doctrine post
+const initKey = Object.keys(POSTS).find(k => POSTS[k].layout === 'doctrine') || Object.keys(POSTS)[0] || '';
+document.getElementById('in-post').value = initKey;
+rebuildPostDropdown('doctrine');
+if (initKey) loadPost();
 renderCadence();
 renderSequence();
+renderPhotoLibrary();
 </script>
 </body>
 </html>
