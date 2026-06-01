@@ -555,6 +555,88 @@ header {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ── CADENCE GUIDE ── */
+.cadence-note {
+  font-size: 10px;
+  color: var(--text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  opacity: 0.7;
+}
+.cadence-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.cadence-slot {
+  background: var(--navy-light, #1a2035);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.cadence-slot:hover { border-color: var(--bronze); }
+.cadence-slot.today {
+  border-color: var(--bronze);
+  background: rgba(176,138,77,0.08);
+}
+.cadence-slot.today .cs-day {
+  color: var(--bronze);
+}
+.cs-day {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.cs-today-badge {
+  font-size: 8px;
+  background: var(--bronze);
+  color: #0d1117;
+  border-radius: 2px;
+  padding: 1px 4px;
+  letter-spacing: 0.05em;
+  display: inline-block;
+  margin-left: 2px;
+  font-weight: 700;
+}
+.cs-style {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-bright);
+  font-family: 'Cormorant Garamond', serif;
+  line-height: 1.2;
+}
+.cs-style em {
+  color: var(--bronze);
+  font-style: italic;
+}
+.cs-arrow {
+  font-size: 9px;
+  color: var(--text);
+  opacity: 0.5;
+}
+.cs-card {
+  font-size: 9px;
+  color: var(--bronze);
+  letter-spacing: 0.06em;
+  opacity: 0.85;
+  line-height: 1.3;
+}
+.cs-pillar {
+  font-size: 8px;
+  color: var(--text);
+  opacity: 0.5;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
 </style>
 </head>
 <body>
@@ -676,6 +758,13 @@ header {
       </div>
     </div>
 
+    <!-- CADENCE GUIDE -->
+    <div class="builder-section" id="cadenceSection">
+      <div class="section-title">7-Day Reel Cadence</div>
+      <div class="cadence-note">Reel style → post card to pull from the post builder</div>
+      <div class="cadence-grid" id="cadenceGrid"></div>
+    </div>
+
   </div>
 
   <!-- Bank Tab -->
@@ -743,6 +832,7 @@ function init() {
   addFrame(); addFrame(); addFrame();
   renderCalendar();
   renderRecentBank();
+  renderCadence();
   setTodayDate();
 }
 
@@ -1372,6 +1462,103 @@ function notify(msg) {
 
 // ─── START ────────────────────────────────────────────
 init();
+
+// ── CADENCE GUIDE ──────────────────────────────────────────
+const REEL_CADENCE = [
+  {
+    day: 'Sun',
+    style: 'Cinematic',
+    styleKey: 'cinematic',
+    card: 'Excerpt · Directive',
+    cardNote: 'Pull: Excerpt or Directive card',
+    pillar: 'Heritage · General',
+    desc: 'Wide reach — shareable, legacy weight'
+  },
+  {
+    day: 'Mon',
+    style: 'Drift',
+    styleKey: 'drift',
+    card: 'Observation · Reminder',
+    cardNote: 'Pull: Observation or Reminder card',
+    pillar: 'General',
+    desc: 'Recognition hook — names the week ahead'
+  },
+  {
+    day: 'Tue',
+    style: 'LE — Altar',
+    styleKey: 'le-altar',
+    card: 'Field Note (LE)',
+    cardNote: 'Pull: LE_A Field Note posts',
+    pillar: 'Altar',
+    desc: 'Interior formation — lived experience'
+  },
+  {
+    day: 'Wed',
+    style: 'Doctrine',
+    styleKey: 'doctrine',
+    card: 'Doctrine · Directive',
+    cardNote: 'Pull: Doctrine or Directive card',
+    pillar: 'General · Covenant',
+    desc: 'Heavy anchor — mid-week conviction'
+  },
+  {
+    day: 'Thu',
+    style: 'Stabilizer',
+    styleKey: 'stabilizer',
+    card: 'Field Note · Reminder',
+    cardNote: 'Pull: Field Note or Reminder card',
+    pillar: 'Forge · Fortress',
+    desc: 'Practical relief — transitions and rhythms'
+  },
+  {
+    day: 'Fri',
+    style: 'LE — Covenant',
+    styleKey: 'le-covenant',
+    card: 'Field Note (LE)',
+    cardNote: 'Pull: LE_C Field Note posts',
+    pillar: 'Covenant',
+    desc: 'Relational weight — end of week share'
+  },
+  {
+    day: 'Sat',
+    style: 'LE — Heritage',
+    styleKey: 'le-heritage',
+    card: 'Field Note (LE)',
+    cardNote: 'Pull: LE_H Field Note posts',
+    pillar: 'Heritage',
+    desc: 'Father/legacy content — weekend reach'
+  }
+];
+
+function renderCadence() {
+  const grid = document.getElementById('cadenceGrid');
+  if (!grid) return;
+  const todayIdx = new Date().getDay(); // 0=Sun
+  grid.innerHTML = REEL_CADENCE.map((slot, i) => {
+    const isToday = i === todayIdx;
+    return `
+      <div class="cadence-slot${isToday ? ' today' : ''}" onclick="applyCadenceSlot('${slot.styleKey}')" title="Click to set style">
+        <div class="cs-day">${slot.day}${isToday ? '<span class="cs-today-badge">TODAY</span>' : ''}</div>
+        <div class="cs-style">${slot.style}</div>
+        <div class="cs-arrow">↓</div>
+        <div class="cs-card">${slot.card}</div>
+        <div class="cs-pillar">${slot.pillar}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function applyCadenceSlot(styleKey) {
+  const styleEl = document.getElementById('style');
+  if (styleEl) {
+    styleEl.value = styleKey;
+    onStyleChange();
+    // Scroll to builder top
+    document.getElementById('mainArea').scrollTo({ top: 0, behavior: 'smooth' });
+    notify('Style set: ' + styleKey);
+  }
+}
+
 </script>
 </body>
 </html>
