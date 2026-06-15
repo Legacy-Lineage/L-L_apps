@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steadfast — Daily Anchor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Spectral:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#F0EBE3;--surface:#E8E2D9;--panel:#DDD6CC;--border:#C8C0B4;
+    --gold:#8B6A2E;--gold-dim:#A87E3E;--blue:#2d5f82;--blue-dim:#4a7fa5;
+    --blue-pale:#2d5f82;--stone:#6b5e4e;--cream:#2C2418;--text:#3d3328;--muted:#8a7d6e;
+    --altar:#8B6A2E;--forge:#7a4e38;--covenant:#2d5f82;--heritage:#4a6b38;--fortress:#6b5a3a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;letter-spacing:.01em}
+  .app{display:flex;flex-direction:column;min-height:100vh}
+  header{padding:26px 32px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100}
+  .wordmark{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;letter-spacing:.18em;color:var(--cream);text-transform:uppercase}
+  .wordmark span{color:var(--gold)}
+  .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+  .date-label{font-size:.67rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .nav-btn{background:none;border:1px solid var(--border);color:var(--stone);cursor:pointer;padding:5px 13px;font-family:'Jost',sans-serif;font-size:.71rem;letter-spacing:.12em;text-transform:uppercase;transition:all .2s}
+  .nav-btn:hover{border-color:var(--gold-dim);color:var(--cream)}
+  .nav-btn.active{border-color:var(--gold);color:var(--gold)}
+  main{flex:1;padding:0 32px 48px;max-width:720px;margin:0 auto;width:100%}
+
+  /* ── TODAY VIEW ── */
+  .pillar-selector{display:flex;gap:2px;margin:28px 0 24px;padding-bottom:22px;border-bottom:1px solid var(--border)}
+  .pillar-btn{flex:1;padding:9px 4px;text-align:center;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;border:1px solid transparent;background:none;cursor:pointer;color:var(--muted);font-family:'Jost',sans-serif;transition:all .2s}
+  .pillar-btn:hover{color:var(--cream)}
+  .pillar-btn.active.altar{border-color:var(--altar);color:var(--altar)}
+  .pillar-btn.active.forge{border-color:var(--forge);color:var(--forge)}
+  .pillar-btn.active.covenant{border-color:var(--covenant);color:var(--covenant)}
+  .pillar-btn.active.heritage{border-color:var(--heritage);color:var(--heritage)}
+  .pillar-btn.active.fortress{border-color:var(--fortress);color:var(--fortress)}
+
+  .pillar-tag{display:inline-flex;align-items:center;gap:8px;font-size:.63rem;letter-spacing:.22em;text-transform:uppercase;padding:4px 10px;border:1px solid;margin-bottom:18px}
+  .pillar-tag.altar{color:var(--altar);border-color:var(--altar)}
+  .pillar-tag.forge{color:var(--forge);border-color:var(--forge)}
+  .pillar-tag.covenant{color:var(--covenant);border-color:var(--covenant)}
+  .pillar-tag.heritage{color:var(--heritage);border-color:var(--heritage)}
+  .pillar-tag.fortress{color:var(--fortress);border-color:var(--fortress)}
+  .pillar-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+  .verse-day{padding:20px 0 22px;border-bottom:1px solid var(--border);margin-bottom:30px}
+  .verse-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);margin-bottom:22px}
+  .verse-text{font-family:'Cormorant Garamond',serif;font-size:1.72rem;font-weight:300;font-style:italic;line-height:1.55;color:var(--cream);margin-bottom:11px}
+  .verse-ref{font-size:.71rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim)}
+  .divider{width:40px;height:1px;background:var(--border);margin:30px 0}
+  .section-label{font-size:.63rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:13px}
+  .reflect-text{font-family:'Spectral',serif;font-size:.97rem;font-weight:300;line-height:1.82;color:var(--text);margin-bottom:26px}
+  .recalibrate-block{border-left:2px solid var(--blue-dim);padding:15px 20px;margin-bottom:26px;background:rgba(45,95,130,.06)}
+  .recalibrate-block .section-label{color:var(--blue-pale);margin-bottom:9px}
+  .recalibrate-block p{font-family:'Spectral',serif;font-size:.91rem;font-style:italic;line-height:1.77;color:var(--stone)}
+  .enter-day-block{border-left:2px solid var(--gold-dim);padding:15px 20px;background:rgba(139,106,46,.06)}
+  .enter-day-block .section-label{color:var(--gold);margin-bottom:9px}
+  .enter-day-block p{font-family:'Spectral',serif;font-size:.91rem;line-height:1.77;color:var(--stone)}
+
+  /* Loading state */
+  .generating-block{padding:48px 0;text-align:center}
+  .gen-spinner{width:28px;height:28px;border:1px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite;margin:0 auto 18px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .gen-label{font-size:.69rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+
+  /* Pillar cycle strip */
+  .cycle-strip{display:flex;gap:2px;margin:30px 0 0;padding-top:22px;border-top:1px solid var(--border)}
+  .cycle-item{flex:1;padding:8px 4px;text-align:center;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;border-bottom:1px solid transparent;color:var(--muted)}
+  .cycle-item.active.altar{border-color:var(--altar);color:var(--altar)}
+  .cycle-item.active.forge{border-color:var(--forge);color:var(--forge)}
+  .cycle-item.active.covenant{border-color:var(--covenant);color:var(--covenant)}
+  .cycle-item.active.heritage{border-color:var(--heritage);color:var(--heritage)}
+  .cycle-item.active.fortress{border-color:var(--fortress);color:var(--fortress)}
+
+  /* Morning posture */
+  .posture-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:40px}
+  .posture-item{background:var(--surface);padding:15px 17px}
+  .posture-pillar{font-size:.59rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  .posture-question{font-family:'Spectral',serif;font-size:.87rem;font-style:italic;line-height:1.5;color:var(--text)}
+
+  /* ── CALENDAR VIEW ── */
+  .cal-header{padding:34px 0 18px;border-bottom:1px solid var(--border);margin-bottom:26px;display:flex;align-items:center;justify-content:space-between}
+  .cal-title{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;letter-spacing:.12em;color:var(--cream);text-transform:uppercase}
+  .cal-nav{display:flex;gap:8px;align-items:center}
+  .cal-nav button{background:none;border:1px solid var(--border);color:var(--stone);cursor:pointer;padding:4px 11px;font-family:'Jost',sans-serif;font-size:.69rem;letter-spacing:.1em;transition:all .2s}
+  .cal-nav button:hover{border-color:var(--gold-dim);color:var(--cream)}
+  .cal-month-label{font-size:.69rem;letter-spacing:.15em;text-transform:uppercase;color:var(--stone);min-width:110px;text-align:center}
+  .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:2px}
+  .cal-dow-cell{text-align:center;font-size:.56rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);padding:6px 0}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:28px}
+  .cal-cell{background:var(--surface);min-height:54px;padding:7px 8px;cursor:pointer;transition:background .15s;position:relative;display:flex;flex-direction:column;gap:3px}
+  .cal-cell:hover{background:var(--panel)}
+  .cal-cell.empty{background:var(--bg);cursor:default}
+  .cal-cell.today{outline:1px solid var(--gold)}
+  .cal-cell.future{opacity:.45;cursor:default}
+  .cal-cell-day{font-size:.67rem;letter-spacing:.08em;color:var(--muted)}
+  .cal-cell.today .cal-cell-day{color:var(--gold);font-weight:500}
+  .cal-dots{display:flex;gap:2px;flex-wrap:wrap;margin-top:2px}
+  .cal-dot{width:5px;height:5px;border-radius:50%}
+  .cal-dot.altar{background:var(--altar)}
+  .cal-dot.forge{background:var(--forge)}
+  .cal-dot.covenant{background:var(--covenant)}
+  .cal-dot.heritage{background:var(--heritage)}
+  .cal-dot.fortress{background:var(--fortress)}
+  .cal-cell-count{font-size:.52rem;letter-spacing:.1em;color:var(--muted)}
+
+  /* Calendar legend */
+  .cal-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+  .cal-legend-item{display:flex;align-items:center;gap:6px;font-size:.59rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .cal-legend-dot{width:6px;height:6px;border-radius:50%}
+
+  /* Export section */
+  .export-bar{border-top:1px solid var(--border);padding-top:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  .export-count{font-size:.69rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .export-btn{background:none;border:1px solid var(--gold-dim);color:var(--gold);cursor:pointer;padding:7px 18px;font-family:'Jost',sans-serif;font-size:.69rem;letter-spacing:.14em;text-transform:uppercase;transition:all .2s}
+  .export-btn:hover{background:var(--gold);color:var(--bg)}
+
+  /* ── ARCHIVE VIEW ── */
+  .history-header{padding:34px 0 18px;border-bottom:1px solid var(--border);margin-bottom:26px;display:flex;align-items:baseline;gap:14px}
+  .history-title{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;letter-spacing:.12em;color:var(--cream);text-transform:uppercase}
+  .history-count{font-size:.63rem;letter-spacing:.15em;color:var(--muted)}
+  .history-empty{padding:48px 0;text-align:center;color:var(--muted);font-size:.84rem;letter-spacing:.1em}
+  .history-list{display:flex;flex-direction:column;gap:2px}
+  .history-item{background:var(--surface);border:1px solid var(--border);padding:18px 22px;cursor:pointer;transition:all .2s;display:grid;grid-template-columns:82px 1fr auto;gap:14px;align-items:center}
+  .history-item:hover{background:var(--panel);border-color:var(--gold-dim)}
+  .history-date{font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+  .history-verse{font-family:'Cormorant Garamond',serif;font-size:.98rem;font-style:italic;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .history-meta{font-size:.62rem;letter-spacing:.1em;color:var(--stone);margin-top:3px}
+  .history-pillar{font-size:.57rem;letter-spacing:.17em;text-transform:uppercase;padding:3px 8px;border:1px solid;white-space:nowrap}
+  .history-pillar.altar{color:var(--altar);border-color:var(--altar)}
+  .history-pillar.forge{color:var(--forge);border-color:var(--forge)}
+  .history-pillar.covenant{color:var(--covenant);border-color:var(--covenant)}
+  .history-pillar.heritage{color:var(--heritage);border-color:var(--heritage)}
+  .history-pillar.fortress{color:var(--fortress);border-color:var(--fortress)}
+
+  /* ── DETAIL OVERLAY ── */
+  #detail-overlay{display:none;position:fixed;inset:0;background:rgba(240,235,227,.97);z-index:200;overflow-y:auto;padding:32px}
+  .detail-inner{max-width:620px;margin:0 auto}
+  .detail-close{display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--muted);cursor:pointer;font-family:'Jost',sans-serif;font-size:.69rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:34px;padding:0;transition:color .2s}
+  .detail-close:hover{color:var(--cream)}
+  .detail-close::before{content:'←';font-size:1rem}
+  .detail-date-label{font-size:.63rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:22px}
+
+  /* ── CAL DAY DETAIL OVERLAY ── */
+  #cal-day-overlay{display:none;position:fixed;inset:0;background:rgba(240,235,227,.97);z-index:200;overflow-y:auto;padding:32px}
+  .cal-day-inner{max-width:660px;margin:0 auto}
+  .cal-day-back{display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--muted);cursor:pointer;font-family:'Jost',sans-serif;font-size:.69rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:28px;padding:0;transition:color .2s}
+  .cal-day-back:hover{color:var(--cream)}
+  .cal-day-back::before{content:'←';font-size:1rem}
+  .cal-day-date{font-family:'Cormorant Garamond',serif;font-size:1.18rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--cream);margin-bottom:6px}
+  .cal-day-subtitle{font-size:.63rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:28px}
+
+  /* Pillar selector in overlay */
+  .overlay-pillar-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;padding-bottom:22px;border-bottom:1px solid var(--border)}
+  .overlay-pillar-btn{background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;padding:6px 14px;font-family:'Jost',sans-serif;font-size:.63rem;letter-spacing:.14em;text-transform:uppercase;transition:all .2s}
+  .overlay-pillar-btn:hover{border-color:var(--gold-dim);color:var(--cream)}
+  .overlay-pillar-btn.active.altar{border-color:var(--altar);color:var(--altar)}
+  .overlay-pillar-btn.active.forge{border-color:var(--forge);color:var(--forge)}
+  .overlay-pillar-btn.active.covenant{border-color:var(--covenant);color:var(--covenant)}
+  .overlay-pillar-btn.active.heritage{border-color:var(--heritage);color:var(--heritage)}
+  .overlay-pillar-btn.active.fortress{border-color:var(--fortress);color:var(--fortress)}
+
+  .gen-btn{background:none;border:1px solid var(--gold-dim);color:var(--gold);cursor:pointer;padding:9px 22px;font-family:'Jost',sans-serif;font-size:.71rem;letter-spacing:.16em;text-transform:uppercase;transition:all .2s;margin-bottom:28px}
+  .gen-btn:hover{background:var(--gold);color:var(--bg)}
+  .gen-btn:disabled{opacity:.4;cursor:default}
+
+  .saved-entries-list{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+  .saved-entry-row{background:var(--surface);border:1px solid var(--border);padding:14px 18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .saved-entry-row:hover{background:var(--panel);border-color:var(--gold-dim)}
+  .saved-entry-info{flex:1;min-width:0}
+  .saved-entry-title{font-family:'Cormorant Garamond',serif;font-size:.98rem;font-style:italic;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .saved-entry-meta{font-size:.6rem;letter-spacing:.12em;color:var(--stone);margin-top:3px}
+  .saved-entry-tag{font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;padding:3px 8px;border:1px solid;white-space:nowrap;flex-shrink:0}
+  .saved-entry-tag.altar{color:var(--altar);border-color:var(--altar)}
+  .saved-entry-tag.forge{color:var(--forge);border-color:var(--forge)}
+  .saved-entry-tag.covenant{color:var(--covenant);border-color:var(--covenant)}
+  .saved-entry-tag.heritage{color:var(--heritage);border-color:var(--heritage)}
+  .saved-entry-tag.fortress{color:var(--fortress);border-color:var(--fortress)}
+
+  .no-entries-note{padding:28px 0;text-align:center;color:var(--muted);font-size:.82rem;letter-spacing:.1em}
+
+  /* ── API KEY SCREEN ── */
+  #key-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;align-items:center;justify-content:center;padding:32px}
+  .key-card{max-width:420px;width:100%}
+  .key-wordmark{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;letter-spacing:.18em;color:var(--cream);text-transform:uppercase;margin-bottom:8px}
+  .key-wordmark span{color:var(--gold)}
+  .key-eyebrow{font-size:.63rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:32px}
+  .key-label{font-size:.63rem;letter-spacing:.18em;text-transform:uppercase;color:var(--stone);margin-bottom:10px}
+  .key-input{width:100%;background:var(--surface);border:1px solid var(--border);padding:12px 14px;font-family:'Jost',sans-serif;font-size:.85rem;color:var(--cream);letter-spacing:.04em;outline:none;transition:border-color .2s;margin-bottom:10px}
+  .key-input:focus{border-color:var(--gold-dim)}
+  .key-hint{font-size:.62rem;letter-spacing:.1em;color:var(--muted);margin-bottom:24px;line-height:1.6}
+  .key-hint a{color:var(--gold-dim);text-decoration:none}
+  .key-submit{width:100%;background:none;border:1px solid var(--gold-dim);color:var(--gold);cursor:pointer;padding:11px;font-family:'Jost',sans-serif;font-size:.71rem;letter-spacing:.18em;text-transform:uppercase;transition:all .2s}
+  .key-submit:hover{background:var(--gold);color:var(--bg)}
+  .key-error{font-size:.63rem;letter-spacing:.1em;color:var(--forge);margin-top:10px;display:none}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .verse-day{animation:fadeUp .4s ease forwards}
+  ::-webkit-scrollbar{width:4px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border)}
+
+  @media(max-width:600px){
+    header{padding:16px 18px 13px}
+    main{padding:0 18px 40px}
+    .verse-text{font-size:1.42rem}
+    .posture-grid{grid-template-columns:1fr}
+    .history-item{grid-template-columns:1fr auto;grid-template-rows:auto auto}
+    .history-date{grid-column:1}
+    .history-verse-col{grid-column:1/-1;grid-row:2}
+    .history-pillar{grid-row:1}
+    #detail-overlay{padding:18px}
+    #cal-day-overlay{padding:18px}
+    .wordmark{font-size:1.18rem}
+    .date-label{display:none}
+    .pillar-btn{font-size:.5rem;padding:7px 2px}
+    .cal-cell{min-height:44px;padding:5px 6px}
+    .cal-cell-day{font-size:.6rem}
+    .overlay-pillar-row{gap:6px}
+  }
+</style>
+</head>
+<body>
+<!-- API Key Screen -->
+<div id="key-screen" style="display:none">
+  <div class="key-card">
+    <div class="key-wordmark">Stead<span>fast</span></div>
+    <div class="key-eyebrow">Daily Anchor — Setup</div>
+    <div class="key-label">Anthropic API Key</div>
+    <input class="key-input" id="key-input" type="password" placeholder="sk-ant-..." autocomplete="off" />
+    <div class="key-hint">
+      Your key is stored locally on this device only — never transmitted anywhere except directly to Anthropic's API.<br><br>
+      Get a key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+    </div>
+    <button class="key-submit" onclick="submitKey()">Save & Continue</button>
+    <div class="key-error" id="key-error">Key must start with sk-ant- — check and try again.</div>
+  </div>
+</div>
+
+<div class="app">
+  <header>
+    <div class="wordmark">Stead<span>fast</span></div>
+    <div class="header-right">
+      <span class="date-label" id="header-date"></span>
+      <button class="nav-btn active" id="btn-today" onclick="showView('today')">Today</button>
+      <button class="nav-btn" id="btn-calendar" onclick="showView('calendar')">Calendar</button>
+      <button class="nav-btn" id="btn-archive" onclick="showView('archive')">Archive</button>
+    </div>
+  </header>
+  <main>
+    <div id="today-view"></div>
+    <div id="calendar-view" style="display:none"></div>
+    <div id="archive-view" style="display:none"></div>
+  </main>
+</div>
+
+<!-- Entry detail overlay (from archive) -->
+<div id="detail-overlay">
+  <div class="detail-inner">
+    <button class="detail-close" onclick="closeDetail()">Back to Archive</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<!-- Calendar day overlay -->
+<div id="cal-day-overlay">
+  <div class="cal-day-inner" id="cal-day-inner"></div>
+</div>
+
+<script>
+// ── CONSTANTS ────────────────────────────────────────────────────
+const PILLARS = ['altar','forge','covenant','heritage','fortress'];
+const PILLAR_LABELS = {altar:'Altar',forge:'Forge',covenant:'Covenant',heritage:'Heritage',fortress:'Fortress'};
+const PILLAR_COLORS = {altar:'var(--altar)',forge:'var(--forge)',covenant:'var(--covenant)',heritage:'var(--heritage)',fortress:'var(--fortress)'};
+
+const POSTURE = [
+  {pillar:'Altar',    question:'What will govern me today? Not pressure. Not fear. Not approval. Choose again what you serve.'},
+  {pillar:'Forge',    question:'Where must I show strength today? Not loud strength — steady strength that does not collapse when the day becomes heavy.'},
+  {pillar:'Covenant', question:'Who needs my steadiness today? Your family feels your presence long before they hear your words. Carry calm into the room.'},
+  {pillar:'Heritage', question:'What small action today moves my family forward? Legacy is rarely built in grand moments. It is built in quiet consistency.'},
+  {pillar:'Fortress', question:'What will I refuse to let inside today? Noise. Comparison. Unnecessary agitation. Guard the gate.'}
+];
+
+// ── STORAGE KEY ──────────────────────────────────────────────────
+const STORAGE_KEY = 'steadfast_entries_v2';
+
+// ── DATE UTILS ───────────────────────────────────────────────────
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function dayNumber(key) {
+  const [y,m,d] = key.split('-').map(Number);
+  return Math.floor(new Date(y,m-1,d).getTime()/86400000);
+}
+function defaultPillarForKey(key) {
+  return PILLARS[dayNumber(key) % 5];
+}
+function dateKeyToDisplay(key) {
+  const [y,m,d] = key.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+function dateKeyToShort(key) {
+  const [y,m,d] = key.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+// ── PERSISTENT STORAGE ───────────────────────────────────────────
+// All entries stored as: { [dateKey]: { [pillar]: entryObject } }
+async function loadAllEntries() {
+  try {
+    const r = await window.storage.get(STORAGE_KEY);
+    return r ? JSON.parse(r.value) : {};
+  } catch(e) { return {}; }
+}
+async function saveEntry(dateKey, pillar, entry) {
+  const all = await loadAllEntries();
+  if (!all[dateKey]) all[dateKey] = {};
+  all[dateKey][pillar] = entry;
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(all));
+  } catch(e) { console.error('Storage write failed', e); }
+  return all;
+}
+async function getEntry(dateKey, pillar) {
+  const all = await loadAllEntries();
+  return (all[dateKey] && all[dateKey][pillar]) ? all[dateKey][pillar] : null;
+}
+
+// ── API KEY MANAGEMENT ───────────────────────────────────────────
+const KEY_STORAGE = 'steadfast_api_key';
+
+function getApiKey() { return localStorage.getItem(KEY_STORAGE) || ''; }
+
+function submitKey() {
+  const val = document.getElementById('key-input').value.trim();
+  if (!val.startsWith('sk-ant-')) {
+    document.getElementById('key-error').style.display = 'block';
+    return;
+  }
+  localStorage.setItem(KEY_STORAGE, val);
+  document.getElementById('key-screen').style.display = 'none';
+  document.querySelector('.app').style.display = 'flex';
+  initToday();
+}
+
+// Allow Enter key on input
+document.getElementById('key-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitKey();
+});
+
+function checkKeyAndInit() {
+  if (getApiKey()) {
+    document.getElementById('key-screen').style.display = 'none';
+    document.querySelector('.app').style.display = 'flex';
+    initToday();
+  } else {
+    document.getElementById('key-screen').style.display = 'flex';
+    document.querySelector('.app').style.display = 'none';
+  }
+}
+
+// ── AI GENERATION ────────────────────────────────────────────────
+const PILLAR_PROMPTS = {
+  altar: `The Altar domain governs what is ultimate — the internal hierarchy that orders everything else. Entries address: submission vs. self-reliance, the difference between stewardship and authorship, prayer as honest conversation rather than performance, identity rooted in received sonship rather than earned worth, the quiet drift of faith when structure replaces relationship, what governs a man before he governs anything. Tone is grounding and proportionate — not inspirational. The man reading this is already responsible. He does not need motivation. He needs recalibration of what sits at center.`,
+  forge: `The Forge domain governs physical and endurance capacity as a foundation of leadership. Entries address: depletion masquerading as discipline, rest as governance rather than weakness, the connection between physical state and tone/presence, the difference between productive strain and chronic degradation, body as instrument of stewardship, consistency over intensity. Tone is direct and respect-forward — a man who takes his physical life seriously because what he carries requires it, not because of aesthetics or performance.`,
+  covenant: `The Covenant domain governs the relational climate of marriage and home. Entries address: pursuit vs. management of a wife, the difference between proximity and presence, repair speed as a leadership indicator, listening to understand vs. listening to respond, the compound effect of small fractures left unaddressed, warmth that does not require the wife to earn it, the husband's tone as the primary atmospheric variable in the home. Tone is honest about the weight of covenant without being clinical. The man reading this loves his wife — he may have drifted. He is not a failure. He is a man who needs to recenter.`,
+  heritage: `The Heritage domain governs what a man passes forward — not through speeches but through the texture of daily life his children absorb. Entries address: the long view vs. the reactive week, modeling vs. instructing, the conversations a father keeps deferring, what children learn from watching rather than being told, the compound interest of quiet consistency, the heritage being built regardless of whether the man is intentional about it. Tone is sober and forward-looking — not guilt-inducing but horizon-extending.`,
+  fortress: `The Fortress domain governs the perimeter of a man's home and mind — what is allowed in, what is filtered, what is actively excluded. Entries address: influence as formation not information, margin as a leadership prerequisite, the slow corruption of careless media consumption, curating relationships rather than simply accumulating them, the household culture being built by what is tolerated as much as what is chosen, the difference between isolation and discernment. Tone is clear-eyed and protective without being paranoid.`
+};
+
+async function generateEntry(dateKey, pillar) {
+  const displayDate = dateKeyToDisplay(dateKey);
+  const pillarPrompt = PILLAR_PROMPTS[pillar];
+
+  const systemPrompt = `You are writing daily devotional entries for Legacy & Lineage (L&L), a doctrine-based Christian men's formation brand. The brand's theological foundation is received sonship — identity as position before performance, not something earned through output.
+
+The devotional is called Steadfast. Each entry follows this exact structure and must be returned as valid JSON only, no markdown, no preamble:
+
+{
+  "pillar": "${pillar}",
+  "title": "2-5 word title that names the specific condition or challenge being addressed (not generic)",
+  "verse": "The scripture text only — no reference included here",
+  "ref": "Book Chapter:Verse format",
+  "reflect": "2-3 substantive paragraphs. Voice: measured, direct, doctrinally grounded. Not inspirational. Not hype. The man reading this is already responsible — he needs recalibration, not motivation. Speak to the real internal condition without naming it clumsily. Write as though addressing a man who is serious and somewhat private about his faith. No bullet points. Prose only.",
+  "recalibrate": "1-2 sentences. A pointed, specific question or observation that creates honest self-examination. Not rhetorical. Designed to land.",
+  "enter": "2-3 sentences beginning with a specific action or posture. Italic in final rendering. This is the man's marching order for the day. Concrete. Not vague encouragement."
+}
+
+DOMAIN CONTEXT FOR THIS ENTRY:
+${pillarPrompt}
+
+STYLE CONSTRAINTS:
+- Never use the words: warrior, journey, authentic, intentional, show up, lean in, unpack, embrace, transformation
+- Avoid inspirational-poster language entirely
+- The verse must be real scripture — choose something that actually speaks to the specific condition, not a generic familiar verse if a more precise one exists
+- The title should name a specific situation or internal condition, not a virtue (e.g. "When the Work Feels Personal" not "Faithfulness")
+- Reflect paragraphs should move: observation → diagnosis → reframe. Not: problem → solution.
+- The recalibrate should sting slightly — honest, not comfortable
+- Enter the day should be actionable in the actual ordinary circumstances of a man's life today`;
+
+  const userPrompt = `Generate one Steadfast devotional entry for the ${PILLAR_LABELS[pillar]} domain. Date context: ${displayDate}. Return only the JSON object — nothing else.`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','x-api-key': getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{role:'user', content: userPrompt}]
+    })
+  });
+
+  if (!resp.ok) throw new Error(`API error ${resp.status}`);
+  const data = await resp.json();
+  const raw = data.content.find(b => b.type === 'text')?.text || '';
+  // Strip any markdown fences
+  const clean = raw.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+// ── RENDER HELPERS ───────────────────────────────────────────────
+function renderVerseBlock(v) {
+  return `
+    <div class="verse-day">
+      <div class="pillar-tag ${v.pillar}"><span class="pillar-dot"></span>${PILLAR_LABELS[v.pillar]}</div>
+      <div class="verse-title">${v.title}</div>
+      <div class="verse-text">"${v.verse}"</div>
+      <div class="verse-ref">${v.ref}</div>
+    </div>
+    <div class="section-label">Reflect</div>
+    <div class="reflect-text">${v.reflect}</div>
+    <div class="recalibrate-block">
+      <div class="section-label">Recalibrate</div>
+      <p>${v.recalibrate}</p>
+    </div>
+    <div class="divider"></div>
+    <div class="enter-day-block">
+      <div class="section-label">Enter the Day</div>
+      <p>${v.enter}</p>
+    </div>
+  `;
+}
+
+function renderPosture() {
+  return `
+    <div class="divider" style="margin-top:38px"></div>
+    <div class="section-label" style="margin-bottom:14px">Morning Posture</div>
+    <div class="posture-grid">
+      ${POSTURE.map(p=>`<div class="posture-item"><div class="posture-pillar">${p.pillar}</div><div class="posture-question">${p.question}</div></div>`).join('')}
+    </div>
+  `;
+}
+
+function renderCycleStrip(activePillar) {
+  return `<div class="cycle-strip">${PILLARS.map(p =>
+    `<div class="cycle-item ${p} ${p===activePillar?'active':''}">${PILLAR_LABELS[p]}</div>`
+  ).join('')}</div>`;
+}
+
+// ── TODAY VIEW ───────────────────────────────────────────────────
+let todayActivePillar = null;
+let todayGenerating = false;
+
+async function initToday() {
+  const key = todayKey();
+  const defaultPillar = defaultPillarForKey(key);
+  todayActivePillar = todayActivePillar || defaultPillar;
+
+  document.getElementById('header-date').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+
+  renderTodayShell();
+  const existing = await getEntry(key, todayActivePillar);
+  if (existing) {
+    renderTodayEntry(existing);
+  } else {
+    await generateAndRenderToday(key, todayActivePillar);
+  }
+}
+
+function renderTodayShell() {
+  const key = todayKey();
+  const defaultPillar = defaultPillarForKey(key);
+  document.getElementById('today-view').innerHTML = `
+    <div class="pillar-selector">
+      ${PILLARS.map(p => `
+        <button class="pillar-btn ${p} ${p===todayActivePillar?'active':''}"
+          onclick="switchTodayPillar('${p}')">${PILLAR_LABELS[p]}</button>
+      `).join('')}
+    </div>
+    <div id="today-content"></div>
+  `;
+}
+
+function renderTodayEntry(entry) {
+  document.getElementById('today-content').innerHTML =
+    renderVerseBlock(entry) + renderCycleStrip(entry.pillar) + renderPosture();
+}
+
+function showTodayGenerating() {
+  document.getElementById('today-content').innerHTML = `
+    <div class="generating-block">
+      <div class="gen-spinner"></div>
+      <div class="gen-label">Generating ${PILLAR_LABELS[todayActivePillar]} entry…</div>
+    </div>`;
+}
+
+async function generateAndRenderToday(key, pillar) {
+  if (todayGenerating) return;
+  todayGenerating = true;
+  showTodayGenerating();
+  try {
+    const entry = await generateEntry(key, pillar);
+    await saveEntry(key, pillar, entry);
+    renderTodayEntry(entry);
+  } catch(e) {
+    document.getElementById('today-content').innerHTML =
+      `<div class="generating-block"><div class="gen-label" style="color:var(--forge)">Generation failed. Check connection and reload.</div></div>`;
+  }
+  todayGenerating = false;
+}
+
+async function switchTodayPillar(pillar) {
+  if (todayGenerating) return;
+  todayActivePillar = pillar;
+  // Update button states
+  document.querySelectorAll('.pillar-btn').forEach(b => {
+    b.classList.toggle('active', b.classList.contains(pillar));
+  });
+  const key = todayKey();
+  const existing = await getEntry(key, pillar);
+  if (existing) {
+    renderTodayEntry(existing);
+  } else {
+    await generateAndRenderToday(key, pillar);
+  }
+}
+
+// ── CALENDAR VIEW ────────────────────────────────────────────────
+let calYear, calMonth;
+
+async function initCalendar() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  await renderCalendar();
+}
+
+async function renderCalendar() {
+  const allEntries = await loadAllEntries();
+  const cv = document.getElementById('calendar-view');
+
+  const firstDay = new Date(calYear, calMonth, 1);
+  const lastDay = new Date(calYear, calMonth+1, 0);
+  const startDow = firstDay.getDay(); // 0=Sun
+  const daysInMonth = lastDay.getDate();
+
+  const monthLabel = firstDay.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const today = todayKey();
+
+  // Build cells
+  let cells = '';
+  // Empty leading cells
+  for (let i = 0; i < startDow; i++) {
+    cells += `<div class="cal-cell empty"></div>`;
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = key === today;
+    const isFuture = key > today;
+    const dayEntries = allEntries[key] || {};
+    const pillarsPresent = Object.keys(dayEntries);
+    const count = pillarsPresent.length;
+
+    const dots = pillarsPresent.map(p => `<div class="cal-dot ${p}"></div>`).join('');
+    const countLabel = count > 0 ? `<div class="cal-cell-count">${count} entr${count===1?'y':'ies'}</div>` : '';
+
+    cells += `<div class="cal-cell${isToday?' today':''}${isFuture?' future':''}"
+      ${!isFuture ? `onclick="openCalDay('${key}')"` : ''}>
+      <div class="cal-cell-day">${d}</div>
+      <div class="cal-dots">${dots}</div>
+      ${countLabel}
+    </div>`;
+  }
+
+  // Total entries count
+  const totalEntries = Object.values(allEntries).reduce((sum, day) => sum + Object.keys(day).length, 0);
+
+  cv.innerHTML = `
+    <div class="cal-header">
+      <div class="cal-title">Calendar</div>
+      <div class="cal-nav">
+        <button onclick="calNav(-1)">←</button>
+        <div class="cal-month-label">${monthLabel}</div>
+        <button onclick="calNav(1)">→</button>
+      </div>
+    </div>
+    <div class="cal-legend">
+      ${PILLARS.map(p=>`<div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--${p})"></div>${PILLAR_LABELS[p]}</div>`).join('')}
+    </div>
+    <div class="cal-dow">
+      ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-dow-cell">${d}</div>`).join('')}
+    </div>
+    <div class="cal-grid">${cells}</div>
+    <div class="export-bar">
+      <div class="export-count">${totalEntries} total entr${totalEntries===1?'y':'ies'} stored</div>
+      <button class="export-btn" onclick="exportEntries()">Export for Book</button>
+    </div>
+  `;
+}
+
+async function calNav(dir) {
+  calMonth += dir;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  await renderCalendar();
+}
+
+// ── CALENDAR DAY OVERLAY ─────────────────────────────────────────
+let calDayKey = null;
+let calDayActivePillar = null;
+let calDayGenerating = false;
+
+async function openCalDay(key) {
+  calDayKey = key;
+  calDayActivePillar = defaultPillarForKey(key);
+  calDayGenerating = false;
+  await renderCalDayOverlay();
+  document.getElementById('cal-day-overlay').style.display = 'block';
+  document.getElementById('cal-day-overlay').scrollTop = 0;
+}
+
+function closeCalDay() {
+  document.getElementById('cal-day-overlay').style.display = 'none';
+  // Refresh calendar to show new dots
+  renderCalendar();
+}
+
+async function renderCalDayOverlay() {
+  const allEntries = await loadAllEntries();
+  const dayEntries = allEntries[calDayKey] || {};
+  const pillarsPresent = Object.keys(dayEntries);
+  const isToday = calDayKey === todayKey();
+
+  const pillarBtns = PILLARS.map(p => {
+    const hasEntry = !!dayEntries[p];
+    const isActive = p === calDayActivePillar;
+    return `<button class="overlay-pillar-btn ${p} ${isActive?'active':''}"
+      onclick="switchCalDayPillar('${p}')">${PILLAR_LABELS[p]}${hasEntry?' ✓':''}</button>`;
+  }).join('');
+
+  const existing = dayEntries[calDayActivePillar];
+
+  let contentHtml = '';
+  if (existing) {
+    contentHtml = renderVerseBlock(existing);
+  } else {
+    contentHtml = `<div class="no-entries-note">No entry for ${PILLAR_LABELS[calDayActivePillar]} on this day.<br>Generate one below.</div>`;
+  }
+
+  document.getElementById('cal-day-inner').innerHTML = `
+    <button class="cal-day-back" onclick="closeCalDay()">Back to Calendar</button>
+    <div class="cal-day-date">${dateKeyToDisplay(calDayKey)}</div>
+    <div class="cal-day-subtitle">${pillarsPresent.length} of 5 pillars generated</div>
+    <div class="overlay-pillar-row">${pillarBtns}</div>
+    <div id="cal-day-content">${contentHtml}</div>
+    <div style="margin-top:24px">
+      <button class="gen-btn" id="cal-gen-btn" onclick="generateCalDayEntry()" ${existing?'':''}>${existing?'Regenerate':'Generate Entry'}</button>
+    </div>
+  `;
+}
+
+async function switchCalDayPillar(pillar) {
+  if (calDayGenerating) return;
+  calDayActivePillar = pillar;
+  await renderCalDayOverlay();
+}
+
+async function generateCalDayEntry() {
+  if (calDayGenerating) return;
+  calDayGenerating = true;
+
+  const btn = document.getElementById('cal-gen-btn');
+  if (btn) btn.disabled = true;
+
+  document.getElementById('cal-day-content').innerHTML = `
+    <div class="generating-block">
+      <div class="gen-spinner"></div>
+      <div class="gen-label">Generating ${PILLAR_LABELS[calDayActivePillar]} entry…</div>
+    </div>`;
+
+  try {
+    const entry = await generateEntry(calDayKey, calDayActivePillar);
+    await saveEntry(calDayKey, calDayActivePillar, entry);
+    calDayGenerating = false;
+    await renderCalDayOverlay();
+  } catch(e) {
+    document.getElementById('cal-day-content').innerHTML =
+      `<div class="generating-block"><div class="gen-label" style="color:var(--forge)">Generation failed. Check connection and retry.</div></div>`;
+    calDayGenerating = false;
+    if (btn) btn.disabled = false;
+  }
+}
+
+// ── ARCHIVE VIEW ─────────────────────────────────────────────────
+async function renderArchive() {
+  const allEntries = await loadAllEntries();
+  const av = document.getElementById('archive-view');
+
+  // Flatten to list: [{dateKey, pillar, entry}] sorted newest first
+  const items = [];
+  for (const [dateKey, pillars] of Object.entries(allEntries)) {
+    for (const [pillar, entry] of Object.entries(pillars)) {
+      items.push({dateKey, pillar, entry});
+    }
+  }
+  items.sort((a,b) => b.dateKey.localeCompare(a.dateKey) || PILLARS.indexOf(a.pillar) - PILLARS.indexOf(b.pillar));
+
+  const today = todayKey();
+  const pastItems = items.filter(i => i.dateKey !== today);
+
+  av.innerHTML = `
+    <div class="history-header">
+      <div class="history-title">Archive</div>
+      <div class="history-count">${pastItems.length} entr${pastItems.length!==1?'ies':'y'}</div>
+    </div>
+    ${pastItems.length === 0
+      ? `<div class="history-empty">No past entries yet. Return tomorrow.</div>`
+      : `<div class="history-list">${pastItems.map(({dateKey, pillar, entry}) => `
+          <div class="history-item" onclick="openDetail('${dateKey}','${pillar}')">
+            <div class="history-date">${dateKeyToShort(dateKey)}</div>
+            <div class="history-verse-col">
+              <div class="history-verse">"${entry.verse}"</div>
+              <div class="history-meta">${entry.title} · ${entry.ref}</div>
+            </div>
+            <div><span class="history-pillar ${pillar}">${PILLAR_LABELS[pillar]}</span></div>
+          </div>`).join('')}
+        </div>`
+    }`;
+}
+
+// ── DETAIL OVERLAY (archive) ─────────────────────────────────────
+function openDetail(dateKey, pillar) {
+  const overlay = document.getElementById('detail-overlay');
+  // We need to load from storage async
+  getEntry(dateKey, pillar).then(entry => {
+    if (!entry) return;
+    document.getElementById('detail-content').innerHTML =
+      `<div class="detail-date-label">${dateKeyToDisplay(dateKey)}</div>` + renderVerseBlock(entry);
+    overlay.style.display = 'block';
+    overlay.scrollTop = 0;
+  });
+}
+function closeDetail() { document.getElementById('detail-overlay').style.display = 'none'; }
+document.getElementById('detail-overlay').addEventListener('click', function(e){ if(e.target===this) closeDetail(); });
+document.getElementById('cal-day-overlay').addEventListener('click', function(e){ if(e.target===this) closeCalDay(); });
+
+// ── EXPORT ───────────────────────────────────────────────────────
+async function exportEntries() {
+  const allEntries = await loadAllEntries();
+  const lines = ['STEADFAST — EXPORTED ENTRIES', `Generated: ${new Date().toLocaleDateString()}`, '='.repeat(60), ''];
+
+  const sorted = Object.entries(allEntries).sort((a,b) => a[0].localeCompare(b[0]));
+  for (const [dateKey, pillars] of sorted) {
+    for (const pillar of PILLARS) {
+      const e = pillars[pillar];
+      if (!e) continue;
+      lines.push(`DATE: ${dateKeyToDisplay(dateKey)}`);
+      lines.push(`PILLAR: ${PILLAR_LABELS[pillar].toUpperCase()}`);
+      lines.push(`TITLE: ${e.title}`);
+      lines.push(`VERSE: "${e.verse}"`);
+      lines.push(`REF: ${e.ref}`);
+      lines.push('');
+      lines.push('REFLECT');
+      lines.push(e.reflect);
+      lines.push('');
+      lines.push('RECALIBRATE');
+      lines.push(e.recalibrate);
+      lines.push('');
+      lines.push('ENTER THE DAY');
+      lines.push(e.enter);
+      lines.push('');
+      lines.push('-'.repeat(60));
+      lines.push('');
+    }
+  }
+
+  const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `steadfast-entries-${todayKey()}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── VIEW ROUTER ──────────────────────────────────────────────────
+function showView(view) {
+  ['today','calendar','archive'].forEach(v => {
+    document.getElementById(`${v}-view`).style.display = v===view ? 'block' : 'none';
+    document.getElementById(`btn-${v}`).classList.toggle('active', v===view);
+  });
+  if (view === 'calendar') initCalendar();
+  if (view === 'archive') renderArchive();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+checkKeyAndInit();
+</script>
+</body>
+</html>
